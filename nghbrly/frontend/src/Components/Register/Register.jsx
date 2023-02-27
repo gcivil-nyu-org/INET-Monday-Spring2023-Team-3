@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import bg from "../../static/bg.jpg";
 import Logo from "../../static/logo.svg";
+import { toast } from "react-toastify";
 
 function Register() {
   const history = useHistory();
@@ -62,21 +63,24 @@ function Register() {
     return flag;
   };
 
-  const register = () => {
+  const register = async () => {
     if (!hasSubmittedOnce) setHasSubmittedOnce(true);
     if (verify(true)) {
-      axios.post(`${process.env.REACT_APP_SERVER_URL_PREFIX}/api/register/`, {
-        username,
-        email,
-        password,
-      });
+      try {
+        await axios.post(
+          `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/register/`,
+          {
+            username,
+            email,
+            password,
+          }
+        );
+        toast.success("Your account has been registered. Please log in to continue.");
+        history.replace("/login");
+      } catch (e) {
+        toast.error("Something went wrong 🙁");
+      }
     }
-
-    axios.get(`${process.env.REACT_APP_SERVER_URL_PREFIX}/api/verify/`, {
-      headers: {
-        Authorization: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InJhbmRvbXVzZXJuYW1lIn0.6uuRe2cJtBk3LJM-LWp_MbWukIe1ry1QbeGXFwbfQl8`,
-      },
-    });
   };
 
   useEffect(() => {

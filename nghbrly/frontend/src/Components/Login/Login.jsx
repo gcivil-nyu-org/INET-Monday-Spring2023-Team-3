@@ -102,7 +102,7 @@ function Login() {
             }}
           >
             <h1>Welcome!</h1>
-            <p>Sign up below to get started</p>
+            <p>Log in below to get started</p>
             <div style={{ display: "flex", flexDirection: "column" }}>
               <TextInput
                 style={{ marginTop: 16 }}

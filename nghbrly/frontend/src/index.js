@@ -15,6 +15,8 @@ import Login from "./Components/Login/Login";
 import decode from "jwt-decode";
 import Home from "./Components/Home/Home";
 import axios from "axios";
+import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer } from "react-toastify";
 
 axios.interceptors.request.use(function (config) {
   const token = localStorage.getItem("jwt");
@@ -57,6 +59,7 @@ const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <Provider store={store}>
     <React.StrictMode>
+      <ToastContainer />
       <Router>
         <Switch>
           <PrivateRoute path="/" exact component={Home} />
