@@ -29,7 +29,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['nghbrly.eba-qcpx8k2g.us-east-1.elasticbeanstalk.com',
+ALLOWED_HOSTS = ['nghbrly.eba-qcpx8k2g.us-east-1.elasticbeanstalk.com', '18.210.243.246',
                  '127.0.0.1', 'localhost']
 
 
@@ -42,7 +42,10 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    'corsheaders',
+    'rest_framework',
     'home.apps.HomeConfig',
+    'api',
 ]
 
 MIDDLEWARE = [
@@ -53,6 +56,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = "nghbrly.urls"
@@ -60,7 +64,7 @@ ROOT_URLCONF = "nghbrly.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [os.path.join(BASE_DIR, "frontend-build")],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -118,7 +122,24 @@ USE_TZ = True
 STATIC_URL = "/static/"
 STATIC_ROOT = "static/"
 
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'frontend-build', 'static')
+]
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+CORS_ORIGIN_WHITELIST = [
+     'http://localhost:3000',
+     'http://localhost:8000',
+     'http://nghbrly.eba-qcpx8k2g.us-east-1.elasticbeanstalk.com'
+]
+
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+    )
+}
