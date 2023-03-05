@@ -19,13 +19,13 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.shortcuts import render
 
+
 def render_react(request):
     return render(request, "index.html")
 
-urlpatterns = [
-    path("admin/", admin.site.urls),
-    path('api/', include('api.urls')),
-] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + [
-    re_path(r"^$", render_react),
-    re_path(r"^(?:.*)/?$", render_react),
-]
+
+urlpatterns = (
+    [path("admin/", admin.site.urls), path("api/", include("api.urls"))]
+    + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    + [re_path(r"^$", render_react), re_path(r"^(?:.*)/?$", render_react)]
+)

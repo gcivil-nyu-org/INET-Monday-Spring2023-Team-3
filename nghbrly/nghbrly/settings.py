@@ -9,12 +9,11 @@ https://docs.djangoproject.com/en/4.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
+from pathlib import Path
 from dotenv import load_dotenv
 import os
 
 load_dotenv()
-
-from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -24,13 +23,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY')
+SECRET_KEY = os.environ.get("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['nghbrly.eba-qcpx8k2g.us-east-1.elasticbeanstalk.com', '18.210.243.246',
-                 '127.0.0.1', 'localhost']
+ALLOWED_HOSTS = [
+    "nghbrly.eba-qcpx8k2g.us-east-1.elasticbeanstalk.com",
+    "18.210.243.246",
+    "127.0.0.1",
+    "localhost",
+]
 
 
 # Application definition
@@ -42,10 +45,10 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    'corsheaders',
-    'rest_framework',
-    'home.apps.HomeConfig',
-    'api',
+    "corsheaders",
+    "rest_framework",
+    "home.apps.HomeConfig",
+    "api",
 ]
 
 MIDDLEWARE = [
@@ -56,7 +59,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    'corsheaders.middleware.CorsMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
 ]
 
 ROOT_URLCONF = "nghbrly.urls"
@@ -96,11 +99,11 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",  # noqa E501
     },
-    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",},
-    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",},
-    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",},
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
 
@@ -122,9 +125,7 @@ USE_TZ = True
 STATIC_URL = "/static/"
 STATIC_ROOT = "static/"
 
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'frontend-build', 'static')
-]
+STATICFILES_DIRS = [os.path.join(BASE_DIR, "frontend-build", "static")]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
@@ -133,13 +134,11 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
 CORS_ORIGIN_WHITELIST = [
-     'http://localhost:3000',
-     'http://localhost:8000',
-     'http://nghbrly.eba-qcpx8k2g.us-east-1.elasticbeanstalk.com'
+    "http://localhost:3000",
+    "http://localhost:8000",
+    "http://nghbrly.eba-qcpx8k2g.us-east-1.elasticbeanstalk.com",
 ]
 
 REST_FRAMEWORK = {
-    'DEFAULT_RENDERER_CLASSES': (
-        'rest_framework.renderers.JSONRenderer',
-    )
+    "DEFAULT_RENDERER_CLASSES": ("rest_framework.renderers.JSONRenderer",)
 }
