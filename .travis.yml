@@ -8,15 +8,15 @@ install:
   - pip install -r requirements.txt
 
 before_script:
-  - cd nghbrly
   - python manage.py migrate
 
 script:
-  - black --check .
-  - flake8 .
-  - coverage run manage.py test
+  - python -m black . --check
+  - python -m flake8
+  - python -m coverage run --source='.' manage.py test
 
-after_success: coveralls
+after_success:
+  - coveralls
 
 deploy:
   provider: elasticbeanstalk
