@@ -1,5 +1,4 @@
 .venv
-*.env
 *.DS_Store
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
