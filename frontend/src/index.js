@@ -18,6 +18,7 @@ import axios from "axios";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 import RecoverVerify from "./Components/RecoverVerify/RecoverVerify";
+import OAuth from "./Components/OAuth/OAuth";
 
 axios.interceptors.request.use(function (config) {
   const token = localStorage.getItem("jwt");
@@ -72,6 +73,9 @@ root.render(
           </Route>
           <Route exact path="/recover/:token">
             <RecoverVerify />
+          </Route>
+          <Route path="/google-redirect/">
+            <OAuth />
           </Route>
           <Route path="/404" component={ErrorPage} />
           <Redirect to="/404" />

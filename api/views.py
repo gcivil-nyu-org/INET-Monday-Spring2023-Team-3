@@ -1,3 +1,4 @@
+from random_username.generate import generate_username
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -7,8 +8,10 @@ from django.conf import settings
 from .models import User, OTP_Request, RecoverRequest
 from .decorators import is_protected_route
 import jwt
+import json
 import math
 import random
+import requests
 from datetime import datetime, timezone
 
 SECRET_KEY = settings.SECRET_KEY
@@ -249,6 +252,34 @@ def update_password(request):
         print(e)
         return Response(status=status.HTTP_400_BAD_REQUEST)
     return Response(status=status.HTTP_200_OK)
+
+
+@api_view(["POST"])
+def google_verify(request, format=None):
+    try:
+        url = f'https://www.googleapis.com/oauth2/v3/tokeninfo?access_token={request.data["access_token"]}'
+        response = requests.get(url)
+        response_dict = json.loads(response.text)
+        try:
+            user = User.objects.get(email=response_dict["email"])
+        except Exception as e:
+            print(e)
+            user = User.objects.create(
+                username=generate_username(1)[0],
+                email=response_dict["email"],
+                verified=True,
+            )
+        encoded_jwt = jwt.encode(
+            {"username": user.username}, SECRET_KEY, algorithm="HS256"
+        )
+        return Response(
+            {"success": True, "jwt": encoded_jwt, "verified": True},
+            status=status.HTTP_201_CREATED,
+        )
+
+    except Exception as e:
+        print(e)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["GET"])
