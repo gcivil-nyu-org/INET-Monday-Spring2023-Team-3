@@ -212,6 +212,7 @@ def verify_recovery(request):
         rr = RecoverRequest.objects.get(user=user, token=encoded_jwt)
         if (
             not rr
+            or rr.used
             or (
                 datetime.now() - datetime.fromtimestamp(decoded_jwt["created_at"])
             ).total_seconds()
