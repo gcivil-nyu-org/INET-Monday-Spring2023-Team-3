@@ -17,6 +17,7 @@ import Home from "./Components/Home/Home";
 import axios from "axios";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
+import RecoverVerify from "./Components/RecoverVerify/RecoverVerify";
 
 axios.interceptors.request.use(function (config) {
   const token = localStorage.getItem("jwt");
@@ -68,6 +69,9 @@ root.render(
           </Route>
           <Route exact path="/login">
             <Login />
+          </Route>
+          <Route exact path="/recover/:token">
+            <RecoverVerify />
           </Route>
           <Route path="/404" component={ErrorPage} />
           <Redirect to="/404" />
