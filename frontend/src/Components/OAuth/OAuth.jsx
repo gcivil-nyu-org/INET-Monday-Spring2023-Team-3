@@ -4,16 +4,15 @@ import { useHistory } from "react-router-dom";
 
 function OAuth() {
   const history = useHistory();
-  const [hash, setHash] = useState("");
   const login = async () => {
-    const hash = window.location.hash.substr(1);
-    const result = hash.split("&").reduce(function (res, item) {
-      const parts = item.split("=");
-      res[parts[0]] = parts[1];
-      return res;
-    }, {});
-
     try {
+      const hash = window.location.hash.substr(1);
+      const result = hash.split("&").reduce(function (res, item) {
+        const parts = item.split("=");
+        res[parts[0]] = parts[1];
+        return res;
+      }, {});
+
       const { data } = await axios.post(
         `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/google-oauth/`,
         result
@@ -32,7 +31,7 @@ function OAuth() {
   useEffect(() => {
     login();
   });
-  return <div>asdf</div>;
+  return <div></div>;
 }
 
 export default OAuth;
