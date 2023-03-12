@@ -1,0 +1,11 @@
+.venv
+*.env
+*.DS_Store
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
+*.log
+*.pot
+*.pyc
+__pycache__
+frontend

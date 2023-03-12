@@ -1,0 +1,30 @@
+language: python
+python:
+  - "3.7"
+env:
+  - DJANGO=2.2
+
+install:
+  - pip install -r requirements.txt
+
+before_script:
+  - python manage.py migrate
+
+script:
+  - python -m black . --check
+  - python -m flake8
+  - python -m coverage run --source='.' manage.py test
+
+after_success:
+  - coveralls
+
+deploy:
+  provider: elasticbeanstalk
+  access_key_id: $AWS_ACCESS
+  secret_access_key: $AWS_SECRET_KEY
+  region: "us-east-1"
+  app: "swe-assignment"
+  env: "swe-assignment-env"
+  bucket_name: "elasticbeanstalk-us-east-1-006335820833"
+  on:
+    branch: CI/CD_Dev
