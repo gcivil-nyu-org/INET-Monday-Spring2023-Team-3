@@ -41,10 +41,10 @@ class Point(models.Model):
 
 
 class CrawlPoint(models.Model):
-    crawl = models.ForeignKey("Crawl", on_delete=models.SET_NULL)
-    point = models.ForeignKey("Point", on_delete=models.SET_NULL)
+    crawl = models.ForeignKey("Crawl", null=True, on_delete=models.SET_NULL)
+    point = models.ForeignKey("Point", null=True, on_delete=models.SET_NULL)
 
 
 class CrawlTag(models.Model):
-    tag = models.ForeignKey("Tag", on_delete=models.SET_NULL)
-    point = models.ForeignKey("Crawl", on_delete=models.SET_NULL)
+    tag = models.ForeignKey("Tag", null=True, on_delete=models.SET_NULL)
+    point = models.ForeignKey("Crawl", null=True, on_delete=models.SET_NULL)
