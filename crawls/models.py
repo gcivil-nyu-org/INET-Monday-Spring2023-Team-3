@@ -5,9 +5,7 @@ from django.db import models
 
 class Tag(models.Model):
     title = models.CharField(max_length=200)
-    crawls = models.ManyToManyField(
-        'Crawl', through='CrawlTag', blank=True
-        )
+    crawls = models.ManyToManyField("Crawl", through="CrawlTag", blank=True)
 
     def __str__(self):
         return self.title
@@ -18,12 +16,8 @@ class Crawl(models.Model):
     author = models.CharField(max_length=200)
     created_at = models.DateTimeField(auto_now_add=True)
     description = models.TextField(max_length=500, null=True)
-    tags = models.ManyToManyField(
-        'Tag', through='CrawlTag', blank=True
-        )
-    points = models.ManyToManyField(
-        'Point', through='CrawlPoint', blank=True
-        )
+    tags = models.ManyToManyField("Tag", through="CrawlTag", blank=True)
+    points = models.ManyToManyField("Point", through="CrawlPoint", blank=True)
     # Number_of_point = models.IntegerField()
     # Total_length_in_miles = models.FloatField()
 
@@ -40,19 +34,17 @@ class Point(models.Model):
     latitude = models.FloatField(null=True)
     description = models.TextField(max_length=500, null=True)
     address = models.TextField(max_length=200, null=True)  # until we figure out GM API
-    crawls = models.ManyToManyField(
-        'Crawl', through='CrawlPoint', blank=True
-        )
+    crawls = models.ManyToManyField("Crawl", through="CrawlPoint", blank=True)
 
     def __str__(self):
         return self.name
 
 
 class CrawlPoint(models.Model):
-    crawl = models.ForeignKey('Crawl', on_delete=models.CASCADE)
-    point = models.ForeignKey('Point', on_delete=models.CASCADE)
+    crawl = models.ForeignKey("Crawl", on_delete=models.SET_NULL)
+    point = models.ForeignKey("Point", on_delete=models.SET_NULL)
 
 
 class CrawlTag(models.Model):
-    tag = models.ForeignKey('Tag', on_delete=models.CASCADE)
-    point = models.ForeignKey('Crawl', on_delete=models.CASCADE)
+    tag = models.ForeignKey("Tag", on_delete=models.SET_NULL)
+    point = models.ForeignKey("Crawl", on_delete=models.SET_NULL)
