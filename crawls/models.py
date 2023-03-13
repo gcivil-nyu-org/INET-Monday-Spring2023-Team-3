@@ -3,15 +3,6 @@ from django.db import models
 # Create your models here.
 
 
-class User(models.Model):
-    username = models.TextField()
-    email = models.TextField()
-    password = models.TextField()
-
-    def _str_(self):
-        return self.username
-
-
 class Tag(models.Model):
     title = models.CharField(max_length=200)
     # tag = models.ManyToManyField('Tag', through='TagPoint')
@@ -25,9 +16,9 @@ class Crawl(models.Model):
     author = models.CharField(max_length=200)
     created_at = models.DateTimeField(auto_now_add=True)
     description = models.TextField(max_length=500, null=True)
-    tags = models.ManyToManyField(Tag, null=True)
+    tags = models.ManyToManyField(Tag, blank=True)
     points = models.ManyToManyField(
-        'Point', through='CrawlPoint', null=True, blank=True
+        'Point', through='CrawlPoint', blank=True
         )
     # Number_of_point = models.IntegerField()
     # Total_length_in_miles = models.FloatField()
@@ -46,7 +37,7 @@ class Point(models.Model):
     description = models.TextField(max_length=500, null=True)
     address = models.TextField(max_length=200, null=True)  # until we figure out GM API
     crawls = models.ManyToManyField(
-        'Crawl', through='CrawlPoint', null=True, blank=True
+        'Crawl', through='CrawlPoint', blank=True
         )
 
     def _str_(self):
