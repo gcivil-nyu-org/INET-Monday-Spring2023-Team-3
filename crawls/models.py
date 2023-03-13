@@ -5,7 +5,9 @@ from django.db import models
 
 class Tag(models.Model):
     title = models.CharField(max_length=200)
-    # tag = models.ManyToManyField('Tag', through='TagPoint')
+    crawls = models.ManyToManyField(
+        'Crawl', through='CrawlTag', blank=True
+        )
 
     def __str__(self):
         return self.title
@@ -16,14 +18,16 @@ class Crawl(models.Model):
     author = models.CharField(max_length=200)
     created_at = models.DateTimeField(auto_now_add=True)
     description = models.TextField(max_length=500, null=True)
-    tags = models.ManyToManyField(Tag, blank=True)
+    tags = models.ManyToManyField(
+        'Tag', through='CrawlTag', blank=True
+        )
     points = models.ManyToManyField(
         'Point', through='CrawlPoint', blank=True
         )
     # Number_of_point = models.IntegerField()
     # Total_length_in_miles = models.FloatField()
 
-    def _str_(self):
+    def __str__(self):
         return self.name
 
 
@@ -40,15 +44,15 @@ class Point(models.Model):
         'Crawl', through='CrawlPoint', blank=True
         )
 
-    def _str_(self):
+    def __str__(self):
         return self.name
 
 
 class CrawlPoint(models.Model):
-    crawl = models.ForeignKey(Crawl, on_delete=models.CASCADE)
-    point = models.ForeignKey(Point, on_delete=models.CASCADE)
+    crawl = models.ForeignKey('Crawl', on_delete=models.CASCADE)
+    point = models.ForeignKey('Point', on_delete=models.CASCADE)
 
 
-class TagPoint(models.Model):
-    tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
-    point = models.ForeignKey(Point, on_delete=models.CASCADE)
+class CrawlTag(models.Model):
+    tag = models.ForeignKey('Tag', on_delete=models.CASCADE)
+    point = models.ForeignKey('Crawl', on_delete=models.CASCADE)

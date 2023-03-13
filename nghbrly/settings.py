@@ -49,7 +49,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "home.apps.HomeConfig",
     "api",
-    "crawls",
+    "crawls.apps.CrawlsConfig",
 ]
 
 MIDDLEWARE = [
