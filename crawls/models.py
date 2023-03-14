@@ -12,7 +12,7 @@ class Tag(models.Model):
 
 
 class Crawl(models.Model):
-    name = models.CharField(max_length=200)
+    title = models.CharField(max_length=200)
     author = models.CharField(max_length=200)
     created_at = models.DateTimeField(auto_now_add=True)
     description = models.TextField(max_length=500, null=True)
@@ -20,13 +20,14 @@ class Crawl(models.Model):
     points = models.ManyToManyField("Point", through="CrawlPoint", blank=True)
     # Number_of_point = models.IntegerField()
     # Total_length_in_miles = models.FloatField()
+    # picture = models.ImageField(upload_to='...')
 
     def __str__(self):
         return self.name
 
 
 class Point(models.Model):
-    name = models.CharField(max_length=200)
+    title = models.CharField(max_length=200)
     google_place_id = models.TextField(null=True)  # until we figure out GMaps API
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
@@ -35,6 +36,7 @@ class Point(models.Model):
     description = models.TextField(max_length=500, null=True)
     address = models.TextField(max_length=200, null=True)  # until we figure out GM API
     crawls = models.ManyToManyField("Crawl", through="CrawlPoint", blank=True)
+    # picture = models.ImageField(upload_to='...')
 
     def __str__(self):
         return self.name
@@ -43,8 +45,14 @@ class Point(models.Model):
 class CrawlPoint(models.Model):
     crawl = models.ForeignKey("Crawl", null=True, on_delete=models.SET_NULL)
     point = models.ForeignKey("Point", null=True, on_delete=models.SET_NULL)
+    """
+    will have to check for nulls in templates
+    """
 
 
 class CrawlTag(models.Model):
     tag = models.ForeignKey("Tag", null=True, on_delete=models.SET_NULL)
     point = models.ForeignKey("Crawl", null=True, on_delete=models.SET_NULL)
+    """
+    will have to check for nulls in templates
+    """
