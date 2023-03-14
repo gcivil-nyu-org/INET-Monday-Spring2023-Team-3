@@ -39,7 +39,7 @@ class PointListView(ListView):
 
 class PointDeleteView(DeleteView):
     model = Point
-    success_url = '/'  # placeholder, defines redirect after deletion
+    success_url = "/"  # placeholder, defines redirect after deletion
     # template_name = ''
 
     """
@@ -84,7 +84,7 @@ class CrawlListView(ListView):
 
 class CrawlDeleteView(DeleteView):
     model = Crawl
-    success_url = '/'  # placeholder, defines redirect after deletion
+    success_url = "/"  # placeholder, defines redirect after deletion
     # template_name = ''
 
     """
