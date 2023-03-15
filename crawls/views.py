@@ -19,7 +19,7 @@ def point(request, format=None):
     except Point.DoesNotExist:
         return Response(
             {"error": "point does not exist"}, status=status.HTTP_400_BAD_REQUEST
-        )
+        )  # change to redirect?
 
     data = {
         "title": point.title,
@@ -46,7 +46,7 @@ def point_create(request):
     if point:
         return Response(
             {"error": "point already exists"}, status=status.HTTP_400_BAD_REQUEST
-        )
+        )  # change to redirect?
     data = {
         "title": request.data["title"],
         "description": request.data["description"],
@@ -76,7 +76,7 @@ def point_delete(request):
     except Point.DoesNotExist:
         return Response(
             {"error": "point does not exist"}, status=status.HTTP_400_BAD_REQUEST
-        )
+        )  # change to redirect?
     point.delete()
     return Response(status=status.HTTP_202_ACCEPTED)  # need to return data?
 
@@ -91,7 +91,7 @@ def crawl(request, format=None):
     except Crawl.DoesNotExist:
         return Response(
             {"error": "crawl does not exist"}, status=status.HTTP_400_BAD_REQUEST
-        )
+        )  # change to redirect?
 
     data = {
         "title": crawl.title,
@@ -113,7 +113,7 @@ def crawl_create(request):
     if crawl:
         return Response(
             {"error": "crawl already exists"}, status=status.HTTP_400_BAD_REQUEST
-        )
+        )  # change to redirect?
     data = {
         "title": request.data["title"],
         "description": request.data["description"],
@@ -137,6 +137,6 @@ def crawl_delete(request):
     except Crawl.DoesNotExist:
         return Response(
             {"error": "crawl does not exist"}, status=status.HTTP_400_BAD_REQUEST
-        )
+        )  # change to redirect?
     crawl.delete()
     return Response(status=status.HTTP_202_ACCEPTED)
