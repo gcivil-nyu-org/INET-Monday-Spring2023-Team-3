@@ -140,9 +140,9 @@ def crawl_delete(request):
     delete crawl
     """
     crawl = Crawl.objects.filter(title=request.data["title"]).exists()
-    if crawl:
+    if not crawl:
         return Response(
-            {"error": "crawl already exists"}, status=status.HTTP_400_BAD_REQUEST
+            {"error": "crawl does not exist"}, status=status.HTTP_400_BAD_REQUEST
         )
     data = {
         "title": request.data["title"],
