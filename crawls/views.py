@@ -30,7 +30,7 @@ def point(request, format=None):
         "longitude": point.longitude,
         "latitude": point.latitude,
         "created_at": point.created_at,
-        "updated_at": point.updated_at,
+        "updated_at": point.updated_at
     }
     return Response(data)
 
@@ -56,7 +56,7 @@ def point_create(request):
         "longitude": request.data["longitude"],
         "latitude": request.data["latitude"],
         "created_at": request.data["created_at"],
-        "updated_at": request.data["updated_at"],
+        "updated_at": request.data["updated_at"]
     }
     point = Point.objects.create(**data)
     return Response(point, status=status.HTTP_201_CREATED)
@@ -82,9 +82,9 @@ def point_delete(request):
         "longitude": request.data["longitude"],
         "latitude": request.data["latitude"],
         "created_at": request.data["created_at"],
-        "updated_at": request.data["updated_at"],
+        "updated_at": request.data["updated_at"]
     }
-    point = Point.objects.create(**data)
+    point = Point.objects.delete(**data)
     return Response(data, status=status.HTTP_201_CREATED)  # need to return data?
 
 
@@ -106,7 +106,7 @@ def crawl(request, format=None):
         "points": crawl.points,  # MtM attribute, may need a separate query for this
         "tags": crawl.tags,  # MtM attribute, may need a separate query for this
         "created_at": crawl.created_at,
-        "updated_at": crawl.updated_at,
+        "updated_at": crawl.updated_at
     }
     return Response(data)
 
@@ -128,7 +128,7 @@ def crawl_create(request):
         "points": request.data["points"],  # MtM attribute
         "tags": request.data["tags"],  # MtM attribute
         "created_at": request.data["created_at"],
-        "updated_at": request.data["updated_at"],
+        "updated_at": request.data["updated_at"]
     }
     crawl = Crawl.objects.create(**data)
     return Response(data, status=status.HTTP_201_CREATED)  # need to return data?
@@ -151,7 +151,7 @@ def crawl_delete(request):
         "points": request.data["points"],  # MtM attribute
         "tags": request.data["tags"],  # MtM attribute
         "created_at": request.data["created_at"],
-        "updated_at": request.data["updated_at"],
+        "updated_at": request.data["updated_at"]
     }
     crawl = Crawl.objects.delete(**data)
     return Response(data, status=status.HTTP_201_CREATED)  # need to return data?
