@@ -137,7 +137,7 @@ def crawl_create(request):
 @api_view(["POST"])
 def crawl_delete(request):
     """
-    create crawl
+    delete crawl
     """
     crawl = Crawl.objects.filter(title=request.data["title"]).exists()
     if crawl:
