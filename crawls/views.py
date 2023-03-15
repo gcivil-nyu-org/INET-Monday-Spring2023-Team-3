@@ -68,24 +68,17 @@ def point_delete(request):
     Delete point
     Should query by google place id instead of title when Maps API is up and running
     """
-    point = Point.objects.filter(title=request.data["title"]).exists()
-    if not point:
+    try:
+        point = Point.objects.get(title=request.data["title"])
+        # point = Point.objects.get(
+        # google_place_id=request.google_place_id["google_place_id"]
+        # )
+    except Point.DoesNotExist:
         return Response(
             {"error": "point does not exist"}, status=status.HTTP_400_BAD_REQUEST
         )
-    data = {
-        "title": request.data["title"],
-        "description": request.data["description"],
-        "google_place_id": request.data["google_place_id"],
-        "address": request.data["address"],
-        "crawls": request.data["crawls"],  # MtM attribute
-        "longitude": request.data["longitude"],
-        "latitude": request.data["latitude"],
-        "created_at": request.data["created_at"],
-        "updated_at": request.data["updated_at"]
-    }
-    point = Point.objects.delete(**data)
-    return Response(data, status=status.HTTP_201_CREATED)  # need to return data?
+    point.delete()
+    return Response(status=status.HTTP_202_ACCEPTED)  # need to return data?
 
 
 @api_view(["GET"])
@@ -139,19 +132,11 @@ def crawl_delete(request):
     """
     delete crawl
     """
-    crawl = Crawl.objects.filter(title=request.data["title"]).exists()
-    if not crawl:
+    try:
+        crawl = Crawl.objects.get(title=request.data["title"])
+    except Crawl.DoesNotExist:
         return Response(
             {"error": "crawl does not exist"}, status=status.HTTP_400_BAD_REQUEST
         )
-    data = {
-        "title": request.data["title"],
-        "description": request.data["description"],
-        "address": request.data["address"],
-        "points": request.data["points"],  # MtM attribute
-        "tags": request.data["tags"],  # MtM attribute
-        "created_at": request.data["created_at"],
-        "updated_at": request.data["updated_at"]
-    }
-    crawl = Crawl.objects.delete(**data)
-    return Response(data, status=status.HTTP_201_CREATED)  # need to return data?
+    crawl.delete()
+    return Response(status=status.HTTP_202_ACCEPTED)
