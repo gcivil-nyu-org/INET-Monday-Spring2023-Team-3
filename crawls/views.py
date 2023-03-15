@@ -1,177 +1,157 @@
-from django.views.generic.detail import DetailView
-from django.views.generic.list import ListView
-from django.views.generic.edit import DeleteView, CreateView, UpdateView
+from rest_framework import status
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 from crawls.models import Point, Crawl  # , Tag
 
 
-class PointDetailView(DetailView):
-    model = Point
-    context_object_name = "point"
-
-    # template_name = ''  by default will look under crawls/templates/point_detail.html
-
+@api_view(["GET"])
+def point(request, format=None):
     """
-    should return an object called 'point' which you can reference in the template
-            e.g. point.<attribute>
-
-    URL generally includes pk or slug to identify point object and.as_view(), e.g.:
-    path('point/<int:pk>', views.PointDetailView.as_view(), name='point_detail')
-
-    we can override get_context_data() for the detail views if we want to add
-    information to the object that gets passed to the template:
-        https://docs.djangoproject.com/en/4.1/ref/class-based-views/generic-display/
+    get a point object
+    Should query by google_place_id instead of title when Maps API is up and running
     """
 
+    try:
+        point = Point.objects.get(title=request.data["title"])
+        # point = Point.objects.get(
+        # google_place_id=request.google_place_id["google_place_id"]
+        # )
+    except Point.DoesNotExist:
+        return Response(
+            {"error": "point does not exist"}, status=status.HTTP_400_BAD_REQUEST
+        )
 
-class PointListView(ListView):
-    model = Point
-    paginate_by = 25  # objects per page, 25 is arbitrary choice
-    context_object_name = "points"
-    # template_name = '' by default will look under crawls/templates/point_list.html
+    data = {
+        "title": point.title,
+        "description": point.description,
+        "google_place_id": point.google_place_id,
+        "address": point.address,
+        "crawls": point.crawls,  # MtM attribute, may need a separate query for this
+        "longitude": point.longitude,
+        "latitude": point.latitude,
+        "created_at": point.created_at,
+        "updated_at": point.updated_at,
+    }
+    return Response(data)
 
+
+@api_view(["POST"])
+def point_create(request):
     """
-    returns a list called 'point' (default 'object_list')
-    populated with point objects that
-    you can reference in the template
+    Create Point
 
-    DTL has built-in functions to deal with pagination if you want to use that:
-        https://docs.djangoproject.com/en/4.1/topics/pagination/
-
-    we can override get_queryset() to filter the object_list, e.g.
-
-    url e.g.
-    path('points', views.PointListView.as_view(), name='point_list')
+    Should query by google place id instead of title when Maps API is up and running
     """
+    point = Point.objects.filter(title=request.data["title"]).exists()
+    if point:
+        return Response(
+            {"error": "point already exists"}, status=status.HTTP_400_BAD_REQUEST
+        )
+    data = {
+        "title": request.data["title"],
+        "description": request.data["description"],
+        "google_place_id": request.data["google_place_id"],
+        "address": request.data["address"],
+        "crawls": request.data["crawls"],  # MtM attribute
+        "longitude": request.data["longitude"],
+        "latitude": request.data["latitude"],
+        "created_at": request.data["created_at"],
+        "updated_at": request.data["updated_at"],
+    }
+    point = Point.objects.create(**data)
+    return Response(point, status=status.HTTP_201_CREATED)
 
 
-class PointCreateView(CreateView):
-    model = Point
-    fields = [
-        "title",
-        "description",
-        "google_place_id",
-        "longitude," "latitude",
-        "address",
-    ]
-    success_url = "/"
-    # template_name = ''
-
+@api_view(["POST"])
+def point_delete(request):
     """
-    will allow you to edit all these fields, should probably only let the user touch
-    description and title, fill in the rest with fields from Google Maps place object
-    for now maybe worth just filling them in manually to debug then work out API
-
-    overriding get_success_url() may be a better option than success_url
+    Delete point
+    Should query by google place id instead of title when Maps API is up and running
     """
+    point = Point.objects.filter(title=request.data["title"]).exists()
+    if not point:
+        return Response(
+            {"error": "point does not exist"}, status=status.HTTP_400_BAD_REQUEST
+        )
+    data = {
+        "title": request.data["title"],
+        "description": request.data["description"],
+        "google_place_id": request.data["google_place_id"],
+        "address": request.data["address"],
+        "crawls": request.data["crawls"],  # MtM attribute
+        "longitude": request.data["longitude"],
+        "latitude": request.data["latitude"],
+        "created_at": request.data["created_at"],
+        "updated_at": request.data["updated_at"],
+    }
+    point = Point.objects.create(**data)
+    return Response(data, status=status.HTTP_201_CREATED)  # need to return data?
 
 
-class PointUpdateView(UpdateView):
-    model = Point
-    fields = [
-        "title",
-        "description",
-        "google_place_id",
-        "longitude," "latitude",
-        "address",
-    ]
-    success_url = "/"
-    # template_name = ''
-
+@api_view(["GET"])
+def crawl(request, format=None):
     """
-    Works largely the same as create view, just pulls existing object from the DB first
-
-    overriding get_success_url() may be a better option than success_url
+    get a crawl object
     """
+    try:
+        crawl = Crawl.objects.get(title=request.data["title"])
+    except Crawl.DoesNotExist:
+        return Response(
+            {"error": "crawl does not exist"}, status=status.HTTP_400_BAD_REQUEST
+        )
+
+    data = {
+        "title": crawl.title,
+        "description": crawl.description,
+        "points": crawl.points,  # MtM attribute, may need a separate query for this
+        "tags": crawl.tags,  # MtM attribute, may need a separate query for this
+        "created_at": crawl.created_at,
+        "updated_at": crawl.updated_at,
+    }
+    return Response(data)
 
 
-class PointDeleteView(DeleteView):
-    model = Point
-    success_url = "/"  # placeholder, defines redirect after deletion
-    # template_name = ''
-
+@api_view(["POST"])
+def crawl_create(request):
     """
-    again, URL generally includes pk or slug to identify point object and.as_view(),
-    e.g.:
-        path('point/<int:pk>/delete',
-            views.PointDeleteView.as_view(success_url=reverse_lazy('points:all')),
-            name='point_delete')
-
-    overriding get_success_url() may be a better option than success_url
+    create crawl
     """
+    crawl = Crawl.objects.filter(title=request.data["title"]).exists()
+    if crawl:
+        return Response(
+            {"error": "crawl already exists"}, status=status.HTTP_400_BAD_REQUEST
+        )
+    data = {
+        "title": request.data["title"],
+        "description": request.data["description"],
+        "address": request.data["address"],
+        "points": request.data["points"],  # MtM attribute
+        "tags": request.data["tags"],  # MtM attribute
+        "created_at": request.data["created_at"],
+        "updated_at": request.data["updated_at"],
+    }
+    crawl = Crawl.objects.create(**data)
+    return Response(data, status=status.HTTP_201_CREATED)  # need to return data?
 
 
-class CrawlDetailView(DetailView):
-    model = Crawl
-    context_object_name = "crawl"
-    # template_name = ''  by default will look under crawls/templates/crawl_detail.html
-
+@api_view(["POST"])
+def crawl_delete(request):
     """
-    should return an object called 'crawl' which you can reference in the template
-            e.g. crawl.<attribute>
-
-    URL generally includes pk or slug to identify point object and.as_view(), e.g.:
-    path('crawl/<int:pk>', views.CrawlDetailView.as_view(), name='crawl_detail')
-
-    again can override get_context_data()
+    create crawl
     """
-
-
-class CrawlListView(ListView):
-    model = Crawl
-    paginate_by = 15  # objects per page, 15 is arbitrary choice
-    context_object_name = "crawls"
-    # template_name = '' by default will look under crawls/templates/crawl_list.html
-
-    """
-    returns a list called crawls populated with crawl objects that
-        you can reference in the template
-
-    we can override get_queryset() to filter the crawls, e.g.
-
-    url e.g.
-    path('crawls', views.CrawlListView.as_view(), name='crawl_list')
-    """
-
-
-class CrawlCreateView(CreateView):
-    model = Crawl
-    fields = ["title", "author", "description", "google_place_id", "tags", "points"]
-    success_url = "/"
-    # template_name = ''
-
-    """
-    will allow you to edit all these fields, should probably only let the user touch
-    description and title, fill in the rest with fields from Google Maps place object
-    for now maybe worth just filling them in manually to debug then work out API
-
-    overriding get_success_url() may be a better option than success_url
-    """
-
-
-class CrawlUpdateView(UpdateView):
-    model = Crawl
-    fields = ["title", "author", "description", "google_place_id", "tags", "points"]
-    success_url = "/"
-    # template_name = ''
-
-    """
-    Works largely the same as create view, just pulls existing object from the DB first
-
-    overriding get_success_url() may be a better option than success_url
-    """
-
-
-class CrawlDeleteView(DeleteView):
-    model = Crawl
-    success_url = "/"  # placeholder, defines redirect after deletion
-    # template_name = ''
-
-    """
-    again, URL generally includes pk or slug to identify crawl object and.as_view(),
-    e.g.:
-        path('point/<int:pk>/delete',
-            views.PointDeleteView.as_view(success_url=reverse_lazy('points:all')),
-            name='point_delete')
-
-    overriding get_success_url() may be a better option than success_url
-    """
+    crawl = Crawl.objects.filter(title=request.data["title"]).exists()
+    if crawl:
+        return Response(
+            {"error": "crawl already exists"}, status=status.HTTP_400_BAD_REQUEST
+        )
+    data = {
+        "title": request.data["title"],
+        "description": request.data["description"],
+        "address": request.data["address"],
+        "points": request.data["points"],  # MtM attribute
+        "tags": request.data["tags"],  # MtM attribute
+        "created_at": request.data["created_at"],
+        "updated_at": request.data["updated_at"],
+    }
+    crawl = Crawl.objects.delete(**data)
+    return Response(data, status=status.HTTP_201_CREATED)  # need to return data?
