@@ -23,7 +23,8 @@ def point(request, format=None):
 
     crawl_titles = []  # only need titles for now, dict for more vals
     for crawl in point.crawls.all():
-        crawl_titles.append(crawl.title)
+        if crawl:  # might have nulls in through table
+            crawl_titles.append(crawl.title)
 
     data = {
         "title": point.title,
@@ -101,15 +102,17 @@ def crawl(request, format=None):
 
     tag_titles = []
     for tag in crawl.tags.all():
-        tag_titles.append(tag.title)
+        if tag:  # might have nulls in through table
+            tag_titles.append(tag.title)
 
     point_list = []
     for point in crawl.points.all():
-        point_dict = {}
-        point_dict["title"] = point.title
-        point_dict["google_place_id"] = point.google_place_id
-        point_dict["address"] = point.address
-        point_list.append(point_dict.copy())
+        if point:  # might have nulls in through table
+            point_dict = {}
+            point_dict["title"] = point.title
+            point_dict["google_place_id"] = point.google_place_id
+            point_dict["address"] = point.address
+            point_list.append(point_dict.copy())
 
     data = {
         "title": crawl.title,
@@ -146,8 +149,9 @@ def crawl_create(request):
     if request.data["tags"].strip():
         tag_list = [tag.strip() for tag in request.data["tags"].split(",")]
         for tag in tag_list:
-            cur_tag = Tag.objects.get_or_create(title=tag)  # avoid duplicate tags
-            crawl.tags.add(cur_tag)
+            if tag:  # might have nulls in through table
+                cur_tag = Tag.objects.get_or_create(title=tag)  # avoid duplicate tags
+                crawl.tags.add(cur_tag)
 
     return Response(status=status.HTTP_201_CREATED)
 
