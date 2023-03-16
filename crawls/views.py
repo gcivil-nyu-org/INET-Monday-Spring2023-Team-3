@@ -10,7 +10,7 @@ def point(request, format=None):
     get a point object
     Querying by title instead of google_place_id may be the best solution. We'll have
     duplicate points with different titles/descriptions, but otherwise editing the title
-    /description of any point will lead to point edits in every crawl that has that point
+    /desc of any point will lead to point edits in every crawl that has that point
     """
 
     try:
