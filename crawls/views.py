@@ -8,20 +8,19 @@ from crawls.models import Point, Crawl, Tag
 def point(request, format=None):
     """
     get a point object
-    Should query by google_place_id instead of title when Maps API is up and running
+    Querying by title instead of google_place_id may be the best solution. We'll have
+    duplicate points with different titles/descriptions, but otherwise editing the title
+    /description of any point will lead to point edits in every crawl that has that point
     """
 
     try:
         point = Point.objects.get(title=request.data["title"])
-        # point = Point.objects.get(
-        # google_place_id=request.google_place_id["google_place_id"]
-        # )
     except Point.DoesNotExist:
         return Response(
             {"error": "point does not exist"}, status=status.HTTP_400_BAD_REQUEST
         )  # change to redirect?
 
-    crawl_titles = []  # only need titles for now, dict for more vals
+    crawl_titles = []  # only really need titles for now
     for crawl in point.crawls.all():
         if crawl:  # might have nulls in through table
             crawl_titles.append(crawl.title)
@@ -31,7 +30,7 @@ def point(request, format=None):
         "description": point.description,
         "google_place_id": point.google_place_id,
         "address": point.address,
-        "crawls": crawl_titles,  # keep in mind this list may be empty
+        "crawls": crawl_titles,  # this list may be empty
         "longitude": point.longitude,
         "latitude": point.latitude,
         "created_at": point.created_at,
@@ -45,10 +44,8 @@ def point_create(request):
     """
     Create Point
 
-    Should query by google place id instead of title when Maps API is up and running
-
-    Doesn't create crawls for the point, for now let's just create points and add
-    them to existing crawls in update?
+    Doesn't create crawls for the point, for now let's just create empty crawls and add
+    points to existing crawls in update?
     """
     point = Point.objects.filter(title=request.data["title"]).exists()
     if point:
@@ -58,9 +55,7 @@ def point_create(request):
     data = {
         "title": request.data["title"],
         "description": request.data["description"],
-        "google_place_id": request.data[
-            "google_place_id"
-        ],  # all google place attributes from here # noqa E501
+        "google_place_id": request.data["google_place_id"],
         "address": request.data["address"],
         "longitude": request.data["longitude"],
         "latitude": request.data["latitude"],
@@ -73,19 +68,15 @@ def point_create(request):
 def point_delete(request):
     """
     Delete point
-    Should query by google place id instead of title when Maps API is up and running
     """
     try:
         point = Point.objects.get(title=request.data["title"])
-        # point = Point.objects.get(
-        #       google_place_id=request.google_place_id["google_place_id"]
-        #       )
     except Point.DoesNotExist:
         return Response(
             {"error": "point does not exist"}, status=status.HTTP_400_BAD_REQUEST
         )  # change to redirect?
     point.delete()
-    return Response(status=status.HTTP_202_ACCEPTED)  # need to return data?
+    return Response(status=status.HTTP_202_ACCEPTED)
 
 
 @api_view(["GET"])
@@ -118,7 +109,7 @@ def crawl(request, format=None):
         "title": crawl.title,
         "description": crawl.description,
         "points": point_list,  # list of point dicts, only title/GP_id/address
-        "tags": tag_titles,  # keep in mind both points and tags can be empty
+        "tags": tag_titles,  # both points and tags may be empty
         "created_at": crawl.created_at,
         "updated_at": crawl.updated_at,
     }
@@ -145,7 +136,7 @@ def crawl_create(request):
         "updated_at": request.data["updated_at"],
     }
     crawl = Crawl.objects.create(**data)
-    # assuming tags will be given as string with tags separated by commas
+    # assuming tags will be input as string with tags separated by commas
     if request.data["tags"].strip():
         tag_list = [tag.strip() for tag in request.data["tags"].split(",")]
         for tag in tag_list:
@@ -168,4 +159,25 @@ def crawl_delete(request):
             {"error": "crawl does not exist"}, status=status.HTTP_400_BAD_REQUEST
         )  # change to redirect?
     crawl.delete()
+    return Response(status=status.HTTP_202_ACCEPTED)
+
+
+@api_view(["POST"])
+def crawl_add_points(request):
+    """
+    add points to a crawl
+
+    """
+    try:
+        crawl = Crawl.objects.get(title=request.data["title"])
+    except Crawl.DoesNotExist:
+        if crawl:
+            return Response(
+                {"error": "crawl already exists"}, status=status.HTTP_400_BAD_REQUEST
+            )  # change to redirect?
+
+    for point in request.data["points"]:  # point should be a dict in points list
+        cur_point = Point.objects.get_or_create(**point)
+        crawl.points.add(cur_point)
+
     return Response(status=status.HTTP_202_ACCEPTED)
