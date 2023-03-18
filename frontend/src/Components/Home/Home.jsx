@@ -2,6 +2,7 @@ import axios from "axios";
 import { Button, Pane, Text } from "evergreen-ui";
 import { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
+import Map from "../Map/Map"
 
 function Home() {
   const history = useHistory();
@@ -14,6 +15,8 @@ function Home() {
       const { data } = await axios.get(
         `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/profile/`
       );
+
+      
       setProfile(data);
       setIsMounted(true);
     } catch (e) {
@@ -36,6 +39,10 @@ function Home() {
       <div>
         You used <strong>{profile.email}</strong> to register
 
+
+      </div>
+      <div>
+        <Map/>
       </div>
       <div>
         
