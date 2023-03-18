@@ -27,4 +27,4 @@ deploy:
   env: "nghbrly"
   bucket_name: "elasticbeanstalk-us-east-1-006335820833"
   on:
-    branch: main
+    branch: develop
