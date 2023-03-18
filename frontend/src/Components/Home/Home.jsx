@@ -35,6 +35,10 @@ function Home() {
       <h1>Welcome {profile.username}!</h1>
       <div>
         You used <strong>{profile.email}</strong> to register
+
+      </div>
+      <div>
+        
       </div>
       <Button style={{ marginTop: 32 }} onClick={logout}>
         Log out
