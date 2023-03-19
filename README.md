@@ -1,7 +1,7 @@
-[![Build Status](https://app.travis-ci.com/gcivil-nyu-org/INET-Monday-Spring2023-Team-3.svg?branch=develop)](https://app.travis-ci.com/gcivil-nyu-org/INET-Monday-Spring2023-Team-3) [![Coverage Status](https://coveralls.io/repos/github/gcivil-nyu-org/INET-Monday-Spring2023-Team-3/badge.svg?branch=develop)](https://coveralls.io/github/gcivil-nyu-org/INET-Monday-Spring2023-Team-3?branch=develop)
+[![Build Status](https://app.travis-ci.com/gcivil-nyu-org/INET-Monday-Spring2023-Team-3.svg?branch=testing)](https://app.travis-ci.com/gcivil-nyu-org/INET-Monday-Spring2023-Team-3) [![Coverage Status](https://coveralls.io/repos/github/gcivil-nyu-org/INET-Monday-Spring2023-Team-3/badge.svg?branch=develop)](https://coveralls.io/github/gcivil-nyu-org/INET-Monday-Spring2023-Team-3?branch=testing)
 
 # Team Project repo
-For working on actual crawls being implemented
+For working on unit testing
 
 Frontend: http://nghbrly.eba-qcpx8k2g.us-east-1.elasticbeanstalk.com/login
 Django Backend: http://nghbrly.eba-qcpx8k2g.us-east-1.elasticbeanstalk.com/admin/login/?next=/admin/
