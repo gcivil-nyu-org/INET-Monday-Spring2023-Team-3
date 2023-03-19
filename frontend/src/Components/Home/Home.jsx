@@ -15,8 +15,6 @@ function Home() {
       const { data } = await axios.get(
         `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/profile/`
       );
-
-      
       setProfile(data);
       setIsMounted(true);
     } catch (e) {
@@ -38,18 +36,13 @@ function Home() {
       <h1>Welcome {profile.username}!</h1>
       <div>
         You used <strong>{profile.email}</strong> to register
-
-
       </div>
+      <Button style={{ marginTop: 32, marginBottom: 32 }} onClick={logout}>
+        Log out
+      </Button>
       <div>
         <Map/>
       </div>
-      <div>
-        
-      </div>
-      <Button style={{ marginTop: 32 }} onClick={logout}>
-        Log out
-      </Button>
     </Pane>
   );
 }
