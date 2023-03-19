@@ -49,6 +49,7 @@ class CrawlPoint(models.Model):
     """         
     will have to check for nulls
     """
+
     def __str__(self):
         return self.crawl
 
@@ -59,5 +60,6 @@ class CrawlTag(models.Model):
     """
     will have to check for nulls
     """
+
     def __str__(self):
         return self.tag
