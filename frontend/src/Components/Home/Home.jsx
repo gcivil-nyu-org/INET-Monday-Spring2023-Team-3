@@ -1,14 +1,12 @@
 import axios from "axios";
-import { Button, Pane, Text } from "evergreen-ui";
+import { Pane } from "evergreen-ui";
 import { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
-import Map from "../Map/Map"
 
 function Home() {
   const history = useHistory();
   const [isMounted, setIsMounted] = useState(false);
   const [profile, setProfile] = useState({});
-  const jwt = localStorage.getItem("jwt");
 
   const getProfile = async () => {
     try {
@@ -26,22 +24,12 @@ function Home() {
     getProfile();
   }, []);
 
-  const logout = () => {
-    localStorage.removeItem("jwt");
-    history.replace("/login");
-  };
   if (!isMounted) return <div></div>;
   return (
     <Pane style={{ padding: 32 }}>
       <h1>Welcome {profile.username}!</h1>
       <div>
         You used <strong>{profile.email}</strong> to register
-      </div>
-      <Button style={{ marginTop: 32, marginBottom: 32 }} onClick={logout}>
-        Log out
-      </Button>
-      <div>
-        <Map/>
       </div>
     </Pane>
   );

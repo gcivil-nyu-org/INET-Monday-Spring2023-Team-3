@@ -3,33 +3,48 @@ import {
   DirectionsRenderer,
   DirectionsService,
 } from "@react-google-maps/api";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import React from "react";
+import { toaster } from "evergreen-ui";
 
-const containerStyle = { width: "400px", height: "400px" };
-const from = { lat: 40.723301, lng: -74.002988 }; // Soho, NY
-const via = [
-  {location: { lat: 40.73100573111601, lng: -73.99734273055797 }} // WSQ, NY
-]; 
-const to = { lat: 40.76749693, lng: -73.97582943 }; // Central Park, NY
 
-function Map() {
+function Map(props) {
+  const containerStyle = { width: "400px", height: "400px", ...props.containerStyle };
+  const points = useMemo(()=>{
+    const _points = props.points || []
+    return _points.map(point=>{
+      if (point.placeId) return {placeId: point.placeId}
+      return point.location
+    })
+  }, [props])
+  
+  
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
     setIsMounted(true)
   }, []);
 
+  useEffect(()=>{
+    setDirections(null)
+  }, [points])
+
   const [directions, setDirections] = useState(null);
   const directionsCallback = (res) => {
-    if (res !== null) {
+    if (res !== null && res.status === "OK") {
       setDirections(res);
+    } else {
+      const _points = JSON.parse(JSON.stringify(props.points || []))
+      props.setPoints(_points.splice(0, _points.length - 1))
+      toaster.danger("Point not reachable. Cannot be added to current crawl.", {
+        duration: 5,
+      })
     }
   };
 
   if (!isMounted) return <div></div>;
   return (
-    <GoogleMap mapContainerStyle={containerStyle} center={from} zoom={10}>
+    <GoogleMap mapContainerStyle={containerStyle} zoom={1}>
       {directions !== null && (
         <DirectionsRenderer
           options={{
@@ -40,9 +55,9 @@ function Map() {
       {directions === null && (
         <DirectionsService
         options={{
-          destination: to,
-          origin: from,
-          waypoints: via,
+          destination: points[points.length - 1],
+          origin: points[0],
+          waypoints: points.slice(1, points.length - 1).map(x=>({location: x})),
           travelMode: "WALKING",
         }}
         callback={directionsCallback}

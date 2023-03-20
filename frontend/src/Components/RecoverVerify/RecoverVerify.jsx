@@ -63,7 +63,6 @@ function RecoverVerify() {
 
   const verifyToken = async()=>{
     try {
-      console.log(token)
       await axios.post(
         `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/verify-recovery/`,
         {

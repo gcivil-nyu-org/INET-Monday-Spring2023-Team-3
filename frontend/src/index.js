@@ -20,6 +20,8 @@ import { ToastContainer } from "react-toastify";
 import RecoverVerify from "./Components/RecoverVerify/RecoverVerify";
 import OAuth from "./Components/OAuth/OAuth";
 import { LoadScript } from "@react-google-maps/api";
+import Navbar from "./Components/Navbar/Navbar";
+import Create from "./Components/Create/Create";
 
 axios.interceptors.request.use(function (config) {
   const token = localStorage.getItem("jwt");
@@ -61,12 +63,17 @@ function PrivateRoute({ component: Component, ...rest }) {
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <Provider store={store}>
-    <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API}>
+    <LoadScript
+    libraries={["places"]}
+    googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API}
+    >
       <React.StrictMode>
         <ToastContainer />
         <Router>
+          <Navbar/>
           <Switch>
             <PrivateRoute path="/" exact component={Home} />
+            <PrivateRoute path="/create" exact component={Create} />
             <Route exact path="/register">
               <Register />
             </Route>
