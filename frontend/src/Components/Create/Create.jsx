@@ -89,17 +89,17 @@ function Create() {
   }
   const publish = async ()=>{
     if (!hasSubmittedOnce) setHasSubmittedOnce(true)
-    if(!verify())
+    if(!verify()) return
     try {
       await axios.post(
-        `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawl/`,
+        `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/`,
         {
           title,
           points: chosenPoints
         }
       );
-      toaster.success("Your crawll has been posted");
-      history.replace("/login");
+      toaster.success("Your crawl has been posted");
+      history.replace("/");
     } catch (e) {
       toaster.danger("Something went wrong 🙁");
     }

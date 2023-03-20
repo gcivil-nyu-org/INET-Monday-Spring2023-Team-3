@@ -2,6 +2,8 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from crawls.models import Point, Crawl, Tag
+from api.decorators import is_protected_route
+import json
 
 
 @api_view(["GET"])
@@ -117,6 +119,7 @@ def crawl(request, format=None):
 
 
 @api_view(["POST"])
+@is_protected_route
 def crawl_create(request):
     """
     create crawl
@@ -130,21 +133,36 @@ def crawl_create(request):
         )  # change to redirect?
     data = {
         "title": request.data["title"],
-        "description": request.data["description"],
-        "address": request.data["address"],
-        "created_at": request.data["created_at"],
-        "updated_at": request.data["updated_at"],
+        "author": request.user.username,
+        "data": json.dumps(request.data)
     }
     crawl = Crawl.objects.create(**data)
     # assuming tags will be input as string with tags separated by commas
-    if request.data["tags"].strip():
-        tag_list = [tag.strip() for tag in request.data["tags"].split(",")]
-        for tag in tag_list:
-            if tag:  # might have nulls in through table
-                cur_tag = Tag.objects.get_or_create(title=tag)  # avoid duplicate tags
-                crawl.tags.add(cur_tag)
+    # if request.data["tags"].strip():
+    #     tag_list = [tag.strip() for tag in request.data["tags"].split(",")]
+    #     for tag in tag_list:
+    #         if tag:  # might have nulls in through table
+    #             cur_tag = Tag.objects.get_or_create(title=tag)  # avoid duplicate tags
+    #             crawl.tags.add(cur_tag)
 
     return Response(status=status.HTTP_201_CREATED)
+
+@api_view(["GET"])
+@is_protected_route
+def crawl_get_all(request):
+    """
+    get all crawls
+    
+    """
+    crawls = Crawl.objects.all()
+    out = []
+    for i in range(len(crawls)):
+        out.append({
+            "title": crawls[i].title,
+            "data": json.loads(crawls[i].data)
+        })
+    print(out)
+    return Response(out)
 
 
 @api_view(["POST"])

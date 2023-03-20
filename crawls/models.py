@@ -11,6 +11,7 @@ class Crawl(models.Model):
     updated_at = models.DateTimeField(auto_now_add=True)
     tags = models.ManyToManyField("Tag", through="CrawlTag", blank=True)
     points = models.ManyToManyField("Point", through="CrawlPoint", blank=True)
+    data = models.TextField(null=True)
     # Number_of_point = models.IntegerField()
     # Total_length_in_miles = models.FloatField()
     # picture = models.ImageField(upload_to='...')
