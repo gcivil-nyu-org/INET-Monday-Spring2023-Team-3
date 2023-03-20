@@ -1,4 +1,5 @@
-[![Build Status](https://app.travis-ci.com/gcivil-nyu-org/INET-Monday-Spring2023-Team-3.svg?branch=Testing)](https://app.travis-ci.com/gcivil-nyu-org/INET-Monday-Spring2023-Team-3) [![Coverage Status](https://coveralls.io/repos/github/gcivil-nyu-org/INET-Monday-Spring2023-Team-3/badge.svg?branch=Testing)](https://coveralls.io/github/gcivil-nyu-org/INET-Monday-Spring2023-Team-3?branch=Testing)
+[![Build Status](https://app.travis-ci.com/gcivil-nyu-org/INET-Monday-Spring2023-Team-3.svg?branch=Testing)](https://app.travis-ci.com/gcivil-nyu-org/INET-Monday-Spring2023-Team-3) 
+[![Coverage Status](https://coveralls.io/repos/github/gcivil-nyu-org/INET-Monday-Spring2023-Team-3/badge.svg?branch=Testing)](https://coveralls.io/github/gcivil-nyu-org/INET-Monday-Spring2023-Team-3?branch=Testing)
 
 # Team Project repo
 For working on unit testing
