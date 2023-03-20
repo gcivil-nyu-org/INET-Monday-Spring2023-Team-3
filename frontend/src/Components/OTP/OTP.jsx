@@ -16,7 +16,7 @@ function OTP(props) {
         const {
           data: { jwt },
         } = await axios.post(
-          `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/verify/`,
+          `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/auth/verify/`,
           {
             email: props.email,
             otp,
@@ -35,7 +35,7 @@ function OTP(props) {
         setError(false);
         setTries(0);
         await axios.post(
-          `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/send-otp/`,
+          `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/auth/send-otp/`,
           {
             email: props.email
           }

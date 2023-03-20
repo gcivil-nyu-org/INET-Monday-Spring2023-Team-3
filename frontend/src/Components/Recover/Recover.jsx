@@ -12,7 +12,7 @@ function Recover() {
   const recover = async () => {
     try {
       await axios.post(
-        `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/recover/`,
+        `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/auth/recover/`,
         {
           username,
         }

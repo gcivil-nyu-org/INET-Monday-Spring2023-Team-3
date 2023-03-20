@@ -68,7 +68,7 @@ function Register() {
     if (verify(true)) {
       try {
         await axios.post(
-          `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/register/`,
+          `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/auth/register/`,
           {
             username,
             email,

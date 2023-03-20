@@ -43,7 +43,7 @@ function RecoverVerify() {
     if (verify(true)) {
       try {
         await axios.post(
-          `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/update-password/`,
+          `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/auth/update-password/`,
           {
             password,
             token
@@ -64,7 +64,7 @@ function RecoverVerify() {
   const verifyToken = async()=>{
     try {
       await axios.post(
-        `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/verify-recovery/`,
+        `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/auth/verify-recovery/`,
         {
           password,
           token

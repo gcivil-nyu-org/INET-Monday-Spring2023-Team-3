@@ -26,7 +26,7 @@ function Login() {
     if (!hasSubmittedOnce) setHasSubmittedOnce(true);
     try {
       const { data } = await axios.post(
-        `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/login/`,
+        `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/auth/login/`,
         {
           username,
           password,

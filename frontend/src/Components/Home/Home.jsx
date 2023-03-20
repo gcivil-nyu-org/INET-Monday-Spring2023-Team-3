@@ -11,7 +11,7 @@ function Home() {
   const getProfile = async () => {
     try {
       const { data } = await axios.get(
-        `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/profile/`
+        `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/auth/profile/`
       );
       setProfile(data);
       setIsMounted(true);

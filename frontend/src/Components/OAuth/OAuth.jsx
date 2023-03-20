@@ -14,7 +14,7 @@ function OAuth() {
       }, {});
 
       const { data } = await axios.post(
-        `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/google-oauth/`,
+        `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/auth/google-oauth/`,
         result
       );
       if (data.jwt) {
