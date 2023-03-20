@@ -1,9 +1,10 @@
 import { Button, Pane, Text } from "evergreen-ui";
 import { useEffect, useState } from "react";
-import { Link, matchPath, useLocation } from "react-router-dom";
+import { Link, matchPath, useHistory, useLocation } from "react-router-dom";
 import NLogo from "../../static/n-logo.svg";
 
 function Navbar() {
+  const history = useHistory();
   const location = useLocation();
   const [isMounted, setIsMounted] = useState(false);
 
