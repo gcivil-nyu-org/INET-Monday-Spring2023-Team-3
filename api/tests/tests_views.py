@@ -1,8 +1,7 @@
 from django.test import TestCase, Client
 from django.urls import reverse
 from api.models import User
-import json
-from api.views import user_register, user_login, profile
+from api.views import profile
 
 # Needs adjustments for status codes adn objects to grab fo rpost functions
 
@@ -14,7 +13,6 @@ class TestViews(TestCase):
         )
 
     def test_profile(self):
-        u = self.setUp()
         url = reverse(profile)
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 500)

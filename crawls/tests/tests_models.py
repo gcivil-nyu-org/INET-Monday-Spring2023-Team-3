@@ -1,6 +1,5 @@
 from django.test import TestCase
 from crawls.models import Crawl, Point, Tag, CrawlPoint, CrawlTag
-from django.urls import reverse
 
 
 class TestModels(TestCase):

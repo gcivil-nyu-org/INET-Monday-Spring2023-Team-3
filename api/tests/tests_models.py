@@ -1,6 +1,5 @@
 from django.test import TestCase
 from api.models import User
-from django.urls import reverse
 
 
 class TestModels(TestCase):
