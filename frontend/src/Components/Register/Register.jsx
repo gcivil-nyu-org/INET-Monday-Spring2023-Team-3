@@ -140,7 +140,7 @@ function Register() {
             overflow: "scroll",
           }}
         >
-          <img src={Logo} style={{ width: 300, margin: "128px 0" }} />
+          <img src={Logo} style={{ width: 300, margin: "128px 0 0" }} />
           <div
             style={{
               display: "flex",

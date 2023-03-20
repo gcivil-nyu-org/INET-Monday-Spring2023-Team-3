@@ -2,6 +2,7 @@ import axios from "axios";
 import { Button, Pane, Text } from "evergreen-ui";
 import { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
+import Map from "../Map/Map"
 
 function Home() {
   const history = useHistory();
@@ -36,9 +37,12 @@ function Home() {
       <div>
         You used <strong>{profile.email}</strong> to register
       </div>
-      <Button style={{ marginTop: 32 }} onClick={logout}>
+      <Button style={{ marginTop: 32, marginBottom: 32 }} onClick={logout}>
         Log out
       </Button>
+      <div>
+        <Map/>
+      </div>
     </Pane>
   );
 }

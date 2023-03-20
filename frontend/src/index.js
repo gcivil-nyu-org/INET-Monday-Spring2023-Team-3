@@ -17,6 +17,9 @@ import Home from "./Components/Home/Home";
 import axios from "axios";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
+import RecoverVerify from "./Components/RecoverVerify/RecoverVerify";
+import OAuth from "./Components/OAuth/OAuth";
+import { LoadScript } from "@react-google-maps/api";
 
 axios.interceptors.request.use(function (config) {
   const token = localStorage.getItem("jwt");
@@ -58,21 +61,29 @@ function PrivateRoute({ component: Component, ...rest }) {
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <Provider store={store}>
-    <React.StrictMode>
-      <ToastContainer />
-      <Router>
-        <Switch>
-          <PrivateRoute path="/" exact component={Home} />
-          <Route exact path="/register">
-            <Register />
-          </Route>
-          <Route exact path="/login">
-            <Login />
-          </Route>
-          <Route path="/404" component={ErrorPage} />
-          <Redirect to="/404" />
-        </Switch>
-      </Router>
-    </React.StrictMode>
+    <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API}>
+      <React.StrictMode>
+        <ToastContainer />
+        <Router>
+          <Switch>
+            <PrivateRoute path="/" exact component={Home} />
+            <Route exact path="/register">
+              <Register />
+            </Route>
+            <Route exact path="/login">
+              <Login />
+            </Route>
+            <Route exact path="/recover/:token">
+              <RecoverVerify />
+            </Route>
+            <Route path="/google-redirect/">
+              <OAuth />
+            </Route>
+            <Route path="/404" component={ErrorPage} />
+            <Redirect to="/404" />
+          </Switch>
+        </Router>
+      </React.StrictMode>
+    </LoadScript>
   </Provider>
 );
