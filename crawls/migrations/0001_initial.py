@@ -5,80 +5,152 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Crawl',
+            name="Crawl",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=200)),
-                ('description', models.TextField(max_length=500, null=True)),
-                ('author', models.CharField(max_length=200)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now_add=True)),
-                ('data', models.TextField(null=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("title", models.CharField(max_length=200)),
+                ("description", models.TextField(max_length=500, null=True)),
+                ("author", models.CharField(max_length=200)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now_add=True)),
+                ("data", models.TextField(null=True)),
             ],
         ),
         migrations.CreateModel(
-            name='CrawlPoint',
+            name="CrawlPoint",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('crawl', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='crawls.Crawl')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "crawl",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="crawls.Crawl",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='CrawlTag',
+            name="CrawlTag",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('point', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='crawls.Crawl')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "point",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="crawls.Crawl",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Tag',
+            name="Tag",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=200)),
-                ('crawls', models.ManyToManyField(blank=True, through='crawls.CrawlTag', to='crawls.Crawl')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("title", models.CharField(max_length=200)),
+                (
+                    "crawls",
+                    models.ManyToManyField(
+                        blank=True, through="crawls.CrawlTag", to="crawls.Crawl"
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Point',
+            name="Point",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=200)),
-                ('description', models.TextField(max_length=500, null=True)),
-                ('google_place_id', models.TextField(null=True)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now_add=True)),
-                ('longitude', models.FloatField(null=True)),
-                ('latitude', models.FloatField(null=True)),
-                ('address', models.TextField(max_length=200, null=True)),
-                ('crawls', models.ManyToManyField(blank=True, through='crawls.CrawlPoint', to='crawls.Crawl')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("title", models.CharField(max_length=200)),
+                ("description", models.TextField(max_length=500, null=True)),
+                ("google_place_id", models.TextField(null=True)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now_add=True)),
+                ("longitude", models.FloatField(null=True)),
+                ("latitude", models.FloatField(null=True)),
+                ("address", models.TextField(max_length=200, null=True)),
+                (
+                    "crawls",
+                    models.ManyToManyField(
+                        blank=True, through="crawls.CrawlPoint", to="crawls.Crawl"
+                    ),
+                ),
             ],
         ),
         migrations.AddField(
-            model_name='crawltag',
-            name='tag',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='crawls.Tag'),
+            model_name="crawltag",
+            name="tag",
+            field=models.ForeignKey(
+                null=True, on_delete=django.db.models.deletion.SET_NULL, to="crawls.Tag"
+            ),
         ),
         migrations.AddField(
-            model_name='crawlpoint',
-            name='point',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='crawls.Point'),
+            model_name="crawlpoint",
+            name="point",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="crawls.Point",
+            ),
         ),
         migrations.AddField(
-            model_name='crawl',
-            name='points',
-            field=models.ManyToManyField(blank=True, through='crawls.CrawlPoint', to='crawls.Point'),
+            model_name="crawl",
+            name="points",
+            field=models.ManyToManyField(
+                blank=True, through="crawls.CrawlPoint", to="crawls.Point"
+            ),
         ),
         migrations.AddField(
-            model_name='crawl',
-            name='tags',
-            field=models.ManyToManyField(blank=True, through='crawls.CrawlTag', to='crawls.Tag'),
+            model_name="crawl",
+            name="tags",
+            field=models.ManyToManyField(
+                blank=True, through="crawls.CrawlTag", to="crawls.Tag"
+            ),
         ),
     ]

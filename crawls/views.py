@@ -1,7 +1,7 @@
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from crawls.models import Point, Crawl, Tag
+from crawls.models import Point, Crawl
 from api.decorators import is_protected_route
 import json
 
@@ -134,7 +134,7 @@ def crawl_create(request):
     data = {
         "title": request.data["title"],
         "author": request.user.username,
-        "data": json.dumps(request.data)
+        "data": json.dumps(request.data),
     }
     crawl = Crawl.objects.create(**data)
     # assuming tags will be input as string with tags separated by commas
@@ -147,20 +147,18 @@ def crawl_create(request):
 
     return Response(status=status.HTTP_201_CREATED)
 
+
 @api_view(["GET"])
 @is_protected_route
 def crawl_get_all(request):
     """
     get all crawls
-    
+
     """
     crawls = Crawl.objects.all()
     out = []
     for i in range(len(crawls)):
-        out.append({
-            "title": crawls[i].title,
-            "data": json.loads(crawls[i].data)
-        })
+        out.append({"title": crawls[i].title, "data": json.loads(crawls[i].data)})
     return Response(out)
 
 

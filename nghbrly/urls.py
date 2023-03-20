@@ -25,7 +25,11 @@ def render_react(request):
 
 
 urlpatterns = (
-    [path("admin/", admin.site.urls), path("api/auth/", include("api.urls")), path("api/crawls/", include("crawls.urls"))]
+    [
+        path("admin/", admin.site.urls),
+        path("api/auth/", include("api.urls")),
+        path("api/crawls/", include("crawls.urls")),
+    ]
     + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
     + [re_path(r"^$", render_react), re_path(r"^(?:.*)/?$", render_react)]
 )
