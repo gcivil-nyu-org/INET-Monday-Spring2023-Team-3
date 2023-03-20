@@ -161,7 +161,6 @@ def crawl_get_all(request):
             "title": crawls[i].title,
             "data": json.loads(crawls[i].data)
         })
-    print(out)
     return Response(out)
 
 
