@@ -47,7 +47,6 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "corsheaders",
     "rest_framework",
-    "home.apps.HomeConfig",
     "api",
     "crawls.apps.CrawlsConfig",
 ]
