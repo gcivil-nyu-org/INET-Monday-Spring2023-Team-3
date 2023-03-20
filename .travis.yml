@@ -26,5 +26,6 @@ deploy:
   app: "swe-assignment"
   env: "swe-assignment-env"
   bucket_name: "elasticbeanstalk-us-east-1-006335820833"
+  skip_cleanup: true
   on:
     branch: Testing
