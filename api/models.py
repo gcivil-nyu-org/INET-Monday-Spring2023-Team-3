@@ -2,6 +2,7 @@ from django.db import models
 
 # Create your models here.
 
+
 class UserTest(models.Model):
     username = models.TextField()
     email = models.EmailField()
@@ -10,6 +11,7 @@ class UserTest(models.Model):
 
     def _str_(self):
         return self.username
+
 
 class User(models.Model):
     username = models.TextField(unique=True)
