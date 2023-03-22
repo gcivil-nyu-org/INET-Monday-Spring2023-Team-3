@@ -2,6 +2,14 @@ from django.db import models
 
 # Create your models here.
 
+class UserTest(models.Model):
+    username = models.TextField()
+    email = models.EmailField()
+    password = models.TextField()
+    verified = models.BooleanField(default=False)
+
+    def _str_(self):
+        return self.username
 
 class User(models.Model):
     username = models.TextField(unique=True)
