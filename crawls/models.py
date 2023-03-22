@@ -57,7 +57,7 @@ class CrawlPoint(models.Model):
 
 class CrawlTag(models.Model):
     tag = models.ForeignKey("Tag", null=True, on_delete=models.SET_NULL)
-    crawl = models.ForeignKey("Crawl", null=True, on_delete=models.SET_NULL)
+    point = models.ForeignKey("Crawl", null=True, on_delete=models.SET_NULL)
     """
     will have to check for nulls
     """
