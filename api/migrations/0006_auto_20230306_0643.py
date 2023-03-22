@@ -17,9 +17,7 @@ class Migration(migrations.Migration):
             field=models.EmailField(max_length=254, unique=True),
         ),
         migrations.AlterField(
-            model_name="user",
-            name="username",
-            field=models.TextField(unique=True),
+            model_name="user", name="username", field=models.TextField(unique=True),
         ),
         migrations.CreateModel(
             name="OTP_Request",
