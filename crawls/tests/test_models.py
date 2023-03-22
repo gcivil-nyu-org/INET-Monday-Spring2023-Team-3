@@ -38,10 +38,10 @@ class TestModels(TestCase):
     def setUpCT(self):
         return CrawlTag.objects.create(
             tag=Tag.objects.create(title="testtag1"),
-            crawl=Crawl.objects.create(title="testcrawl1"),
+            point=Crawl.objects.create(title="testcrawl1"),
         )
 
     def test_CT(self):
         u = self.setUpCT()
         self.assertEquals("testtag1", u.tag.title)
-        self.assertEquals("testcrawl1", u.crawl.title)
+        self.assertEquals("testcrawl1", u.point.title)
