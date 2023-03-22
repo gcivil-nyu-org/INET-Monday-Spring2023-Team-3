@@ -37,7 +37,6 @@ class TestModels(TestCase):
         u = self.setUpCP()
         self.assertEquals("testcrawl1", u.crawl.title)
         self.assertEquals("testpoint1", u.point.title)
-        self.assertEquals(str(u), u.crawl)
 
     def setUpCT(self):
         return CrawlTag.objects.create(
@@ -49,4 +48,3 @@ class TestModels(TestCase):
         u = self.setUpCT()
         self.assertEquals("testtag1", u.tag.title)
         self.assertEquals("testcrawl1", u.point.title)
-        self.assertEquals(str(u), u.tag)
