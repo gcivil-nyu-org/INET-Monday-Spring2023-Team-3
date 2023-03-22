@@ -258,7 +258,7 @@ def update_password(request):
 @api_view(["POST"])
 def google_verify(request, format=None):
     try:
-        url = f'https://www.googleapis.com/oauth2/v3/tokeninfo?access_token={request.data["access_token"]}'
+        url = f'https://www.googleapis.com/oauth2/v3/tokeninfo?access_token={request.data["access_token"]}'  # noqa E501
         response = requests.get(url)
         response_dict = json.loads(response.text)
         try:
