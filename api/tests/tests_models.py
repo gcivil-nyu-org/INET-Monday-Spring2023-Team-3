@@ -1,11 +1,13 @@
 from django.test import TestCase
-from api.models import User
+from api.models import UserTest
 
 
 class TestModels(TestCase):
     def setUp(self):
-        return User.objects.create(username="testanil")
+        return UserTest.objects.create(
+            username="testanil3", email="testanil3@gmail2.com", password="password123"
+        )
 
     def test_user(self):
         u = self.setUp()
-        self.assertEquals("testanil", u.username)
+        self.assertEquals("testanil3", u.username)
