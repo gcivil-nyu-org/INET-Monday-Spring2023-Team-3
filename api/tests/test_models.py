@@ -5,7 +5,7 @@ from api.models import User
 class TestModels(TestCase):
     def setUp(self):
         return User.objects.create(
-            username="testanil
+            username="testanil"
         )
 
     def test_user(self):
