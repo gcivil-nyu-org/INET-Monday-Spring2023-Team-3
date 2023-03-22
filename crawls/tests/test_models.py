@@ -9,6 +9,7 @@ class TestModels(TestCase):
     def test_crawl(self):
         u = self.setUp()
         self.assertEquals("testcrawl1", u.title)
+        self.assertEquals(str(u), u.title)
 
     def setUpP(self):
         return Point.objects.create(title="testpoint1")
@@ -16,6 +17,7 @@ class TestModels(TestCase):
     def test_point(self):
         u = self.setUpP()
         self.assertEquals("testpoint1", u.title)
+        self.assertEquals(str(u), u.title)
 
     def setUpT(self):
         return Tag.objects.create(title="testtag1")
@@ -23,6 +25,7 @@ class TestModels(TestCase):
     def test_tag(self):
         u = self.setUpT()
         self.assertEquals("testtag1", u.title)
+        self.assertEquals(str(u), u.title)
 
     def setUpCP(self):
         return CrawlPoint.objects.create(
@@ -34,6 +37,7 @@ class TestModels(TestCase):
         u = self.setUpCP()
         self.assertEquals("testcrawl1", u.crawl.title)
         self.assertEquals("testpoint1", u.point.title)
+        self.assertEquals(str(u), u.crawl)
 
     def setUpCT(self):
         return CrawlTag.objects.create(
@@ -45,3 +49,4 @@ class TestModels(TestCase):
         u = self.setUpCT()
         self.assertEquals("testtag1", u.tag.title)
         self.assertEquals("testcrawl1", u.point.title)
+        self.assertEquals(str(u), u.tag)
