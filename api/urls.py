@@ -3,9 +3,9 @@ from rest_framework.urlpatterns import format_suffix_patterns
 from . import views
 
 urlpatterns = [
-    path("register/", views.user_register),
-    path("login/", views.user_login),
-    path("profile/", views.profile),
+    path("register/", views.user_register, name="register"),
+    path("login/", views.user_login, name="login"),
+    path("profile/", views.profile, name="profile"),
     path("verify/", views.email_verify),
     path("send-otp/", views.send_otp),
     path("recover/", views.send_recovery),
