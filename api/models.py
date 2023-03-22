@@ -9,7 +9,7 @@ class UserTest(models.Model):
     password = models.TextField()
     verified = models.BooleanField(default=False)
 
-    def _str_(self):
+    def __str__(self):
         return self.username
 
 
@@ -19,7 +19,7 @@ class User(models.Model):
     password = models.TextField()
     verified = models.BooleanField(default=False)
 
-    def _str_(self):
+    def __str__(self):
         return self.username
 
 
