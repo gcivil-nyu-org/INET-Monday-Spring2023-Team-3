@@ -32,13 +32,13 @@ function Profile() {
     }
   };
   const handleClickEditButton = () => {
-    console.log(isEditMode)
+    
     setIsEditMode(true)
   }
 
   const handleSubmitUpdate = async e => {
     e.preventDefault();
-    console.log(formData)
+    
     let userinput = formData
     if (userinput.location.trim() === "" || userinput.dob.trim()===""){
         toaster.danger("Enter a valid Info 🙁");
