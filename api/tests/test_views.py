@@ -3,17 +3,15 @@ from rest_framework import status
 from django.urls import reverse
 from api.models import User
 
-# from api.views import user_register
-
 
 class RegisterTest(APITestCase):
-    def test_user_register(self):
+    def user_register_success_test(self):
         data = {"username": "test_u", "email": "test@gmail.com", "password": "test_pw"}
 
         response = self.client.post(reverse("register"), data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-    def test_user_register_fail(self):
+    def user_register_fail_test(self):
         data = {"username": "test_u", "email": "test@gmail.com", "password": "test_pw"}
 
         User.objects.create(**data)
@@ -21,3 +19,22 @@ class RegisterTest(APITestCase):
         response = self.client.post(reverse("register"), data)
         self.assertEqual(response.data["error"], "user already exists")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+class LoginTest(APITestCase):
+    def user_login_success_test(self):
+        data = {"username": "test_u", "email": "test@gmail.com", "password": "test_pw"}
+
+        User.objects.create(**data)
+
+        response = self.client.post(reverse("login"), data)
+
+        self.assertEqual(response.status, status.HTTP_201_CREATED)
+
+    def user_login_user_exists_fail_test(self):
+        data = {"username": "test_u", "email": "test@gmail.com", "password": "test_pw"}
+
+        response = self.client.post(reverse("login"), data)
+
+        self.assertEqual(response.status, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data["error"], "username does not exist")
