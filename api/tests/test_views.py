@@ -16,15 +16,15 @@ class RegisterTest(APITestCase):
         response = self.client.post(reverse("register"), data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-        def test_user_register_fail(self):
-            data = {
-                "username": "test_u",
-                "email": "test@gmail.com",
-                "password": "test_pw"
-            }
+    def test_user_register_fail(self):
+        data = {
+            "username": "test_u",
+            "email": "test@gmail.com",
+            "password": "test_pw"
+        }
 
-            User.objects.create(**data)
+        User.objects.create(**data)
 
-            response = self.client.post(reverse("register"), data)
-            self.assertEqual(response.content["error"], "user already exists")
-            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        response = self.client.post(reverse("register"), data)
+        self.assertEqual(response.data["error"], "user already exists")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
