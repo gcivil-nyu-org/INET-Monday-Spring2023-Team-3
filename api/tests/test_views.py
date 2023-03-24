@@ -5,13 +5,13 @@ from api.models import User
 
 
 class RegisterTest(APITestCase):
-    def user_register_success_test(self):
+    def test_user_register_success(self):
         data = {"username": "test_u", "email": "test@gmail.com", "password": "test_pw"}
 
         response = self.client.post(reverse("register"), data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-    def user_register_fail_test(self):
+    def test_user_register_fail(self):
         data = {"username": "test_u", "email": "test@gmail.com", "password": "test_pw"}
 
         User.objects.create(**data)
@@ -22,24 +22,23 @@ class RegisterTest(APITestCase):
 
 
 class LoginTest(APITestCase):
-    def user_login_success_test(self):
+    def test_user_login_success(self):
         data = {"username": "test_u", "email": "test@gmail.com", "password": "test_pw"}
-
-        User.objects.create(**data)
+        self.client.post(reverse("register"), data)
 
         response = self.client.post(reverse("login"), data)
 
-        self.assertEqual(response.status, status.HTTP_201_CREATED)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-    def user_login_user_exists_fail_test(self):
+    def test_user_login_user_exists_fail(self):
         data = {"username": "test_u", "email": "test@gmail.com", "password": "test_pw"}
 
         response = self.client.post(reverse("login"), data)
 
-        self.assertEqual(response.status, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data["error"], "username does not exist")
 
-    def user_login_password_fail_test(self):
+    def test_user_login_password_fail(self):
         data = {"username": "test_u", "email": "test@gmail.com", "password": "test_pw"}
 
         User.objects.create(**data)
@@ -48,5 +47,5 @@ class LoginTest(APITestCase):
 
         response = self.client.post(reverse("login"), data)
 
-        self.assertEqual(response.status, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data["error"], "incorrect password")
