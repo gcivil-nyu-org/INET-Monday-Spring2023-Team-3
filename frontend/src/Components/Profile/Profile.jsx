@@ -7,7 +7,7 @@ import {
   TextInput,
   toaster,
 } from "evergreen-ui";
-import { Card, Space, Row, Col, Button } from 'antd';
+import { Card, Space, Row, Col, Button, Input } from 'antd';
 import { useEffect, useRef, useState } from "react";
 import { useHistory } from "react-router-dom";
 import Map from "../Map/Map";
@@ -27,13 +27,13 @@ function Profile() {
   const searchBox = useRef(null);
   const [chosenPoints, setChosenPoints] = useState([]);
   const [showMap, setShowMap] = useState(false);
-
+  const [isEditMode, setIsEditMode] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    current_location: '',
-    dob: ''
+    message: ''
   });
+
 
 
   const getProfile = async () => {
@@ -46,6 +46,33 @@ function Profile() {
     } catch (e) {
       localStorage.removeItem("jwt");
       history.replace("/login");
+    }
+  };
+  const handleClickEditButton = () => {
+    console.log(isEditMode)
+    setIsEditMode(true)
+  }
+
+  const handleSubmitUpdate = async e => {
+    e.preventDefault();
+    console.log(formData)
+    let userinput = formData
+    if (userinput.email.trim() === ""){
+        toaster.danger("Enter a valid email 🙁");
+        return
+    }
+    try {
+        await axios.post(
+            `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/auth/profile/`,
+            {
+                location: "New York"
+            }
+          );
+          toaster.success("Changes saved!");
+          history.replace("/");
+
+    } catch(e) {
+       
     }
   };
 
@@ -65,7 +92,7 @@ function Profile() {
                 <Col span={24}>
                     <Row>
                         <Col span={4}>
-                            <div class="circle">
+                            <div className="circle">
                                 Image
                             </div>
                         </Col>
@@ -84,9 +111,14 @@ function Profile() {
         
         <Row style={{paddingTop:"1rem"}}>
             <Col span={24} style={{padding:"0.5rem"}}>
-                <Button type="primary">Edit Profile<span style={{paddingLeft:"4px",verticalAlign:"text-top" }}><EditIcon /></span></Button>
+                {!isEditMode?<Button type="primary" onClick={handleClickEditButton}>
+                    Edit Profile<span style={{paddingLeft:"4px",verticalAlign:"text-top" }}><EditIcon /></span>
+                </Button>:
+                <Button type="primary" onClick={handleSubmitUpdate}>
+                Save changes
+            </Button>}
             </Col>
-            
+            {!isEditMode?
             <Col span={8} style={{padding:"0.5rem"}}>
                 <Space
                     direction="vertical"
@@ -107,6 +139,36 @@ function Profile() {
                     </Card>
                 </Space>
             </Col>
+            :
+            <Col span={8} style={{padding:"0.5rem"}}>
+                <Space
+                    direction="vertical"
+                    size="middle"
+                    style={{
+                        display: 'flex',
+                    }}>
+                       
+                    <Card title="Email" size="small">
+                        <p>{profile.email}</p>
+                    </Card>
+
+                    
+                    <Card title="Current Location" size="small">
+                        <Input placeholder="Enter a new location"
+                            type="location"
+                            id="location"
+                            name="location"
+                            value={formData.location}
+                            onChange={e => setFormData({ ...formData, location: e.target.value })} 
+                        />
+                        
+                    </Card>
+                    <Card title="Personal Info" size="small">
+                        <p>Date of Birth</p>
+                        <p>January 1, 1996</p>
+                    </Card>
+                </Space>
+            </Col>}
             <Col span={16} style={{padding:"0.5rem"}}>
                 <Space
                     direction="vertical"
