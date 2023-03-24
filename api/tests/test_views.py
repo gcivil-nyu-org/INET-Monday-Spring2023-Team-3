@@ -38,3 +38,15 @@ class LoginTest(APITestCase):
 
         self.assertEqual(response.status, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data["error"], "username does not exist")
+
+    def user_login_password_fail_test(self):
+        data = {"username": "test_u", "email": "test@gmail.com", "password": "test_pw"}
+
+        User.objects.create(**data)
+
+        data["password"] = "fail"
+
+        response = self.client.post(reverse("login"), data)
+
+        self.assertEqual(response.status, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data["error"], "incorrect password")
