@@ -1,39 +1,23 @@
 import axios from "axios";
 import {
-  Heading,
   Pane,
-  SearchInput,
-  Text,
-  TextInput,
   toaster,
 } from "evergreen-ui";
 import { Card, Space, Row, Col, Button, Input } from 'antd';
 import { useEffect, useRef, useState } from "react";
 import { useHistory } from "react-router-dom";
-import Map from "../Map/Map";
-import { GoogleMap, StandaloneSearchBox, Marker } from "@react-google-maps/api";
 import "./Profile.css"
 import { EditIcon } from "evergreen-ui";
 
 function Profile() {
   const history = useHistory();
   const [isMounted, setIsMounted] = useState(false);
-  const [title, setTitle] = useState("");
-  const [titleError, setTitleError] = useState("");
-  const [locationsError, setLocationsError] = useState("");
-  const [hasSubmittedOnce, setHasSubmittedOnce] = useState(false);
   const [profile, setProfile] = useState({});
-  const [searchValue, setSearchValue] = useState("");
-  const searchBox = useRef(null);
-  const [chosenPoints, setChosenPoints] = useState([]);
-  const [showMap, setShowMap] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [formData, setFormData] = useState({
     location: '',
     dob: ''
   });
-
-
 
   const getProfile = async () => {
     try {
@@ -69,9 +53,7 @@ function Profile() {
         //   );
         //   toaster.success("Changes saved!");
         //   history.replace("/profile");
-
     } catch(e) {
-       
     }
   };
 
@@ -79,8 +61,6 @@ function Profile() {
   useEffect(() => {
     getProfile();
   }, []);
-
-
 
   if (!isMounted) return <div></div>;
   return (
@@ -150,7 +130,6 @@ function Profile() {
                     <Card title="Email" size="small">
                         <p>{profile.email}</p>
                     </Card>
-
                     
                     <Card title="Current Location" size="small">
                         <Input placeholder="Enter a new location"
@@ -188,8 +167,6 @@ function Profile() {
                         No Saved crawls yet. Explore
                     </Card>
                 </Space>
-                
-                   
             </Col>
         </Row>
         
