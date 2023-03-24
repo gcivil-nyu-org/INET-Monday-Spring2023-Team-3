@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from django.contrib.auth.hashers import make_password, check_password
 from django.core.mail import send_mail
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
 from .models import User, OTP_Request, RecoverRequest
 from .decorators import is_protected_route
 import jwt
@@ -139,14 +140,14 @@ def send_otp(request):
     """
     try:
         user = User.objects.get(email=request.data["email"])
-        if not user:
-            return Response(
-                {"error": "user does not exist"}, status=status.HTTP_400_BAD_REQUEST
-            )
         send_otp_email(user)
         return Response(
             {"success": True, "verified": False, "email": user.email},
             status=status.HTTP_201_CREATED,
+        )
+    except ObjectDoesNotExist:
+        return Response(
+            {"error": "user does not exist"}, status=status.HTTP_400_BAD_REQUEST
         )
     except Exception as e:
         print(e)
