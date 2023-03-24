@@ -27,6 +27,17 @@ class LoginTest(APITestCase):
         self.client.post(reverse("register"), data)
 
         response = self.client.post(reverse("login"), data)
+        user = User.objects.get(username=data["username"])
+        user.verified = True
+        user.save()
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_user_login_send_otp(self):
+        data = {"username": "test_u", "email": "test@gmail.com", "password": "test_pw"}
+        self.client.post(reverse("register"), data)
+
+        response = self.client.post(reverse("login"), data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
