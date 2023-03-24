@@ -29,9 +29,8 @@ function Profile() {
   const [showMap, setShowMap] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    message: ''
+    location: '',
+    dob: ''
   });
 
 
@@ -57,19 +56,19 @@ function Profile() {
     e.preventDefault();
     console.log(formData)
     let userinput = formData
-    if (userinput.email.trim() === ""){
-        toaster.danger("Enter a valid email 🙁");
+    if (userinput.location.trim() === "" || userinput.dob.trim()===""){
+        toaster.danger("Enter a valid Info 🙁");
         return
     }
     try {
-        await axios.post(
-            `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/auth/profile/`,
-            {
-                location: "New York"
-            }
-          );
-          toaster.success("Changes saved!");
-          history.replace("/");
+        // await axios.post(
+        //     `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/auth/profile/`,
+        //     {
+        //         location: "New York"
+        //     }
+        //   );
+        //   toaster.success("Changes saved!");
+        //   history.replace("/profile");
 
     } catch(e) {
        
@@ -97,7 +96,7 @@ function Profile() {
                             </div>
                         </Col>
                         <Col span={20} style={{padding:"1rem"}}>
-                            <div style={{padding:"0.5rem"}}>
+                            <div style={{padding:"0.5rem", fontSize:"1.4rem"}}>
                                 {profile.username}
                             </div>
                             <div style={{padding:"0.5rem"}}>
@@ -165,7 +164,13 @@ function Profile() {
                     </Card>
                     <Card title="Personal Info" size="small">
                         <p>Date of Birth</p>
-                        <p>January 1, 1996</p>
+                        <Input placeholder="Enter a new DOB"
+                            type="dob"
+                            id="dob"
+                            name="dob"
+                            value={formData.dob}
+                            onChange={e => setFormData({ ...formData, dob: e.target.value })} 
+                        />
                     </Card>
                 </Space>
             </Col>}
@@ -179,7 +184,12 @@ function Profile() {
                     <Card title="My Connections" size="small" style={{height:"100%"}}>
                         No connections yet
                     </Card>
+                    <Card title="Saved Crawls" size="small" style={{height:"100%"}}>
+                        No Saved crawls yet. Explore
+                    </Card>
                 </Space>
+                
+                   
             </Col>
         </Row>
         
