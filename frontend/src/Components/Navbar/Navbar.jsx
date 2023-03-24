@@ -48,6 +48,9 @@ function Navbar() {
         <Link style={{ textDecoration: "none" }} to="/create">
           <Text style={{ marginLeft: 24 }}>Create</Text>
         </Link>
+        <Link style={{ textDecoration: "none" }} to="/profile">
+          <Text style={{ marginLeft: 24 }}>Profile</Text>
+        </Link>
       </Pane>
       <Pane>
         <Button onClick={logout} appearance="minimal">
