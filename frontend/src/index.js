@@ -22,6 +22,7 @@ import OAuth from "./Components/OAuth/OAuth";
 import { LoadScript } from "@react-google-maps/api";
 import Navbar from "./Components/Navbar/Navbar";
 import Create from "./Components/Create/Create";
+import Profile from "./Components/Profile/Profile";
 
 axios.interceptors.request.use(function (config) {
   const token = localStorage.getItem("jwt");
@@ -64,16 +65,17 @@ const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <Provider store={store}>
     <LoadScript
-    libraries={["places"]}
-    googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API}
+      libraries={["places"]}
+      googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API}
     >
       <React.StrictMode>
         <ToastContainer />
         <Router>
-          <Navbar/>
+          <Navbar />
           <Switch>
             <PrivateRoute path="/" exact component={Home} />
             <PrivateRoute path="/create" exact component={Create} />
+            <PrivateRoute path="/profile" exact component={Profile} />
             <Route exact path="/register">
               <Register />
             </Route>
