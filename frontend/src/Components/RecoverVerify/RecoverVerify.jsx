@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import axios from "axios";
 import { Button, Pane, TextInput, Text } from "evergreen-ui";
 import { useEffect, useState } from "react";
@@ -9,7 +9,7 @@ import { toast } from "react-toastify";
 
 function RecoverVerify() {
   const history = useHistory();
-  const {token} = useParams();
+  const { token } = useParams();
 
   const [isMounted, setIsMounted] = useState(false);
 
@@ -46,10 +46,12 @@ function RecoverVerify() {
           `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/auth/update-password/`,
           {
             password,
-            token
+            token,
           }
         );
-        toast.success("Your password has been updated. Please log in to continue.");
+        toast.success(
+          "Your password has been updated. Please log in to continue."
+        );
         history.replace("/login");
       } catch (e) {
         toast.error("Something went wrong 🙁");
@@ -61,26 +63,26 @@ function RecoverVerify() {
     verify();
   }, [password, hasSubmittedOnce]);
 
-  const verifyToken = async()=>{
+  const verifyToken = async () => {
     try {
       await axios.post(
         `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/auth/verify-recovery/`,
         {
           password,
-          token
+          token,
         }
       );
-      setIsMounted(true)
+      setIsMounted(true);
     } catch (e) {
-      history.replace('/')
+      history.replace("/");
     }
-  }
+  };
 
   useEffect(() => {
     if (localStorage.getItem("jwt")) {
       history.replace("/");
     } else {
-      verifyToken()
+      verifyToken();
     }
   }, []);
 

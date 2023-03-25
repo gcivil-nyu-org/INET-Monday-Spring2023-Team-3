@@ -25,7 +25,9 @@ function Recover() {
     <>
       <h1>Forgot your password?</h1>
       {sent ? (
-        <p style={{padding: "0 64px", textAlign:"center", fontWeight: "bold"}}>
+        <p
+          style={{ padding: "0 64px", textAlign: "center", fontWeight: "bold" }}
+        >
           If you have an account with us, an email will be sent to you with
           instructions to reset your password.
         </p>

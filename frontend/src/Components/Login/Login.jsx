@@ -154,11 +154,13 @@ function Login() {
                     <Button
                       style={{ marginTop: 24 }}
                       onClick={() =>
-                        (window.location.href =
-                          `https://accounts.google.com/o/oauth2/v2/auth?client_id=631366351872-ehs9rde1ql2qdm3733upnsthnmpjj8k6.apps.googleusercontent.com&redirect_uri=${location.protocol}//${location.host}/google-redirect/&response_type=token&scope=https%3A//www.googleapis.com/auth/userinfo.email`)
+                        (window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?client_id=631366351872-ehs9rde1ql2qdm3733upnsthnmpjj8k6.apps.googleusercontent.com&redirect_uri=${location.protocol}//${location.host}/google-redirect/&response_type=token&scope=https%3A//www.googleapis.com/auth/userinfo.email`)
                       }
                     >
-                      <img src={GoogleLogo} style={{height: 24, marginBottom: 1}}/>
+                      <img
+                        src={GoogleLogo}
+                        style={{ height: 24, marginBottom: 1 }}
+                      />
                       <div>Sign in with Google</div>
                     </Button>
                     <p style={{ marginTop: 32 }}>

@@ -67,35 +67,35 @@ function Create() {
     getProfile();
   }, []);
 
-  useEffect(()=>{
-    if (chosenPoints.length < 2 && showMap) setShowMap(false)
-    if (chosenPoints.length >= 2 && !showMap) setShowMap(true)
-  }, [chosenPoints, showMap])
+  useEffect(() => {
+    if (chosenPoints.length < 2 && showMap) setShowMap(false);
+    if (chosenPoints.length >= 2 && !showMap) setShowMap(true);
+  }, [chosenPoints, showMap]);
 
-  const verify = ()=>{
-    let flag = true
+  const verify = () => {
+    let flag = true;
     if (title.trim().length === 0) {
       setTitleError("Title is Required");
       flag = false;
     } else {
-      setTitleError("")
+      setTitleError("");
     }
-    if (chosenPoints.length < 2){
-      setLocationsError("Must pick at least 2 locations")
+    if (chosenPoints.length < 2) {
+      setLocationsError("Must pick at least 2 locations");
     } else {
-      setLocationsError("")
+      setLocationsError("");
     }
-    return flag
-  }
-  const publish = async ()=>{
-    if (!hasSubmittedOnce) setHasSubmittedOnce(true)
-    if(!verify()) return
+    return flag;
+  };
+  const publish = async () => {
+    if (!hasSubmittedOnce) setHasSubmittedOnce(true);
+    if (!verify()) return;
     try {
       await axios.post(
         `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/`,
         {
           title,
-          points: chosenPoints
+          points: chosenPoints,
         }
       );
       toaster.success("Your crawl has been posted");
@@ -103,11 +103,11 @@ function Create() {
     } catch (e) {
       toaster.danger("Something went wrong 🙁");
     }
-  }
+  };
 
-  useEffect(()=>{
-    if (hasSubmittedOnce) verify()
-  },[title, chosenPoints])
+  useEffect(() => {
+    if (hasSubmittedOnce) verify();
+  }, [title, chosenPoints]);
 
   if (!isMounted) return <div></div>;
   return (
@@ -115,24 +115,28 @@ function Create() {
       <Pane style={{ padding: "0 32px" }}>
         <h1>Create a crawl</h1>
         <Pane style={{ display: "flex" }}>
-          <Pane style={{flex: 2}}>
-        <TextInput
-          style={{
-            fontWeight: "bold",
-            fontSize: 24,
-            height: 64,
-            width: "100%",
-          }}
-          placeholder="Enter a Title..."
-          onChange={(e) => setTitle(e.target.value)}
-          value={title}
-          isInvalid={titleError !== ""}
-        />
-        <Text size={400} color="red600" style={{fontWeight: "bold"}}>{titleError}</Text>
-        </Pane>
-        <Pane style={{width: 500, display:"flex", justifyContent:"flex-end"}}>
-          <Button onClick={publish}>Publish</Button>
-        </Pane>
+          <Pane style={{ flex: 2 }}>
+            <TextInput
+              style={{
+                fontWeight: "bold",
+                fontSize: 24,
+                height: 64,
+                width: "100%",
+              }}
+              placeholder="Enter a Title..."
+              onChange={(e) => setTitle(e.target.value)}
+              value={title}
+              isInvalid={titleError !== ""}
+            />
+            <Text size={400} color="red600" style={{ fontWeight: "bold" }}>
+              {titleError}
+            </Text>
+          </Pane>
+          <Pane
+            style={{ width: 500, display: "flex", justifyContent: "flex-end" }}
+          >
+            <Button onClick={publish}>Publish</Button>
+          </Pane>
         </Pane>
       </Pane>
       <Pane style={{ display: "flex" }}>
@@ -149,7 +153,10 @@ function Create() {
                 onLoad={onLoad}
                 onPlacesChanged={onPlacesChanged}
               >
-                <SearchInput style={{ width: 400 }} placeholder="Search for a place"/>
+                <SearchInput
+                  style={{ width: 400 }}
+                  placeholder="Search for a place"
+                />
               </StandaloneSearchBox>
             </div>
             <div
@@ -167,11 +174,13 @@ function Create() {
                   setPoints={setChosenPoints}
                 />
               ) : (
-                <GoogleMap mapContainerStyle={{width: "100%", height: 600}} zoom={10} center={{ lat: 40.723301, lng: -74.002988 }}>
+                <GoogleMap
+                  mapContainerStyle={{ width: "100%", height: 600 }}
+                  zoom={10}
+                  center={{ lat: 40.723301, lng: -74.002988 }}
+                >
                   {chosenPoints.length === 1 && (
-                    <Marker
-                    position={chosenPoints[0].location}
-                  />
+                    <Marker position={chosenPoints[0].location} />
                   )}
                 </GoogleMap>
               )}
@@ -209,7 +218,11 @@ function Create() {
               </Button>
             </Pane>
           ))}
-          {locationsError && (<Text size={400} color="red600" style={{fontWeight: "bold"}}>{locationsError}</Text>)}
+          {locationsError && (
+            <Text size={400} color="red600" style={{ fontWeight: "bold" }}>
+              {locationsError}
+            </Text>
+          )}
         </Pane>
       </Pane>
     </Pane>

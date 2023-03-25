@@ -75,7 +75,9 @@ function Register() {
             password,
           }
         );
-        toast.success("Your account has been registered. Please log in to continue.");
+        toast.success(
+          "Your account has been registered. Please log in to continue."
+        );
         history.replace("/login");
       } catch (e) {
         toast.error("Something went wrong 🙁");
