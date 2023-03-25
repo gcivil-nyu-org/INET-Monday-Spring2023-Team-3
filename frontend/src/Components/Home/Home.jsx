@@ -43,11 +43,7 @@ function Home() {
   if (!isMounted) return <div></div>;
   return (
     <Pane style={{ padding: 32 }}>
-      <h1>Welcome {profile.username}!</h1>
-      <div>
-        You used <strong>{profile.email}</strong> to register
-      </div>
-      <h1 style={{ marginTop: 36}}>All crawls</h1>
+      <h1>All crawls</h1>
       <Pane style={{ marginTop: 24, width: "60%" }}>
         {allCrawls.map(x=>(
           <Pane><Heading size={800}>{x.title}</Heading>

@@ -41,7 +41,7 @@ function Profile() {
     
     let userinput = formData
     if (userinput.location.trim() === "" || userinput.dob.trim()===""){
-        toaster.danger("Enter a valid Info 🙁");
+        toaster.danger("Enter valid info 🙁");
         return
     }
     try {
@@ -90,12 +90,12 @@ function Profile() {
         
         <Row style={{paddingTop:"1rem"}}>
             <Col span={24} style={{padding:"0.5rem"}}>
-                {!isEditMode?<Button type="primary" onClick={handleClickEditButton}>
+                {/* {!isEditMode?<Button type="primary" onClick={handleClickEditButton}>
                     Edit Profile<span style={{paddingLeft:"4px",verticalAlign:"text-top" }}><EditIcon /></span>
                 </Button>:
                 <Button type="primary" onClick={handleSubmitUpdate}>
                 Save changes
-            </Button>}
+            </Button>} */}
             </Col>
             {!isEditMode?
             <Col span={8} style={{padding:"0.5rem"}}>
@@ -109,13 +109,13 @@ function Profile() {
                     <Card title="Email" size="small">
                         <p>{profile.email}</p>
                     </Card>
-                    <Card title="Current Location" size="small">
+                    {/* <Card title="Current Location" size="small">
                         <p>Lower East Side, New York</p>
                     </Card>
                     <Card title="Personal Info" size="small">
                         <p>Date of Birth</p>
                         <p>January 1, 1996</p>
-                    </Card>
+                    </Card> */}
                 </Space>
             </Col>
             :

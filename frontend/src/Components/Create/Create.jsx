@@ -111,7 +111,7 @@ function Create() {
 
   if (!isMounted) return <div></div>;
   return (
-    <Pane>
+    <Pane style={{ paddingTop: 32 }}>
       <Pane style={{ padding: "0 32px" }}>
         <h1>Create a crawl</h1>
         <Pane style={{ display: "flex" }}>
