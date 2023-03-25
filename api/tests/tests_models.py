@@ -10,5 +10,6 @@ class TestModels(TestCase):
 
     def test_user(self):
         u = self.setUp()
+
         self.assertEquals("testanil3", u.username)
         self.assertEquals(u.__str__(), u.username)
