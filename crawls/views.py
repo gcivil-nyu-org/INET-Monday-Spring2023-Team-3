@@ -17,12 +17,12 @@ def crawl_create(request):
     crawl = Crawl.objects.filter(title=request.data["title"]).exists()
     if crawl:
         return Response(
-            {"error": "crawl already exists"}, status=status.HTTP_400_BAD_REQUEST
+            {"error": "Crawl title already exists"}, status=status.HTTP_400_BAD_REQUEST
         )  # change to redirect?
     data = {
         "title": request.data["title"],
         "author": request.user.username,
-        "data": json.dumps(request.data),
+        "data": json.dumps(request.data["data"]),
     }
     crawl = Crawl.objects.create(**data)
     # assuming tags will be input as string with tags separated by commas

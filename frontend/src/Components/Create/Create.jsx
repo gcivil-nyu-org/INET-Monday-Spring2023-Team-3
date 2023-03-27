@@ -11,8 +11,26 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { useHistory } from "react-router-dom";
 import Map from "../Map/Map";
-import { GoogleMap, StandaloneSearchBox, Marker } from "@react-google-maps/api";
+import {
+  GoogleMap,
+  StandaloneSearchBox,
+  Marker,
+  DirectionsRenderer,
+} from "@react-google-maps/api";
+import { Dropdown, Space } from "antd";
+import {
+  DownOutlined,
+  ClockCircleOutlined,
+  SwapOutlined,
+} from "@ant-design/icons";
+import { secondsToHms } from "../../common";
 
+const TRANSIT_TYPES = {
+  DRIVING: "Drive",
+  WALKING: "Walk",
+  TRANSIT: "Transit",
+  BICYCLING: "Bicycle",
+};
 function Create() {
   const history = useHistory();
   const [isMounted, setIsMounted] = useState(false);
@@ -24,7 +42,7 @@ function Create() {
   const [searchValue, setSearchValue] = useState("");
   const searchBox = useRef(null);
   const [chosenPoints, setChosenPoints] = useState([]);
-  const [showMap, setShowMap] = useState(false);
+  const [directions, setDirections] = useState({});
 
   const onLoad = (ref) => (searchBox.current = ref);
   const onPlacesChanged = () => {
@@ -35,11 +53,12 @@ function Create() {
       geometry: { location },
     } = searchBox.current.getPlaces()[0];
     if (chosenPoints.some((point) => point.placeId === placeId)) {
+      toaster.danger("Place already exists in crawl");
       return;
     }
-    setChosenPoints([
+    updateDirections([
       ...chosenPoints,
-      { placeId, name, formatted_address, location },
+      { placeId, name, formatted_address, location, transit: "WALKING" },
     ]);
   };
 
@@ -56,21 +75,9 @@ function Create() {
     }
   };
 
-  const remountMap = () => {
-    setShowMap(false);
-    setTimeout(() => {
-      setShowMap(true);
-    }, 100);
-  };
-
   useEffect(() => {
     getProfile();
   }, []);
-
-  useEffect(() => {
-    if (chosenPoints.length < 2 && showMap) setShowMap(false);
-    if (chosenPoints.length >= 2 && !showMap) setShowMap(true);
-  }, [chosenPoints, showMap]);
 
   const verify = () => {
     let flag = true;
@@ -82,8 +89,13 @@ function Create() {
     }
     if (chosenPoints.length < 2) {
       setLocationsError("Must pick at least 2 locations");
+      flag = false;
     } else {
       setLocationsError("");
+    }
+    if (directions && directions.time > 6 * 60 * 60) {
+      toaster.danger("Crawls cannot be longer than 6 hours");
+      flag = false;
     }
     return flag;
   };
@@ -94,20 +106,100 @@ function Create() {
       await axios.post(
         `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/`,
         {
-          title,
-          points: chosenPoints,
+          title: title.trim(),
+          data: {
+            points: chosenPoints,
+            directions,
+          },
         }
       );
       toaster.success("Your crawl has been posted");
       history.replace("/");
     } catch (e) {
-      toaster.danger("Something went wrong 🙁");
+      if (e?.response?.data?.error) toaster.danger(e.response.data.error);
+      else toaster.danger("Something went wrong 🙁");
     }
   };
 
   useEffect(() => {
-    if (hasSubmittedOnce) verify();
+    // if (hasSubmittedOnce) verify();
   }, [title, chosenPoints]);
+
+  const updateDirections = async (_points) => {
+    const points = (_points || []).map((point) => {
+      if (point.placeId) return { placeId: point.placeId };
+      return point.location;
+    });
+    if (points.length < 2) {
+      setChosenPoints(_points);
+      setDirections({});
+      return;
+    }
+    const directionsService = new google.maps.DirectionsService();
+    const out = {
+      geocoded_waypoints: [],
+      routes: [
+        {
+          bounds: new google.maps.LatLngBounds(),
+          legs: [],
+        },
+      ],
+      request: {
+        destination: { placeId: points[points.length - 1] },
+        origin: { placeId: points[0] },
+        travelMode: "WALKING",
+      },
+      time: 0,
+      distance: 0,
+    };
+    for (let i = 1; i < points.length; i++) {
+      const request = {
+        destination: points[i],
+        origin: points[i - 1],
+        travelMode: _points[i].transit,
+      };
+      let res;
+      try {
+        res = await directionsService.route(request);
+      } catch (e) {
+        toaster.danger(
+          "Point not reachable. Cannot be added to current crawl.",
+          {
+            duration: 5,
+          }
+        );
+      }
+      if (res !== null && res.status === "OK") {
+        console.log(res);
+        out.geocoded_waypoints.push(...res.geocoded_waypoints);
+        out.routes[0].legs.push(...res.routes[0].legs);
+        out.routes[0].bounds.extend({
+          lng: res.routes[0].bounds.Ga.hi,
+          lat: res.routes[0].bounds.Va.hi,
+        });
+        out.routes[0].bounds.extend({
+          lng: res.routes[0].bounds.Ga.lo,
+          lat: res.routes[0].bounds.Va.lo,
+        });
+        out.time += res.routes[0].legs
+          .map((x) => x.duration.value)
+          .reduce((a, b) => a + b);
+        out.distance += res.routes[0].legs
+          .map((x) => x.distance.value)
+          .reduce((a, b) => a + b);
+      } else {
+        toaster.danger(
+          "Point not reachable. Cannot be added to current crawl.",
+          {
+            duration: 5,
+          }
+        );
+      }
+    }
+    console.log(out);
+    setDirections(out);
+    setChosenPoints(_points);
+  };
 
   if (!isMounted) return <div></div>;
   return (
@@ -167,21 +259,30 @@ function Create() {
                 marginTop: -50,
               }}
             >
-              {showMap ? (
-                <Map
-                  containerStyle={{ width: "100%", height: 600 }}
-                  points={chosenPoints}
-                  setPoints={setChosenPoints}
-                />
+              {chosenPoints?.length === 1 ? (
+                <GoogleMap
+                  mapContainerStyle={{ width: "100%", height: 600 }}
+                  zoom={10}
+                  center={chosenPoints[0].location}
+                >
+                  <Marker position={chosenPoints[0].location} label="A" />
+                </GoogleMap>
               ) : (
                 <GoogleMap
                   mapContainerStyle={{ width: "100%", height: 600 }}
                   zoom={10}
-                  center={{ lat: 40.723301, lng: -74.002988 }}
+                  center={
+                    chosenPoints.length === 0 && {
+                      lat: 40.723301,
+                      lng: -74.002988,
+                    }
+                  }
                 >
-                  {chosenPoints.length === 1 && (
-                    <Marker position={chosenPoints[0].location} />
-                  )}
+                  <DirectionsRenderer
+                    options={{
+                      directions,
+                    }}
+                  />
                 </GoogleMap>
               )}
             </div>
@@ -190,32 +291,108 @@ function Create() {
         <Pane
           style={{ width: 500, height: 600, overflow: "scroll", marginTop: 14 }}
         >
+          {chosenPoints.length > 1 && (
+            <Pane
+              style={{
+                borderBottom: "1px solid #DDD",
+                padding: "16px",
+              }}
+            >
+              <Heading size={700} style={{ marginBottom: 8 }}>
+                Crawl Stats
+              </Heading>
+              <div>Time: {secondsToHms(directions.time)}</div>
+              <div>Distance: {(directions.distance / 1000).toFixed(1)}km</div>
+            </Pane>
+          )}
           {chosenPoints.map((point, idx) => (
             <Pane
               style={{
                 borderBottom: "1px solid #DDD",
                 padding: "16px",
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
               }}
             >
-              <Heading>
-                {String.fromCharCode("A".charCodeAt(0) + idx)}. {point.name}
-              </Heading>
-              <Button
-                intent="danger"
-                onClick={() => {
-                  const newChosenPoints = JSON.parse(
-                    JSON.stringify(chosenPoints)
-                  );
-                  newChosenPoints.splice(idx, 1);
-                  setChosenPoints(newChosenPoints);
-                  remountMap();
+              <Pane
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
                 }}
               >
-                Remove
-              </Button>
+                <Heading>
+                  {String.fromCharCode("A".charCodeAt(0) + idx)}. {point.name}
+                </Heading>
+                <Button
+                  intent="danger"
+                  onClick={() => {
+                    const newChosenPoints = JSON.parse(
+                      JSON.stringify(chosenPoints)
+                    );
+                    newChosenPoints.splice(idx, 1);
+                    updateDirections(newChosenPoints);
+                  }}
+                >
+                  Remove
+                </Button>
+              </Pane>
+              {idx > 0 && (
+                <Pane
+                  style={{
+                    marginTop: 16,
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <div style={{ fontWeight: "bolder", fontSize: 12 }}>
+                    <ClockCircleOutlined />{" "}
+                    {directions.routes[0].legs[idx - 1].duration.text}
+                    <div style={{ height: 4 }} />
+                    <SwapOutlined /> Distance:{" "}
+                    {(
+                      directions.routes[0].legs[idx - 1].distance.value / 1000
+                    ).toFixed(1)}
+                    km
+                  </div>
+                  <Dropdown
+                    menu={{
+                      items: [
+                        {
+                          label: "Walk",
+                          key: "WALKING",
+                        },
+                        {
+                          label: "Drive",
+                          key: "DRIVING",
+                        },
+                        {
+                          label: "Bicycle",
+                          key: "BICYCLING",
+                        },
+                        {
+                          label: "Transit",
+                          key: "TRANSIT",
+                        },
+                      ],
+                      onClick: ({ key }) => {
+                        const newChosenPoints = JSON.parse(
+                          JSON.stringify(chosenPoints)
+                        );
+                        newChosenPoints[idx].transit = key;
+                        updateDirections(newChosenPoints);
+                      },
+                    }}
+                    onClick={() => {}}
+                  >
+                    <Button>
+                      <Space>
+                        {TRANSIT_TYPES[point.transit]}
+                        <DownOutlined />
+                      </Space>
+                    </Button>
+                  </Dropdown>
+                </Pane>
+              )}
             </Pane>
           ))}
           {locationsError && (

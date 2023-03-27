@@ -1,3 +1,4 @@
+import { DirectionsRenderer, GoogleMap } from "@react-google-maps/api";
 import axios from "axios";
 import { Pane, Heading } from "evergreen-ui";
 import { useEffect, useState } from "react";
@@ -49,11 +50,16 @@ function Home() {
           <Pane>
             <Heading size={800}>{x.title}</Heading>
             <Pane style={{ display: "flex" }}>
-              <Map
-                points={x.data.points}
-                containerStyle={{ width: "100%", height: 400 }}
-                setPoints={() => {}}
-              />
+              <GoogleMap
+                mapContainerStyle={{ width: "100%", height: 400 }}
+                zoom={10}
+              >
+                <DirectionsRenderer
+                  options={{
+                    directions: x.data.directions,
+                  }}
+                />
+              </GoogleMap>
               <Pane
                 style={{
                   width: 500,
