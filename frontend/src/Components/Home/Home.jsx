@@ -1,9 +1,14 @@
 import { DirectionsRenderer, GoogleMap } from "@react-google-maps/api";
 import axios from "axios";
-import { Pane, Heading } from "evergreen-ui";
+import { Pane, Heading, Text } from "evergreen-ui";
 import { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
+import {
+  ClockCircleOutlined,
+  SwapOutlined,
+} from "@ant-design/icons";
 import Map from "../Map/Map";
+import { secondsToHms, TRANSIT_TYPES } from "../../common";
 
 function Home() {
   const history = useHistory();
@@ -68,19 +73,65 @@ function Home() {
                   marginTop: 14,
                 }}
               >
+                <Pane
+                  style={{
+                    borderBottom: "1px solid #DDD",
+                    padding: "16px",
+                  }}
+                >
+                  <Heading size={700} style={{ marginBottom: 8 }}>
+                    Crawl Stats
+                  </Heading>
+                  <div>Time: {secondsToHms(x.data.directions.time)}</div>
+                  <div>
+                    Distance: {(x.data.directions.distance / 1000).toFixed(1)}km
+                  </div>
+                </Pane>
                 {x.data.points.map((p, idx) => (
-                  <Pane
-                    style={{
-                      borderBottom: "1px solid #DDD",
-                      padding: "16px",
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                    }}
-                  >
-                    <Heading>
-                      {String.fromCharCode("A".charCodeAt(0) + idx)}. {p.name}
-                    </Heading>
+                  <Pane>
+                    <Pane
+                      style={{
+                        borderBottom: "1px solid #DDD",
+                        padding: "16px",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Pane>
+                        <Heading>
+                          {String.fromCharCode("A".charCodeAt(0) + idx)}.{" "}
+                          {p.name}
+                        </Heading>
+                        <Text>{TRANSIT_TYPES[p.transit]}</Text>
+                      </Pane>
+                      {idx > 0 && (
+                        <Pane
+                          style={{
+                            marginTop: 16,
+                            paddingLeft: 16,
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                          }}
+                        >
+                          <div style={{ fontWeight: "bolder", fontSize: 12 }}>
+                            <ClockCircleOutlined />{" "}
+                            {
+                              x.data.directions.routes[0].legs[idx - 1].duration
+                                .text
+                            }
+                            <div style={{ height: 4 }} />
+                            <SwapOutlined /> Distance:{" "}
+                            {(
+                              x.data.directions.routes[0].legs[idx - 1].distance
+                                .value / 1000
+                            ).toFixed(1)}
+                            km
+                          </div>
+                        </Pane>
+                      )}
+                    </Pane>
                   </Pane>
                 ))}
               </Pane>

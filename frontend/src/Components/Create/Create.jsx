@@ -23,14 +23,8 @@ import {
   ClockCircleOutlined,
   SwapOutlined,
 } from "@ant-design/icons";
-import { secondsToHms } from "../../common";
+import { secondsToHms, TRANSIT_TYPES } from "../../common";
 
-const TRANSIT_TYPES = {
-  DRIVING: "Drive",
-  WALKING: "Walk",
-  TRANSIT: "Transit",
-  BICYCLING: "Bicycle",
-};
 function Create() {
   const history = useHistory();
   const [isMounted, setIsMounted] = useState(false);
