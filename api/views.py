@@ -300,9 +300,9 @@ def full_profile(request, format=None):
     data = {
         "username": request.user.username,
         "email": request.user.email,
-        "location":request.user.location,
-        "short_bio":request.user.short_bio,
-        "date_of_birth":request.user.date_of_birth
+        "location": request.user.location,
+        "short_bio": request.user.short_bio,
+        "date_of_birth": request.user.date_of_birth
     }
     return Response(data)
 
@@ -316,7 +316,6 @@ def update_user_info(request):
             "short_bio": request.data["short_bio"],
         }
         User.objects.update(**data)
-        
         return Response({"success": True}, status=status.HTTP_201_CREATED)
     except Exception as e:
         print(e)

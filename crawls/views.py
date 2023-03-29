@@ -49,6 +49,7 @@ def crawl_get_all(request):
         out.append({"title": crawls[i].title, "data": json.loads(crawls[i].data)})
     return Response(out)
 
+
 @api_view(["GET"])
 @is_protected_route
 def crawl_get_crawls_by_author(request):
@@ -56,7 +57,7 @@ def crawl_get_crawls_by_author(request):
     get crawls authored by the user_id passed in.
     """
     author_id = request.query_params.get('author_id')
-    crawls = Crawl.objects.filter(author_id = author_id)
+    crawls = Crawl.objects.filter(author_id=author_id)
     res = []
     for i in crawls:
         res.append({"title": i.title, "data": json.loads(i.data)})
