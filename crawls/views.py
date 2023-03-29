@@ -56,7 +56,7 @@ def crawl_get_crawls_by_author(request):
     """
     get crawls authored by the user_id passed in.
     """
-    author_id = request.query_params.get('author_id')
+    author_id = request.query_params.get("author_id")
     crawls = Crawl.objects.filter(author_id=author_id)
     res = []
     for i in crawls:

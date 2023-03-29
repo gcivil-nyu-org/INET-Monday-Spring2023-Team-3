@@ -302,7 +302,7 @@ def full_profile(request, format=None):
         "email": request.user.email,
         "location": request.user.location,
         "short_bio": request.user.short_bio,
-        "date_of_birth": request.user.date_of_birth
+        "date_of_birth": request.user.date_of_birth,
     }
     return Response(data)
 
