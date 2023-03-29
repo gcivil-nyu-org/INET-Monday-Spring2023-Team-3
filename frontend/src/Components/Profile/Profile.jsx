@@ -1,10 +1,13 @@
 import axios from "axios";
 import { Pane, toaster } from "evergreen-ui";
-import { Card, Space, Row, Col, Button, Input } from "antd";
+import { Card, Space, Row, Col, Button, Input, DatePickerProps, DatePicker } from "antd";
 import { useEffect, useRef, useState } from "react";
 import { useHistory } from "react-router-dom";
 import "./Profile.css";
 import { EditIcon } from "evergreen-ui";
+import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+dayjs.extend(customParseFormat);
 
 function Profile() {
   const history = useHistory();
@@ -14,16 +17,18 @@ function Profile() {
   const [formData, setFormData] = useState({
     location: "", dob: "", short_bio: "",
   });
-
+  const dateFormat = 'YYYY-MM-DD'
+  const updateFields = (date, dateString) => {
+    setFormData({ ...formData, dob: dateString.replaceAll("/","-") })
+  }
   const getProfile = async () => {
     try {
       const { data } = await axios.get(
         `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/auth/full_profile/`
       );
       setProfile(data);
-      console.log(data)
       formData.location = data.location
-      formData.dob = data.dob
+      formData.dob = data.date_of_birth.replaceAll("-","/")
       formData.short_bio = data.short_bio
       setIsMounted(true);
     } catch (e) {
@@ -39,7 +44,6 @@ function Profile() {
     e.preventDefault();
 
     let userinput = formData;
-    console.log(userinput)
     if (userinput.location === null || userinput.location === "" 
         || userinput.dob == null || userinput.dob === "" 
         || userinput.short_bio === null || userinput.short_bio === "") {
@@ -47,7 +51,7 @@ function Profile() {
       return;
     }
     try {
-
+      userinput.dob = userinput.dob.replaceAll("/","-")
       // DATE OF BIRTH must be in "YYYY-MM-DD" FORMAT!
       await axios.post(
           `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/auth/update-user-info/`,
@@ -60,6 +64,13 @@ function Profile() {
         toaster.success("Changes saved!");
         history.replace("/profile");
         setIsEditMode(false)
+
+        setProfile({
+          date_of_birth: userinput.dob,
+          location: userinput.location,
+          short_bio: userinput.short_bio,
+        })
+
     } catch (e) {
       console.log(e)
     }
@@ -153,16 +164,11 @@ function Profile() {
                 />
               </Card>
               <Card title="Date of Birth" size="small">
-                <Input
-                  placeholder="Enter a new DOB"
-                  type="dob"
-                  id="dob"
-                  name="dob"
-                  value={formData.dob}
-                  onChange={(e) =>
-                    setFormData({ ...formData, dob: e.target.value })
-                  }
-                />
+                <Space direction="vertical" size={12}>
+                  <DatePicker 
+                    onChange={updateFields} 
+                    defaultValue={dayjs(formData.dob, dateFormat)} format={dateFormat} />
+                </Space>
               </Card>
               <Card title="Short Bio" size="small">
                 <Input
