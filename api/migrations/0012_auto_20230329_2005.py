@@ -43,25 +43,25 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='otp_request',
             name='id',
-            field=models.AutoField(auto_created=True, primary_key=True, 
+            field=models.AutoField(auto_created=True, primary_key=True,
                                    serialize=False, verbose_name='ID'),
         ),
         migrations.AlterField(
             model_name='recoverrequest',
             name='id',
-            field=models.AutoField(auto_created=True, primary_key=True, 
+            field=models.AutoField(auto_created=True, primary_key=True,
                                    serialize=False, verbose_name='ID'),
         ),
         migrations.AlterField(
             model_name='user',
             name='id',
-            field=models.AutoField(auto_created=True, primary_key=True, 
+            field=models.AutoField(auto_created=True, primary_key=True,
                                    serialize=False, verbose_name='ID'),
         ),
         migrations.AlterField(
             model_name='usertest',
             name='id',
-            field=models.AutoField(auto_created=True, primary_key=True, 
+            field=models.AutoField(auto_created=True, primary_key=True,
                                    serialize=False, verbose_name='ID'),
         ),
     ]
