@@ -63,6 +63,7 @@ def crawl_get_crawls_by_author(request):
         res.append({"title": i.title, "data": json.loads(i.data)})
     return Response(res)
 
+
 @api_view(["POST"])
 def crawl_delete(request):
     """

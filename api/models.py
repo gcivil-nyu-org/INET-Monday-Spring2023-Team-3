@@ -11,6 +11,7 @@ class UserTest(models.Model):
     date_of_birth = models.DateField(null=True, blank=True)
     location = models.CharField(max_length=50, null=True, blank=True)
     short_bio = models.CharField(max_length=200, null=True)
+    
     def __str__(self):
         return self.username
 
@@ -23,6 +24,7 @@ class User(models.Model):
     date_of_birth = models.DateField(null=True, blank=True)
     location = models.CharField(max_length=50, null=True, blank=True)
     short_bio = models.CharField(max_length=200, null=True, blank=True)
+    
     def __str__(self):
         return self.username
 
