@@ -292,3 +292,32 @@ def profile(request, format=None):
         "email": request.user.email,
     }
     return Response(data)
+
+
+@api_view(["GET"])
+@is_protected_route
+def full_profile(request, format=None):
+    data = {
+        "username": request.user.username,
+        "email": request.user.email,
+        "location":request.user.location,
+        "short_bio":request.user.short_bio,
+        "date_of_birth":request.user.date_of_birth
+    }
+    return Response(data)
+
+
+@api_view(["POST"])
+def update_user_info(request):
+    try:
+        data = {
+            "location": request.data["location"],
+            "date_of_birth": request.data["date_of_birth"],
+            "short_bio": request.data["short_bio"],
+        }
+        User.objects.update(**data)
+        
+        return Response({"success": True}, status=status.HTTP_201_CREATED)
+    except Exception as e:
+        print(e)
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)

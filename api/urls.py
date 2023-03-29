@@ -12,6 +12,8 @@ urlpatterns = [
     path("verify-recovery/", views.verify_recovery),
     path("update-password/", views.update_password),
     path("google-oauth/", views.google_verify),
+    path("full_profile/", views.full_profile, name="full_profile"),
+    path("update-user-info/", views.update_user_info),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
