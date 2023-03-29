@@ -12,8 +12,7 @@ function Profile() {
   const [profile, setProfile] = useState({});
   const [isEditMode, setIsEditMode] = useState(false);
   const [formData, setFormData] = useState({
-    location: "",
-    dob: "",
+    location: "", dob: "", short_bio: "",
   });
 
   const getProfile = async () => {
@@ -23,6 +22,9 @@ function Profile() {
       );
       setProfile(data);
       console.log(data)
+      formData.location = data.location
+      formData.dob = data.dob
+      formData.short_bio = data.short_bio
       setIsMounted(true);
     } catch (e) {
       localStorage.removeItem("jwt");
@@ -36,22 +38,28 @@ function Profile() {
   const handleSubmitUpdate = async (e) => {
     e.preventDefault();
 
-
     let userinput = formData;
-    if (userinput.location.trim() === "" || userinput.dob.trim() === "") {
-      toaster.danger("Enter valid info 🙁");
+    console.log(userinput)
+    if (userinput.location === null || userinput.location === "" 
+        || userinput.dob == null || userinput.dob === "" 
+        || userinput.short_bio === null || userinput.short_bio === "") {
+      toaster.danger("Error: Please enter valid information! 🙁");
       return;
     }
     try {
+
+      // DATE OF BIRTH must be in "YYYY-MM-DD" FORMAT!
       await axios.post(
-          `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/auth/profile/`,
+          `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/auth/update-user-info/`,
           {
               date_of_birth: userinput.dob,
               location: userinput.location,
+              short_bio: userinput.short_bio,
           }
         );
         toaster.success("Changes saved!");
         history.replace("/profile");
+        setIsEditMode(false)
     } catch (e) {
       console.log(e)
     }
@@ -84,11 +92,12 @@ function Profile() {
 
       <Row style={{ paddingTop: "1rem" }}>
         <Col span={24} style={{ padding: "0.5rem" }}>
-          {!isEditMode?<Button type="primary" onClick={handleClickEditButton}>
-                    Edit Profile<span style={{paddingLeft:"4px",verticalAlign:"text-top" }}><EditIcon /></span>
-                </Button>:
-                <Button type="primary" onClick={handleSubmitUpdate}>
-                Save changes
+          {!isEditMode?
+          <Button type="primary" onClick={handleClickEditButton}>
+            Edit Profile<span style={{paddingLeft:"4px",verticalAlign:"text-top" }}><EditIcon /></span>
+          </Button>:
+            <Button type="primary" onClick={handleSubmitUpdate}>
+              Save changes
             </Button>}
         </Col>
         {!isEditMode ? (
@@ -104,12 +113,18 @@ function Profile() {
                 <p>{profile.email}</p>
               </Card>
               <Card title="Current Location" size="small">
-                        <p>Lower East Side, New York</p>
-                    </Card>
-                    <Card title="Personal Info" size="small">
-                        <p>Date of Birth</p>
-                        <p>January 1, 1996</p>
-                    </Card>
+                <p>{profile.location ? profile.location: "No data yet"}</p>
+              </Card>
+              <Card title="Date of Birth" size="small">
+                <div>
+                  <p>{profile.date_of_birth ? profile.date_of_birth : "No data yet"}</p>
+                </div>
+              </Card>
+              <Card title="Short Bio" size="small">
+                <div>
+                  <p>{profile.short_bio ? profile.short_bio : "No data yet"}</p>
+                </div>
+              </Card>
             </Space>
           </Col>
         ) : (
@@ -137,8 +152,7 @@ function Profile() {
                   }
                 />
               </Card>
-              <Card title="Personal Info" size="small">
-                <p>Date of Birth</p>
+              <Card title="Date of Birth" size="small">
                 <Input
                   placeholder="Enter a new DOB"
                   type="dob"
@@ -147,6 +161,18 @@ function Profile() {
                   value={formData.dob}
                   onChange={(e) =>
                     setFormData({ ...formData, dob: e.target.value })
+                  }
+                />
+              </Card>
+              <Card title="Short Bio" size="small">
+                <Input
+                  placeholder="Enter a short bio about yourself"
+                  type="short_bio"
+                  id="short_bio"
+                  name="Short Bio"
+                  value={formData.short_bio}
+                  onChange={(e) =>
+                    setFormData({ ...formData, short_bio: e.target.value })
                   }
                 />
               </Card>
@@ -168,8 +194,15 @@ function Profile() {
             >
               No connections yet
             </Card>
+            {/* <Card
+              title="My Crawls"
+              size="small"
+              style={{ height: "100%" }}
+            >
+              No crawls yet
+            </Card> */}
             <Card title="Saved Crawls" size="small" style={{ height: "100%" }}>
-              No Saved crawls yet. Explore
+              No Saved crawls yet <a href="/">Explore</a>
             </Card>
           </Space>
         </Col>
