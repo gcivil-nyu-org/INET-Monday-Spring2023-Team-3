@@ -85,8 +85,28 @@ WSGI_APPLICATION = "nghbrly.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
+EXTERNAL_DB_VARS = [
+    "DB_ENGINE",
+    "DB_NAME",
+    "DB_USER",
+    "DB_PASSWORD",
+    "DB_HOST",
+    "DB_PORT",
+]
+USE_EXTERNAL_DB = all([os.environ.get(var) for var in EXTERNAL_DB_VARS])
+
 DATABASES = {
     "default": {
+        "ENGINE": os.environ.get("DB_ENGINE"),
+        "NAME": os.environ.get("DB_NAME"),
+        "USER": os.environ.get("DB_USER"),
+        "PASSWORD": os.environ.get("DB_PASSWORD"),
+        "HOST": os.environ.get("DB_HOST"),
+        "PORT": os.environ.get("DB_PORT"),
+        'OPTIONS': {'sslmode': 'require'},
+    }
+    if USE_EXTERNAL_DB
+    else {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": str(BASE_DIR / "db.sqlite3"),
     }
