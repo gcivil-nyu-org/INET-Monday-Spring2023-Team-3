@@ -67,6 +67,7 @@ root.render(
     <LoadScript
       libraries={["places"]}
       googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API}
+      language="en"
     >
       <React.StrictMode>
         <ToastContainer />
