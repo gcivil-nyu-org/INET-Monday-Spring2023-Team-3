@@ -302,9 +302,37 @@ def full_profile(request, format=None):
         "email": request.user.email,
         "location": request.user.location,
         "short_bio": request.user.short_bio,
+        "following": request.user.follows,
+        "followed_by": request.user.followed_by,
         # "date_of_birth": request.user.date_of_birth,
     }
     return Response(data)
+
+@api_view(["GET"])
+@is_protected_route
+def get_other_user_profile(request, other_username, format=None):
+    try:
+        print(other_username)
+        otheruser = User.objects.filter(username = other_username).exists()
+        print(otheruser)
+        if not otheruser:
+            return Response(
+                {"error": "user does not exists"}, status=status.HTTP_400_BAD_REQUEST
+            )
+          
+        data = {
+            "username": request.user.username,
+            "email": request.user.email,
+            "location": request.user.location,
+            "short_bio": request.user.short_bio,
+            "following": request.user.follows,
+            "followed_by": request.user.followed_by,
+        }
+        return Response(data)
+    except Exception as e:
+        print(e)
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 
 @api_view(["POST"])
@@ -328,26 +356,26 @@ def update_user_info(request):
 @is_protected_route
 def follow(request):
     try:
-        target_email = request.data["target_address"]
-        self_email = request.data["self_address"]
+        target_username = request.data["target_address"]
+        self_username = request.data["self_address"]
         
-        target_user = User.objects.get(email=target_email)
-        self_user = User.objects.get(email=self_email)
+        target_user = User.objects.get(username=target_username)
+        self_user = User.objects.get(username=self_username)
         
         # check if already following
-        if target_email not in self_user.follows:
+        if target_username not in self_user.follows:
             oldList = []
             if len(self_user.follows) > 0:
                 oldList = self_user.follows.split(" ")
-            oldList.append(target_email)
+            oldList.append(target_username)
             self_user.follows = " ".join(oldList)
             self_user.save()
             
-        if self_email not in target_user.followed_by:
+        if self_username not in target_user.followed_by:
             oldList2 = []
             if len(target_user.followed_by) > 0:
                 oldList2 = target_user.followed_by.split(" ")
-            oldList2.append(self_email)
+            oldList2.append(self_username)
             target_user.followed_by = " ".join(oldList2)
             target_user.save()
         
@@ -363,26 +391,26 @@ def follow(request):
 @is_protected_route
 def unfollow(request):
     try:
-        target_email = request.data["target_address"]
-        self_email = request.data["self_address"]
-        target_user = User.objects.get(email=target_email)
-        self_user = User.objects.get(email=self_email)
+        target_username = request.data["target_address"]
+        self_username = request.data["self_address"]
+        target_user = User.objects.get(username=target_username)
+        self_user = User.objects.get(username=self_username)
         
         # check if already not following.
-        if target_email in self_user.follows:
+        if target_username in self_user.follows:
             oldList = []
             if len(self_user.follows) > 0:
                 oldList = self_user.follows.split(" ")
                 
-            oldList.remove(target_email)
+            oldList.remove(target_username)
             self_user.follows = " ".join(oldList)
             self_user.save()
             
-        if self_email in target_user.followed_by:
+        if self_username in target_user.followed_by:
             oldList2 = []
             if len(target_user.followed_by) > 0:
                 oldList2 = target_user.followed_by.split(" ")
-            oldList2.remove(self_email)
+            oldList2.remove(self_username)
             target_user.followed_by = " ".join(oldList2)
             target_user.save()
         
@@ -390,3 +418,27 @@ def unfollow(request):
     except Exception as e:
         print(e)
         return Response(status=status.HTTP_400_BAD_REQUEST)
+    
+# @api_view(["GET"])
+# @is_protected_route
+# def get_followers(request, format=None):
+#     data = {
+#         "username": request.user.username,
+#         "email": request.user.email,
+#         "location": request.user.location,
+#         "short_bio": request.user.short_bio,
+#         # "date_of_birth": request.user.date_of_birth,
+#     }
+#     return Response(data)
+
+# @api_view(["GET"])
+# @is_protected_route
+# def get_following(request, format=None):
+#     data = {
+#         "username": request.user.username,
+#         "email": request.user.email,
+#         "location": request.user.location,
+#         "short_bio": request.user.short_bio,
+#         # "date_of_birth": request.user.date_of_birth,
+#     }
+#     return Response(data)

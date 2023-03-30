@@ -2,7 +2,7 @@ import axios from "axios";
 import { Pane, toaster } from "evergreen-ui";
 import { Card, Space, Row, Col, Button, Input, DatePickerProps, DatePicker } from "antd";
 import { useEffect, useRef, useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 import "./Profile.css";
 import { EditIcon } from "evergreen-ui";
 import dayjs from 'dayjs';
@@ -20,9 +20,12 @@ import {
 
 
 function Profile() {
+  const { other_username } = useParams();
   const history = useHistory();
   const [isMounted, setIsMounted] = useState(false);
   const [profile, setProfile] = useState({});
+  const [otherUserProfile, setOtherUserProfile] = useState({});
+
   const [isEditMode, setIsEditMode] = useState(false);
   const [isDisabled, setIsDisabled] = useState(false);
   const [formData, setFormData] = useState({
@@ -71,6 +74,25 @@ function Profile() {
   const updateFields = (date, dateString) => {
     setFormData({ ...formData, dob: dateString.replaceAll("/","-") })
   }
+
+
+  const getOtherUserProfile = async () => {
+    console.log(other_username)
+    try {
+      const { data } = await axios.get(
+        `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/auth/get_other_user_profile/${other_username}/`
+      );
+      setOtherUserProfile(data);
+      console.log(data)
+      setIsMounted(true);
+    } catch (e) {
+      // history.replace("/");
+      console.log(e)
+    }
+  };
+  
+
+
   const getProfile = async () => {
     try {
       const { data } = await axios.get(
@@ -122,30 +144,32 @@ function Profile() {
     }
   };
 
-  const followRequest = async (targetAddress) => {
+  const followRequest = async (target_username) => {
     try {
       await axios.post(
           `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/auth/request-follow/`,
           {
-            target_address: targetAddress,
-            self_address:profile.email
+            target_address: target_username,
+            self_address:profile.username
           }
         );
         toaster.success("Changes saved!");
         console.log("done")
+        
+        
     } catch (e) {
       console.log(e)
 
     }
   }
 
-  const unfollowRequest = async (targetAddress) => {
+  const unfollowRequest = async (target_username) => {
     try {
       await axios.post(
           `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/auth/request-unfollow/`,
           {
-            target_address: targetAddress,
-            self_address:profile.email
+            target_address: target_username,
+            self_address:profile.username
           }
         );
         toaster.success("Changes saved!");
@@ -160,10 +184,20 @@ function Profile() {
 
   useEffect(() => {
     getProfile();
+    console.log(other_username)
+    if (other_username !== "myprofile"){
+      getOtherUserProfile();
+    }
+    
   }, []);
 
   if (!isMounted) return <div></div>;
   return (
+    <div>
+    {other_username === "myprofile" ? 
+
+    // current user's profile version
+
     <div style={{ padding: "32px" }}>
       <Card size="small" style={{ margin: "0.5rem" }}>
         <Row style={{}}>
@@ -185,6 +219,7 @@ function Profile() {
 
       <Row style={{ paddingTop: "1rem" }}>
         <Col span={24} style={{ padding: "0.5rem" }}>
+        <h1>Profile Page for {other_username}</h1>
           {!isEditMode?
           <Button type="primary" onClick={handleClickEditButton}>
             Edit Profile<span style={{paddingLeft:"4px",verticalAlign:"text-top" }}><EditIcon /></span>
@@ -205,8 +240,8 @@ function Profile() {
               <Card title="Email" size="small">
                 <p>{profile.email}</p>
               </Card>
-              <Button onClick={() => followRequest("cec595@nyu.edu")}>Click to follow cec595@nyu.edu </Button>
-              <Button onClick={() => unfollowRequest("cec595@nyu.edu")}>Click to Unfollow cec595@nyu.edu </Button>
+              <Button onClick={() => followRequest("uniqueuser")}>Click to follow uniqueuser </Button>
+              <Button onClick={() => unfollowRequest("uniqueuser")}>Click to Unfollow uniqueuser </Button>
               <Card title="Current Location" size="small">
                 {/* <p>{profile.location ? profile.location: "No data yet"}</p> */}
                 
@@ -274,25 +309,157 @@ function Profile() {
             }}
           >
             <Card
-              title="My Connections"
+              title="My Followers"
               size="small"
               style={{ height: "100%" }}
             >
-              No connections yet
+              {profile.followed_by.length > 0 ? profile.followed_by : "No followers yet :("}
             </Card>
-            {/* <Card
-              title="My Crawls"
+            <Card
+              title="Following"
               size="small"
               style={{ height: "100%" }}
             >
-              No crawls yet
-            </Card> */}
+              {profile.following.length > 0 ? profile.following : "Not following anyone :("}
+            </Card>
             <Card title="Saved Crawls" size="small" style={{ height: "100%" }}>
               No Saved crawls yet <a href="/">Explore</a>
             </Card>
           </Space>
         </Col>
       </Row>
+    </div>
+    :
+    
+  //  Exploring other user's profile version
+
+    <div style={{ padding: "32px" }}>
+      <Card size="small" style={{ margin: "0.5rem" }}>
+        <Row style={{}}>
+          <Col span={24}>
+            <Row>
+              <Col span={4}>
+                <div className="circle">Image</div>
+              </Col>
+              <Col span={20} style={{ padding: "1rem" }}>
+                <div style={{ padding: "0.5rem", fontSize: "1.4rem" }}>
+                  {profile.username}
+                </div>
+                <div style={{ padding: "0.5rem" }}>Member since 2023</div>
+              </Col>
+            </Row>
+          </Col>
+        </Row>
+      </Card>
+
+      <Row style={{ paddingTop: "1rem" }}>
+        <Col span={24} style={{ padding: "0.5rem" }}>
+        <h1>Profile Page for {other_username}</h1>
+          {!isEditMode?
+          <Button type="primary" onClick={handleClickEditButton}>
+            Edit Profile<span style={{paddingLeft:"4px",verticalAlign:"text-top" }}><EditIcon /></span>
+          </Button>:
+            <Button type="primary" onClick={handleSubmitUpdate}>
+              Save changes
+            </Button>}
+        </Col>
+        
+        <Col span={8} style={{ padding: "0.5rem" }}>
+            <Space
+              direction="vertical"
+              size="middle"
+              style={{
+                display: "flex",
+              }}
+            >
+              <Card title="Email" size="small">
+                <p>{profile.email}</p>
+              </Card>
+              <Button onClick={() => followRequest("uniqueuser")}>Click to follow uniqueuser </Button>
+              <Button onClick={() => unfollowRequest("uniqueuser")}>Click to Unfollow uniqueuser </Button>
+              <Card title="Current Location" size="small">
+                {/* <p>{profile.location ? profile.location: "No data yet"}</p> */}
+                
+                {center && <GoogleMap
+                  mapContainerStyle={mapContainerStyle}
+                  center={center}
+                  onClick={handleMapClick}
+                  zoom={14}
+                  onLoad={handleLoad}
+                >
+                <Marker 
+                  position={center} 
+                  icon= {{
+                    url: "https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png",
+                    scaledSize: new google.maps.Size(50, 50)
+                  }}
+                  center={
+                    {
+                      lat: 40.723301,
+                      lng: -74.002988,
+                    }
+                  }
+                  title="your location" 
+                  label="A" />
+                </GoogleMap>}
+                
+                {!center && 
+                <Button disabled={isDisabled} onClick={handleGetLocation}>
+                    {isLoading ? "Loading..." : "Get My Location"}
+                </Button>}
+              </Card>
+              {!isEditMode ? (
+              <Card title="Short Bio" size="small">
+                <div>
+                  <p>{profile.short_bio ? profile.short_bio : "No data yet"}</p>
+                </div>
+              </Card>):(
+              <Card title="Short Bio" size="small">
+                <Input
+                  placeholder="Enter a short bio about yourself"
+                  type="short_bio"
+                  id="short_bio"
+                  name="Short Bio"
+                  value={formData.short_bio}
+                  onChange={(e) =>
+                    setFormData({ ...formData, short_bio: e.target.value })
+                  }
+                />
+                </Card>)
+              }
+            </Space>
+          </Col>
+        
+        <Col span={16} style={{ padding: "0.5rem" }}>
+          <Space
+            direction="vertical"
+            size="middle"
+            style={{
+              display: "flex",
+            }}
+          >
+            <Card
+              title="My Followers"
+              size="small"
+              style={{ height: "100%" }}
+            >
+              {profile.followed_by.length > 0 ? profile.followed_by : "No followers yet :("}
+            </Card>
+            <Card
+              title="Following"
+              size="small"
+              style={{ height: "100%" }}
+            >
+              {profile.following.length > 0 ? profile.following : "Not following anyone :("}
+            </Card>
+            <Card title="Saved Crawls" size="small" style={{ height: "100%" }}>
+              No Saved crawls yet <a href="/">Explore</a>
+            </Card>
+          </Space>
+        </Col>
+      </Row>
+    </div>
+    }
     </div>
   );
 }

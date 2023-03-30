@@ -23,7 +23,7 @@ class User(models.Model):
     password = models.TextField()
     verified = models.BooleanField(default=False)
     # date_of_birth = models.DateField(null=True, blank=True)
-    location = models.CharField(max_length=50, null=True, blank=True)
+    location = models.CharField(max_length=200, null=True, blank=True)
     short_bio = models.CharField(max_length=200, null=True, blank=True)
     follows = models.TextField(blank=True, default='')
     followed_by = models.TextField(blank=True, default='')
