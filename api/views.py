@@ -103,10 +103,6 @@ def email_verify(request):
     """
     try:
         user = User.objects.get(email=request.data["email"])
-        if not user:
-            return Response(
-                {"error": "User does not exist."}, status=status.HTTP_400_BAD_REQUEST
-            )
         otpRequest = OTP_Request.objects.filter(user=user).order_by("-created_at")[0]
         secondsSince = (
             datetime.now(timezone.utc) - otpRequest.created_at
@@ -127,6 +123,10 @@ def email_verify(request):
         return Response(
             {"error": "Incorrect OTP. Please try again."},
             status=status.HTTP_400_BAD_REQUEST,
+        )
+    except ObjectDoesNotExist:
+        return Response(
+            {"error": "user does not exist"}, status=status.HTTP_400_BAD_REQUEST
         )
     except Exception as e:
         print(e)
