@@ -32,8 +32,7 @@ function Profile() {
   const [center, setCenter] = useState(null);
   const [error, setError] = useState(null);
   const [location, setLocation] = useState(null);
-  const [testLat, setTest] = useState(40.7282492);
-  const [testLng, setTestLng] = useState(-73.9953647);
+  
   
   const handleSuccess = (position) => {
     const { latitude, longitude } = position.coords;
@@ -185,7 +184,7 @@ function Profile() {
                     scaledSize: new google.maps.Size(50, 50)
                   }}
                   center={
-                    testLat && {
+                    {
                       lat: 40.723301,
                       lng: -74.002988,
                     }
