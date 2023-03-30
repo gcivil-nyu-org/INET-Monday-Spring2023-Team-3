@@ -32,19 +32,21 @@ function Profile() {
   const [center, setCenter] = useState(null);
   const [error, setError] = useState(null);
   const [location, setLocation] = useState(null);
-  
+  const [isLoading, setIsLoading] = useState(false);
   
   const handleSuccess = (position) => {
     const { latitude, longitude } = position.coords;
     setIsDisabled(false)
     setCenter({ lat: latitude, lng: longitude});
     setLocation({lat: latitude, lng: longitude });
+    setIsLoading(false);
     console.log(latitude)
     console.log(longitude)
   };
   const handleError = (error) => {
     setError(error.message);
     setIsDisabled(false)
+    setIsLoading(false);
   };
   const handleLoad = (map) => {
     console.log('Map loaded:', map);
@@ -58,6 +60,7 @@ function Profile() {
   };
 
   const handleGetLocation = () => {
+    setIsLoading(true);
     setIsDisabled(true)
     console.log("hello?")
     navigator.geolocation.getCurrentPosition(handleSuccess, handleError);
@@ -193,8 +196,9 @@ function Profile() {
                   label="A" />
                 </GoogleMap>}
                 
-                {!center && <Button disabled={isDisabled} onClick={handleGetLocation}>
-                    Get My Location
+                {!center && 
+                <Button disabled={isDisabled} onClick={handleGetLocation}>
+                    {isLoading ? "Loading..." : "Get My Location"}
                 </Button>}
               </Card>
               {/* <Card title="Date of Birth" size="small">
