@@ -111,7 +111,6 @@ function Profile() {
         toaster.success("Changes saved!");
         history.replace("/profile");
         setIsEditMode(false)
-
         setProfile({
           // date_of_birth: userinput.dob,
           // location: userinput.location,
@@ -122,6 +121,26 @@ function Profile() {
       console.log(e)
     }
   };
+
+  const testFollowRequest = async (e) => {
+    try {
+      // userinput.dob = userinput.dob.replaceAll("/","-")
+      await axios.post(
+          `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/auth/request-follow/`,
+          {
+            target_address: "cchae216@gmail.com",
+            self_address:profile.email
+          }
+        );
+        toaster.success("Changes saved!");
+        console.log("done")
+    } catch (e) {
+      console.log(e)
+
+    }
+  }
+
+
 
   useEffect(() => {
     getProfile();
@@ -170,6 +189,7 @@ function Profile() {
               <Card title="Email" size="small">
                 <p>{profile.email}</p>
               </Card>
+              <Button onClick={testFollowRequest}>TESTING....</Button>
               <Card title="Current Location" size="small">
                 {/* <p>{profile.location ? profile.location: "No data yet"}</p> */}
                 
