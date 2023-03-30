@@ -7,7 +7,17 @@ import "./Profile.css";
 import { EditIcon } from "evergreen-ui";
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
-dayjs.extend(customParseFormat);
+import {
+  GoogleMap,
+  useLoadScript,
+  StandaloneSearchBox,
+  Marker,
+  DirectionsRenderer,
+} from "@react-google-maps/api";
+
+
+// dayjs.extend(customParseFormat);
+
 
 function Profile() {
   const history = useHistory();
@@ -17,6 +27,45 @@ function Profile() {
   const [formData, setFormData] = useState({
     location: "", dob: "", short_bio: "",
   });
+
+  const [center, setCenter] = useState(null);
+  const [error, setError] = useState(null);
+  const [location, setLocation] = useState(null);
+  
+  // useEffect(() => {
+  //   navigator.geolocation.getCurrentPosition(handleSuccess, handleError);
+  // }, []);
+  const handleSuccess = (position) => {
+    const { latitude, longitude } = position.coords;
+    setCenter({ lat: latitude, lng: longitude});
+    setLocation({lat: latitude, lng: longitude });
+    console.log(latitude)
+    console.log(longitude)
+    
+    // setCenter({lat: 40.723301,
+    //                   lng: -74.002988,})
+  };
+  const handleError = (error) => {
+    setError(error.message);
+
+  };
+  const handleLoad = (map) => {
+    console.log('Map loaded:', map);
+  };
+  const handleMapClick = ({ latLng }) => {
+    setCenter({ lat: latLng.lat(), lng: latLng.lng() });
+  };
+  const mapContainerStyle = {
+    width: '100%',
+    height: '250px'
+  };
+
+  const handleGetLocation = () => {
+    console.log("hello?")
+    navigator.geolocation.getCurrentPosition(handleSuccess, handleError);
+  }
+
+
   const dateFormat = 'YYYY-MM-DD'
   const updateFields = (date, dateString) => {
     setFormData({ ...formData, dob: dateString.replaceAll("/","-") })
@@ -28,7 +77,7 @@ function Profile() {
       );
       setProfile(data);
       formData.location = data.location
-      formData.dob = data.date_of_birth.replaceAll("-","/")
+      // formData.dob = data.date_of_birth.replaceAll("-","/")
       formData.short_bio = data.short_bio
       setIsMounted(true);
     } catch (e) {
@@ -56,7 +105,7 @@ function Profile() {
       await axios.post(
           `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/auth/update-user-info/`,
           {
-              date_of_birth: userinput.dob,
+              // date_of_birth: userinput.dob,
               location: userinput.location,
               short_bio: userinput.short_bio,
           }
@@ -66,7 +115,7 @@ function Profile() {
         setIsEditMode(false)
 
         setProfile({
-          date_of_birth: userinput.dob,
+          // date_of_birth: userinput.dob,
           location: userinput.location,
           short_bio: userinput.short_bio,
         })
@@ -125,12 +174,28 @@ function Profile() {
               </Card>
               <Card title="Current Location" size="small">
                 <p>{profile.location ? profile.location: "No data yet"}</p>
+                
+                {center && <GoogleMap
+                  mapContainerStyle={mapContainerStyle}
+                  center={center}
+                  onClick={handleMapClick}
+                  zoom={14}
+                  onLoad={handleLoad}
+                >
+                <Marker position={center} />
+                  
+                </GoogleMap>}
+                
+                
+                <Button onClick={handleGetLocation}>
+                    Get My Location
+                </Button>
               </Card>
-              <Card title="Date of Birth" size="small">
+              {/* <Card title="Date of Birth" size="small">
                 <div>
                   <p>{profile.date_of_birth ? profile.date_of_birth : "No data yet"}</p>
                 </div>
-              </Card>
+              </Card> */}
               <Card title="Short Bio" size="small">
                 <div>
                   <p>{profile.short_bio ? profile.short_bio : "No data yet"}</p>
@@ -163,13 +228,13 @@ function Profile() {
                   }
                 />
               </Card>
-              <Card title="Date of Birth" size="small">
+              {/* <Card title="Date of Birth" size="small">
                 <Space direction="vertical" size={12}>
                   <DatePicker 
                     onChange={updateFields} 
                     defaultValue={dayjs(formData.dob, dateFormat)} format={dateFormat} />
                 </Space>
-              </Card>
+              </Card> */}
               <Card title="Short Bio" size="small">
                 <Input
                   placeholder="Enter a short bio about yourself"

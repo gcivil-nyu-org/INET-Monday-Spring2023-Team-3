@@ -8,7 +8,7 @@ class UserTest(models.Model):
     email = models.EmailField()
     password = models.TextField()
     verified = models.BooleanField(default=False)
-    date_of_birth = models.DateField(null=True, blank=True)
+    # date_of_birth = models.DateField(null=True, blank=True)
     location = models.CharField(max_length=50, null=True, blank=True)
     short_bio = models.CharField(max_length=200, null=True)
 
@@ -21,7 +21,7 @@ class User(models.Model):
     email = models.EmailField(unique=True)
     password = models.TextField()
     verified = models.BooleanField(default=False)
-    date_of_birth = models.DateField(null=True, blank=True)
+    # date_of_birth = models.DateField(null=True, blank=True)
     location = models.CharField(max_length=50, null=True, blank=True)
     short_bio = models.CharField(max_length=200, null=True, blank=True)
 

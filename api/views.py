@@ -302,7 +302,7 @@ def full_profile(request, format=None):
         "email": request.user.email,
         "location": request.user.location,
         "short_bio": request.user.short_bio,
-        "date_of_birth": request.user.date_of_birth,
+        # "date_of_birth": request.user.date_of_birth,
     }
     return Response(data)
 
@@ -312,7 +312,7 @@ def update_user_info(request):
     try:
         data = {
             "location": request.data["location"],
-            "date_of_birth": request.data["date_of_birth"],
+            # "date_of_birth": request.data["date_of_birth"],
             "short_bio": request.data["short_bio"],
         }
         User.objects.update(**data)
