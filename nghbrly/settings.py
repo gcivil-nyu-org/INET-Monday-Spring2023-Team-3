@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 from pathlib import Path
 from dotenv import load_dotenv
 import os
+import sys
 
 load_dotenv()
 
@@ -95,22 +96,22 @@ EXTERNAL_DB_VARS = [
 ]
 USE_EXTERNAL_DB = all([os.environ.get(var) for var in EXTERNAL_DB_VARS])
 
-DATABASES = {
-    "default": {
+DATABASES = {}
+if USE_EXTERNAL_DB and not ("test" in sys.argv):
+    DATABASES["default"] = {
         "ENGINE": os.environ.get("DB_ENGINE"),
         "NAME": os.environ.get("DB_NAME"),
         "USER": os.environ.get("DB_USER"),
         "PASSWORD": os.environ.get("DB_PASSWORD"),
         "HOST": os.environ.get("DB_HOST"),
         "PORT": os.environ.get("DB_PORT"),
-        'OPTIONS': {'sslmode': 'require'},
+        "OPTIONS": {"sslmode": "require"},
     }
-    if USE_EXTERNAL_DB
-    else {
+else:
+    DATABASES["default"] = {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": str(BASE_DIR / "db.sqlite3"),
     }
-}
 
 
 # Password validation
