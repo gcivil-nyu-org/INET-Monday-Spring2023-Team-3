@@ -15,6 +15,7 @@ urlpatterns = [
     path("full_profile/", views.full_profile, name="full_profile"),
     path("update-user-info/", views.update_user_info),
     path("request-follow/", views.follow),
+    path("request-unfollow/", views.unfollow),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

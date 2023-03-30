@@ -122,13 +122,29 @@ function Profile() {
     }
   };
 
-  const testFollowRequest = async (e) => {
+  const followRequest = async (targetAddress) => {
     try {
-      // userinput.dob = userinput.dob.replaceAll("/","-")
       await axios.post(
           `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/auth/request-follow/`,
           {
-            target_address: "cchae216@gmail.com",
+            target_address: targetAddress,
+            self_address:profile.email
+          }
+        );
+        toaster.success("Changes saved!");
+        console.log("done")
+    } catch (e) {
+      console.log(e)
+
+    }
+  }
+
+  const unfollowRequest = async (targetAddress) => {
+    try {
+      await axios.post(
+          `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/auth/request-unfollow/`,
+          {
+            target_address: targetAddress,
             self_address:profile.email
           }
         );
@@ -189,7 +205,8 @@ function Profile() {
               <Card title="Email" size="small">
                 <p>{profile.email}</p>
               </Card>
-              <Button onClick={testFollowRequest}>TESTING....</Button>
+              <Button onClick={() => followRequest("cec595@nyu.edu")}>Click to follow cec595@nyu.edu </Button>
+              <Button onClick={() => unfollowRequest("cec595@nyu.edu")}>Click to Unfollow cec595@nyu.edu </Button>
               <Card title="Current Location" size="small">
                 {/* <p>{profile.location ? profile.location: "No data yet"}</p> */}
                 

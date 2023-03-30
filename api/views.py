@@ -357,21 +357,36 @@ def follow(request):
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(["GET"])
+
+
+@api_view(["POST"])
 @is_protected_route
-def get_followed(request):
+def unfollow(request):
     try:
-        encoded_jwt = request.data["token"]
-        decoded_jwt = jwt.decode(encoded_jwt, SECRET_KEY, algorithms=["HS256"])
-        user = User.objects.get(email=decoded_jwt["email"])
-        if not user.follows:
-            return Response(
-                {"error": "User does not follow anyone"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        else:
-            followed = {"followers": user.follows.split()}
-            return Response(followed)
+        target_email = request.data["target_address"]
+        self_email = request.data["self_address"]
+        target_user = User.objects.get(email=target_email)
+        self_user = User.objects.get(email=self_email)
+        
+        # check if already not following.
+        if target_email in self_user.follows:
+            oldList = []
+            if len(self_user.follows) > 0:
+                oldList = self_user.follows.split(" ")
+                
+            oldList.remove(target_email)
+            self_user.follows = " ".join(oldList)
+            self_user.save()
+            
+        if self_email in target_user.followed_by:
+            oldList2 = []
+            if len(target_user.followed_by) > 0:
+                oldList2 = target_user.followed_by.split(" ")
+            oldList2.remove(self_email)
+            target_user.followed_by = " ".join(oldList2)
+            target_user.save()
+        
+        return Response(status=status.HTTP_200_OK)
     except Exception as e:
         print(e)
-        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
