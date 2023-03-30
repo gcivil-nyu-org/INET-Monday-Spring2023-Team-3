@@ -24,6 +24,7 @@ function Profile() {
   const [isMounted, setIsMounted] = useState(false);
   const [profile, setProfile] = useState({});
   const [isEditMode, setIsEditMode] = useState(false);
+  const [isDisabled, setIsDisabled] = useState(false);
   const [formData, setFormData] = useState({
     location: "", dob: "", short_bio: "",
   });
@@ -31,23 +32,20 @@ function Profile() {
   const [center, setCenter] = useState(null);
   const [error, setError] = useState(null);
   const [location, setLocation] = useState(null);
+  const [testLat, setTest] = useState(40.7282492);
+  const [testLng, setTestLng] = useState(-73.9953647);
   
-  // useEffect(() => {
-  //   navigator.geolocation.getCurrentPosition(handleSuccess, handleError);
-  // }, []);
   const handleSuccess = (position) => {
     const { latitude, longitude } = position.coords;
+    setIsDisabled(false)
     setCenter({ lat: latitude, lng: longitude});
     setLocation({lat: latitude, lng: longitude });
     console.log(latitude)
     console.log(longitude)
-    
-    // setCenter({lat: 40.723301,
-    //                   lng: -74.002988,})
   };
   const handleError = (error) => {
     setError(error.message);
-
+    setIsDisabled(false)
   };
   const handleLoad = (map) => {
     console.log('Map loaded:', map);
@@ -61,6 +59,7 @@ function Profile() {
   };
 
   const handleGetLocation = () => {
+    setIsDisabled(true)
     console.log("hello?")
     navigator.geolocation.getCurrentPosition(handleSuccess, handleError);
   }
@@ -93,20 +92,17 @@ function Profile() {
     e.preventDefault();
 
     let userinput = formData;
-    if (userinput.location === null || userinput.location === "" 
-        || userinput.dob == null || userinput.dob === "" 
-        || userinput.short_bio === null || userinput.short_bio === "") {
+    if ( userinput.short_bio === null || userinput.short_bio === "") {
       toaster.danger("Error: Please enter valid information! 🙁");
       return;
     }
     try {
-      userinput.dob = userinput.dob.replaceAll("/","-")
-      // DATE OF BIRTH must be in "YYYY-MM-DD" FORMAT!
+      // userinput.dob = userinput.dob.replaceAll("/","-")
       await axios.post(
           `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/auth/update-user-info/`,
           {
               // date_of_birth: userinput.dob,
-              location: userinput.location,
+              // location: userinput.location,
               short_bio: userinput.short_bio,
           }
         );
@@ -116,7 +112,7 @@ function Profile() {
 
         setProfile({
           // date_of_birth: userinput.dob,
-          location: userinput.location,
+          // location: userinput.location,
           short_bio: userinput.short_bio,
         })
 
@@ -160,8 +156,8 @@ function Profile() {
               Save changes
             </Button>}
         </Col>
-        {!isEditMode ? (
-          <Col span={8} style={{ padding: "0.5rem" }}>
+        
+        <Col span={8} style={{ padding: "0.5rem" }}>
             <Space
               direction="vertical"
               size="middle"
@@ -173,7 +169,7 @@ function Profile() {
                 <p>{profile.email}</p>
               </Card>
               <Card title="Current Location" size="small">
-                <p>{profile.location ? profile.location: "No data yet"}</p>
+                {/* <p>{profile.location ? profile.location: "No data yet"}</p> */}
                 
                 {center && <GoogleMap
                   mapContainerStyle={mapContainerStyle}
@@ -182,59 +178,37 @@ function Profile() {
                   zoom={14}
                   onLoad={handleLoad}
                 >
-                <Marker position={center} />
-                  
+                <Marker 
+                  position={center} 
+                  icon= {{
+                    url: "https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png",
+                    scaledSize: new google.maps.Size(50, 50)
+                  }}
+                  center={
+                    testLat && {
+                      lat: 40.723301,
+                      lng: -74.002988,
+                    }
+                  }
+                  title="your location" 
+                  label="A" />
                 </GoogleMap>}
                 
-                
-                <Button onClick={handleGetLocation}>
+                {!center && <Button disabled={isDisabled} onClick={handleGetLocation}>
                     Get My Location
-                </Button>
+                </Button>}
               </Card>
               {/* <Card title="Date of Birth" size="small">
                 <div>
                   <p>{profile.date_of_birth ? profile.date_of_birth : "No data yet"}</p>
                 </div>
               </Card> */}
+              {!isEditMode ? (
               <Card title="Short Bio" size="small">
                 <div>
                   <p>{profile.short_bio ? profile.short_bio : "No data yet"}</p>
                 </div>
-              </Card>
-            </Space>
-          </Col>
-        ) : (
-          <Col span={8} style={{ padding: "0.5rem" }}>
-            <Space
-              direction="vertical"
-              size="middle"
-              style={{
-                display: "flex",
-              }}
-            >
-              <Card title="Email" size="small">
-                <p>{profile.email}</p>
-              </Card>
-
-              <Card title="Current Location" size="small">
-                <Input
-                  placeholder="Enter a new location"
-                  type="location"
-                  id="location"
-                  name="location"
-                  value={formData.location}
-                  onChange={(e) =>
-                    setFormData({ ...formData, location: e.target.value })
-                  }
-                />
-              </Card>
-              {/* <Card title="Date of Birth" size="small">
-                <Space direction="vertical" size={12}>
-                  <DatePicker 
-                    onChange={updateFields} 
-                    defaultValue={dayjs(formData.dob, dateFormat)} format={dateFormat} />
-                </Space>
-              </Card> */}
+              </Card>):(
               <Card title="Short Bio" size="small">
                 <Input
                   placeholder="Enter a short bio about yourself"
@@ -246,10 +220,11 @@ function Profile() {
                     setFormData({ ...formData, short_bio: e.target.value })
                   }
                 />
-              </Card>
+                </Card>)
+              }
             </Space>
           </Col>
-        )}
+        
         <Col span={16} style={{ padding: "0.5rem" }}>
           <Space
             direction="vertical"
