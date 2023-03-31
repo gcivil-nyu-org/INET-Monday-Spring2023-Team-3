@@ -4,15 +4,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('api', '0016_user_followed_by'),
+        ("api", "0016_user_followed_by"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='user',
-            name='followed_by',
-            field=models.ManyToManyField(blank=True, related_name='followed_by_users', to='api.User'),
+            model_name="user",
+            name="followed_by",
+            field=models.ManyToManyField(
+                blank=True, related_name="followed_by_users", to="api.User"
+            ),
         ),
     ]

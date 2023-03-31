@@ -4,11 +4,9 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('api', '0020_auto_20230330_1737'),
-        ('api', '0014_merge_0012_auto_20230329_2005_0013_auto_20230330_1603'),
+        ("api", "0020_auto_20230330_1737"),
+        ("api", "0014_merge_0012_auto_20230329_2005_0013_auto_20230330_1603"),
     ]
 
-    operations = [
-    ]
+    operations = []

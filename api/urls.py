@@ -6,7 +6,7 @@ urlpatterns = [
     path("register/", views.user_register, name="register"),
     path("login/", views.user_login, name="login"),
     # path("profile/", views.profile, name="profile"),
-    path('profile/<str:other_username>/', views.profile, name='profile'),
+    path("profile/<str:other_username>/", views.profile, name="profile"),
     path("verify/", views.email_verify),
     path("send-otp/", views.send_otp, name="send_otp"),
     path("recover/", views.send_recovery, name="recover"),
@@ -18,7 +18,6 @@ urlpatterns = [
     path("request-follow/", views.follow),
     path("request-unfollow/", views.unfollow),
     path("get_other_user_profile/<str:other_username>/", views.get_other_user_profile),
-
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

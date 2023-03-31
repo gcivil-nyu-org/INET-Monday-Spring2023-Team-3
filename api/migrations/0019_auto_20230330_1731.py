@@ -4,28 +4,27 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('api', '0018_user_location'),
+        ("api", "0018_user_location"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='user',
-            name='followed_by',
+            model_name="user",
+            name="followed_by",
         ),
         migrations.AddField(
-            model_name='user',
-            name='followed_by',
+            model_name="user",
+            name="followed_by",
             field=models.TextField(blank=True, null=True),
         ),
         migrations.RemoveField(
-            model_name='user',
-            name='follows',
+            model_name="user",
+            name="follows",
         ),
         migrations.AddField(
-            model_name='user',
-            name='follows',
+            model_name="user",
+            name="follows",
             field=models.TextField(blank=True, null=True),
         ),
     ]
