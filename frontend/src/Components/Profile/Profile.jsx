@@ -39,6 +39,8 @@ function Profile() {
   const [isLoading, setIsLoading] = useState(false);
   const [isCurrUserFollowsOtherUser, setCurrUserFollowsOtherUser] = useState(false)
   
+  const [allCrawls, setAllCrawls] = useState([]);
+
   const handleSuccess = (position) => {
     const { latitude, longitude } = position.coords;
     setIsDisabled(false)
@@ -100,10 +102,8 @@ function Profile() {
       console.log(listFollowers)
       console.log(listFollowing)
       setOtherUserProfile(prevProfile => ({ ...prevProfile, numFollowers, numFollowing, listFollowers, listFollowing }));
-      console.log(profile.username)
-     
       
-      // setIsMounted(true);
+      setIsMounted(true);
     } catch (e) {
       // history.replace("/");
       console.log(e)
@@ -227,6 +227,7 @@ function Profile() {
     }
   }
 
+
   const unfollowRequest = async (target_username) => {
     try {
       await axios.post(
@@ -260,15 +261,47 @@ function Profile() {
     },
   ]
   
+  const getAllCrawls = async () => {
+    try {
+      const { data } = await axios.get(
+        `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/all/`
+      );
+      console.log(data)
+      
+      arr = []
+      // if (data.length > 0){
+      //   for (let i = 0; i < data.length; i++) {
+      //     console.log(data[i]);
+      //     if (other_username === "myprofile") {
+      //       if (data[i].author === profile.username){
+      //         arr.push(data[i])
+      //       }
+      //     } else {
+      //       if (data[i].author === other_username){
+      //         arr.push(data[i])
+      //       }
+      //     }
+      //   }
+      // }
+      console.log(arr)
+      setAllCrawls(data);
+    } catch (e) {
+      // history.replace("/login");
+    }
+  };
 
   useEffect(() => {
-    getProfile().then(() => {
-      
-      if (other_username !== "myprofile"){
-        getOtherUserProfile();
-        setIsMounted(true);
-      }
+    getAllCrawls().then(() => {
+
+      getProfile().then(() => {
+        if (other_username !== "myprofile"){
+          getOtherUserProfile();
+          
+        }
+        
+      });
     })
+    
   }, []);
 
   if (!isMounted) return <div></div>;
@@ -459,7 +492,6 @@ function Profile() {
                     </div>
                   </div>
                 </Col>
-                
               </Row>
               </Col>
             </Row>
@@ -467,16 +499,61 @@ function Profile() {
         </Row>
       </Card>
 
-      <Row style={{ paddingTop: "1rem" }}>
-        <Col span={8}>
+      <Row style={{ paddingTop: "1rem", padding: "12px" }}>
+        <div><h2>Crawls</h2></div>
+        {allCrawls && allCrawls.length > 0 && allCrawls.map((x) => (
+          <div>
+            {x.author}
+          </div>
+        ))}
+        {/* {allCrawls.map((x) => (
+          <Col span={8}>
+            <h3>{x.author}</h3>
+            <h3 size={800}>{x.title}</h3>
+            <Pane style={{ display: "flex" }}>
+              <GoogleMap
+                mapContainerStyle={{ width: "100%", height: 400 }}
+                zoom={10}
+              >
+                <DirectionsRenderer
+                  options={{
+                    directions: x.data.directions,
+                  }}
+                />
+              </GoogleMap>
+              <Pane
+                style={{
+                  width: 500,
+                  height: 500,
+                  overflow: "scroll",
+                  marginTop: 14,
+                }}
+              >
+                {x.data.points.map((p, idx) => (
+                  <Pane
+                    style={{
+                      borderBottom: "1px solid #DDD",
+                      padding: "16px",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Heading>
+                      {String.fromCharCode("A".charCodeAt(0) + idx)}. {p.name}
+                    </Heading>
+                  </Pane>
+                ))}
+              </Pane>
+            </Pane>
+          </Col>
+        ))} */}
             
+        
+        {/* <Col span={8}>
         </Col>
         <Col span={8}>
-
-        </Col>
-        <Col span={8}>
-
-        </Col>
+        </Col> */}
      
       </Row>
     </div>
