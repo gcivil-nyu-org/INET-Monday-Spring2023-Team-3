@@ -19,7 +19,7 @@ import {
 
 
 function Profile(props) {
-  const refreshParam = new URLSearchParams(props.location.search).get('refresh');
+  const refreshParam = new URLSearchParams(props.location.search).get('r');
 
   const { other_username } = useParams();
   const history = useHistory();
