@@ -130,7 +130,7 @@ function Profile(props) {
       setProfile(data);
       
       if (data.username === other_username){
-        history.replace("/");
+        history.replace("/profile/myprofile");
       }
      
       let numFollowers = 0;
@@ -572,12 +572,8 @@ function Profile(props) {
 
       <Row style={{ paddingTop: "1rem", padding: "12px" }}>
         <div><h2>Crawls</h2></div>
-        {allCrawls && allCrawls.length > 0 && allCrawls.map((x) => (
-          <div>
-            {x.author}
-          </div>
-        ))}
-        {/* {allCrawls.map((x) => (
+        
+        {allCrawls.map((x) => (
           <Col span={8}>
             <h3>{x.author}</h3>
             <h3 size={800}>{x.title}</h3>
@@ -618,7 +614,7 @@ function Profile(props) {
               </Pane>
             </Pane>
           </Col>
-        ))} */}
+        ))}
         {/* <Col span={8}>
         </Col>
         <Col span={8}>

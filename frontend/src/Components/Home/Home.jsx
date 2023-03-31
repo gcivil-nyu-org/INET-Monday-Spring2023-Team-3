@@ -54,6 +54,7 @@ function Home() {
         {allCrawls.map((x) => (
           <Pane>
             <Heading size={800}>{x.title}</Heading>
+            <h4>by <a href={`/profile/${x.author}`}>{x.author}</a></h4>
             <Pane style={{ display: "flex" }}>
               <GoogleMap
                 mapContainerStyle={{ width: "100%", height: 400 }}
