@@ -1,7 +1,7 @@
 import axios from "axios";
 
 import { Pane, toaster, Text, ChevronDownIcon } from "evergreen-ui";
-import { Card, Space, Row, Col, Button, Input, DatePickerProps, DatePicker, Icon } from "antd";
+import { Card, Space, Row, Col, Button, Input, DatePickerProps, DatePicker, Dropdown } from "antd";
 import { useEffect, useRef, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import "./Profile.css";
@@ -37,6 +37,7 @@ function Profile() {
   const [error, setError] = useState(null);
   const [location, setLocation] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isCurrUserFollowsOtherUser, setCurrUserFollowsOtherUser] = useState(false)
   
   const handleSuccess = (position) => {
     const { latitude, longitude } = position.coords;
@@ -99,8 +100,10 @@ function Profile() {
       console.log(listFollowers)
       console.log(listFollowing)
       setOtherUserProfile(prevProfile => ({ ...prevProfile, numFollowers, numFollowing, listFollowers, listFollowing }));
+      console.log(profile.username)
+     
       
-      setIsMounted(true);
+      // setIsMounted(true);
     } catch (e) {
       // history.replace("/");
       console.log(e)
@@ -115,6 +118,7 @@ function Profile() {
         `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/auth/full_profile/`
       );
       setProfile(data);
+     
       
       let numFollowers = 0;
       let numFollowing = 0;
@@ -131,8 +135,12 @@ function Profile() {
       }
       console.log(listFollowers)
       console.log(listFollowing)
+      if (other_username !== "myprofile" && listFollowing.includes(other_username)){
+        setCurrUserFollowsOtherUser(true)
+      }
 
       setProfile(prevProfile => ({ ...prevProfile, numFollowers, numFollowing, listFollowers, listFollowing }));
+      
       if (other_username === "myprofile"){
         setIsMounted(true);
       }
@@ -200,6 +208,7 @@ function Profile() {
         );
         toaster.success("Changes saved!");
         console.log("done")
+        setCurrUserFollowsOtherUser(true)
         
         
     } catch (e) {
@@ -217,23 +226,39 @@ function Profile() {
             self_address:profile.username
           }
         );
-        toaster.success("Changes saved!");
-        console.log("done")
-    } catch (e) {
-      console.log(e)
+        toaster.success("Unfollow request successful.");
+        
 
+        let oldListFollowing = profile.listFollowing
+        const index = oldListFollowing.indexOf(other_username);
+        const x = oldListFollowing.splice(index, 1);
+        setProfile(prevProfile => ({ ...prevProfile, listFollowing: x, numFollowing: prevProfile.numFollowing-1 }));
+        
+        let oldListFollowers = otherUserProfile.listFollowers
+        const index2 = oldListFollowers.indexOf(profile.username);
+        const y = oldListFollowers.splice(index2, 1);
+        setOtherUserProfile(prevProfile => ({...prevProfile, listFollowers: y, numFollowers: prevProfile.numFollowers-1 }))
+        setCurrUserFollowsOtherUser(false)
+      } catch (e) {
+      console.log(e)
     }
   }
-
-
+  const items = [
+    {
+      label: <a onClick={() => unfollowRequest(other_username)}>Unfollow</a>,
+      key: '0',
+    },
+  ]
+  
 
   useEffect(() => {
-    getProfile();
-    console.log(other_username)
-    if (other_username !== "myprofile"){
-      getOtherUserProfile();
-    }
-    
+    getProfile().then(() => {
+      
+      if (other_username !== "myprofile"){
+        getOtherUserProfile();
+        setIsMounted(true);
+      }
+    })
   }, []);
 
   if (!isMounted) return <div></div>;
@@ -391,20 +416,24 @@ function Profile() {
                 <Col span={4}>
                   <h2>{other_username}</h2>
                   
-
                 </Col>
                 <Col span={4}>
                   
-                    <div className="follow-badge">
-                      {checkIfUserIsFollowing() ? 
-                      <Text className="follow"> Following <ChevronDownIcon /> </Text>
-                      :<Button onClick={() => followRequest(other_username)}><Text className="follow">Follow</Text></Button>}
+                    <div style={{cursor:"pointer"}} className="follow-badge">
+                      {isCurrUserFollowsOtherUser ? 
+                      <Text className="follow"> 
+                      <Dropdown menu={{ items }} trigger={['click']}>
+                          <a onClick={(e) => e.preventDefault()}>
+                              Following <ChevronDownIcon />
+                          </a>
+                      </Dropdown>
+                      </Text>
+                      :
+                      <button style={{cursor:"pointer", border:0}} onClick={() => followRequest(other_username)}><Text className="follow">Follow</Text></button>}
                       
                     </div>
                 </Col>
-                
               </Row>
-                
               </Col>
             </Row>
           </Col>
@@ -412,9 +441,7 @@ function Profile() {
       </Card>
 
       <Row style={{ paddingTop: "1rem" }}>
-        <Col span={24} style={{ padding: "0.5rem" }}>
-          <h1>Profile Page for {other_username}</h1>
-        </Col>
+       
         
         <Col span={8} style={{ padding: "0.5rem" }}>
             <Space
