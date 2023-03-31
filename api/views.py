@@ -337,15 +337,14 @@ def get_other_user_profile(request, other_username, format=None):
 @api_view(["POST"])
 def update_user_info(request):
     try:
-        
         username = request.data["target_username"]
         print(username)
-        targetuser = User.objects.filter(username = username).exists()
+        targetuser = User.objects.filter(username=username).exists()
         if not targetuser:
             return Response(
                 {"error": "user does not exists"}, status=status.HTTP_400_BAD_REQUEST
             )
-        target_user = User.objects.get(username = username)
+        target_user = User.objects.get(username=username)
         target_user.short_bio = request.data["short_bio"]
         target_user.save()
         return Response(status=status.HTTP_200_OK)
@@ -426,13 +425,14 @@ def get_user_info_by_username(request):
     try:
         console.log(username)
         username = request.data["target_username"]
-        
+
         if not username:
             return Response(
-                {"error": "username parameter is missing."}, status=status.HTTP_400_BAD_REQUEST
+                {"error": "username parameter is missing."},
+                status=status.HTTP_400_BAD_REQUEST,
             )
-        target_user = User.objects.get(username = username)
-        
+        target_user = User.objects.get(username=username)
+
         user_data = {
             "username": target_user.username,
             "location": target_user.location,

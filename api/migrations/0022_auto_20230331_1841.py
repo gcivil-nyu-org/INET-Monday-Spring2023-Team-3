@@ -4,45 +4,52 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('api', '0021_merge_20230331_1734'),
+        ("api", "0021_merge_20230331_1734"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='otp_request',
-            name='id',
-            field=models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID'),
+            model_name="otp_request",
+            name="id",
+            field=models.AutoField(
+                auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+            ),
         ),
         migrations.AlterField(
-            model_name='recoverrequest',
-            name='id',
-            field=models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID'),
+            model_name="recoverrequest",
+            name="id",
+            field=models.AutoField(
+                auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+            ),
         ),
         migrations.AlterField(
-            model_name='user',
-            name='id',
-            field=models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID'),
+            model_name="user",
+            name="id",
+            field=models.AutoField(
+                auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+            ),
         ),
         migrations.AlterField(
-            model_name='user',
-            name='location',
+            model_name="user",
+            name="location",
             field=models.CharField(blank=True, max_length=200, null=True),
         ),
         migrations.AlterField(
-            model_name='user',
-            name='short_bio',
-            field=models.TextField(blank=True, default=''),
+            model_name="user",
+            name="short_bio",
+            field=models.TextField(blank=True, default=""),
         ),
         migrations.AlterField(
-            model_name='usertest',
-            name='id',
-            field=models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID'),
+            model_name="usertest",
+            name="id",
+            field=models.AutoField(
+                auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+            ),
         ),
         migrations.AlterField(
-            model_name='usertest',
-            name='short_bio',
-            field=models.TextField(blank=True, default=''),
+            model_name="usertest",
+            name="short_bio",
+            field=models.TextField(blank=True, default=""),
         ),
     ]
