@@ -1,6 +1,7 @@
 import axios from "axios";
-import { Pane, toaster } from "evergreen-ui";
-import { Card, Space, Row, Col, Button, Input, DatePickerProps, DatePicker } from "antd";
+
+import { Pane, toaster, Text, ChevronDownIcon } from "evergreen-ui";
+import { Card, Space, Row, Col, Button, Input, DatePickerProps, DatePicker, Icon } from "antd";
 import { useEffect, useRef, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import "./Profile.css";
@@ -83,7 +84,22 @@ function Profile() {
         `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/auth/get_other_user_profile/${other_username}/`
       );
       setOtherUserProfile(data);
-      console.log(data)
+      let numFollowers = 0;
+      let numFollowing = 0;
+      let listFollowers = []
+      let listFollowing = []
+      if (data.followed_by.length > 0) {
+        listFollowers = data.followed_by.split(" ")
+        numFollowers = listFollowers.length
+      }
+      if (data.following.length > 0) {
+        listFollowing = data.following.split(" ")
+        numFollowing = listFollowing.length
+      }
+      console.log(listFollowers)
+      console.log(listFollowing)
+      setOtherUserProfile(prevProfile => ({ ...prevProfile, numFollowers, numFollowing, listFollowers, listFollowing }));
+      
       setIsMounted(true);
     } catch (e) {
       // history.replace("/");
@@ -99,15 +115,44 @@ function Profile() {
         `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/auth/full_profile/`
       );
       setProfile(data);
-      formData.location = data.location
-      // formData.dob = data.date_of_birth.replaceAll("-","/")
-      formData.short_bio = data.short_bio
-      setIsMounted(true);
+      
+      let numFollowers = 0;
+      let numFollowing = 0;
+      let listFollowers = []
+      let listFollowing = []
+      if (data.followed_by.length > 0) {
+        listFollowers = data.followed_by.split(" ")
+        numFollowers = listFollowers.length
+      }
+      if (data.following.length > 0) {
+        listFollowing = data.following.split(" ")
+        numFollowing = listFollowing.length
+        
+      }
+      console.log(listFollowers)
+      console.log(listFollowing)
+
+      setProfile(prevProfile => ({ ...prevProfile, numFollowers, numFollowing, listFollowers, listFollowing }));
+      if (other_username === "myprofile"){
+        setIsMounted(true);
+      }
+     
     } catch (e) {
-      localStorage.removeItem("jwt");
-      history.replace("/login");
+      //localStorage.removeItem("jwt");
+      //history.replace("/login");
+      console.log(e)
     }
   };
+  const checkIfUserIsFollowing = () => {
+    console.log(otherUserProfile.listFollowers)
+    if (otherUserProfile.listFollowers.includes(profile.username)){
+      return true
+    } else {
+      return false
+    }
+  }
+  
+
   const handleClickEditButton = () => {
     setIsEditMode(true);
   };
@@ -198,7 +243,7 @@ function Profile() {
 
     // current user's profile version
 
-    <div style={{ padding: "32px" }}>
+    <div key={1} style={{ padding: "32px" }}>
       <Card size="small" style={{ margin: "0.5rem" }}>
         <Row style={{}}>
           <Col span={24}>
@@ -219,7 +264,7 @@ function Profile() {
 
       <Row style={{ paddingTop: "1rem" }}>
         <Col span={24} style={{ padding: "0.5rem" }}>
-        <h1>Profile Page for {other_username}</h1>
+        
           {!isEditMode?
           <Button type="primary" onClick={handleClickEditButton}>
             Edit Profile<span style={{paddingLeft:"4px",verticalAlign:"text-top" }}><EditIcon /></span>
@@ -333,7 +378,7 @@ function Profile() {
     
   //  Exploring other user's profile version
 
-    <div style={{ padding: "32px" }}>
+    <div key={2} style={{ padding: "32px" }}>
       <Card size="small" style={{ margin: "0.5rem" }}>
         <Row style={{}}>
           <Col span={24}>
@@ -342,10 +387,24 @@ function Profile() {
                 <div className="circle">Image</div>
               </Col>
               <Col span={20} style={{ padding: "1rem" }}>
-                <div style={{ padding: "0.5rem", fontSize: "1.4rem" }}>
-                  {profile.username}
-                </div>
-                <div style={{ padding: "0.5rem" }}>Member since 2023</div>
+              <Row>
+                <Col span={4}>
+                  <h2>{other_username}</h2>
+                  
+
+                </Col>
+                <Col span={4}>
+                  
+                    <div className="follow-badge">
+                      {checkIfUserIsFollowing() ? 
+                      <Text className="follow"> Following <ChevronDownIcon /> </Text>
+                      :<Button onClick={() => followRequest(other_username)}><Text className="follow">Follow</Text></Button>}
+                      
+                    </div>
+                </Col>
+                
+              </Row>
+                
               </Col>
             </Row>
           </Col>
@@ -354,14 +413,7 @@ function Profile() {
 
       <Row style={{ paddingTop: "1rem" }}>
         <Col span={24} style={{ padding: "0.5rem" }}>
-        <h1>Profile Page for {other_username}</h1>
-          {!isEditMode?
-          <Button type="primary" onClick={handleClickEditButton}>
-            Edit Profile<span style={{paddingLeft:"4px",verticalAlign:"text-top" }}><EditIcon /></span>
-          </Button>:
-            <Button type="primary" onClick={handleSubmitUpdate}>
-              Save changes
-            </Button>}
+          <h1>Profile Page for {other_username}</h1>
         </Col>
         
         <Col span={8} style={{ padding: "0.5rem" }}>
@@ -408,25 +460,13 @@ function Profile() {
                     {isLoading ? "Loading..." : "Get My Location"}
                 </Button>}
               </Card>
-              {!isEditMode ? (
+              
               <Card title="Short Bio" size="small">
                 <div>
                   <p>{profile.short_bio ? profile.short_bio : "No data yet"}</p>
                 </div>
-              </Card>):(
-              <Card title="Short Bio" size="small">
-                <Input
-                  placeholder="Enter a short bio about yourself"
-                  type="short_bio"
-                  id="short_bio"
-                  name="Short Bio"
-                  value={formData.short_bio}
-                  onChange={(e) =>
-                    setFormData({ ...formData, short_bio: e.target.value })
-                  }
-                />
-                </Card>)
-              }
+              </Card>
+              
             </Space>
           </Col>
         
@@ -443,14 +483,14 @@ function Profile() {
               size="small"
               style={{ height: "100%" }}
             >
-              {profile.followed_by.length > 0 ? profile.followed_by : "No followers yet :("}
+              {profile.followed_by && profile.followed_by.length > 0 ? profile.followed_by : "No followers yet :("}
             </Card>
             <Card
               title="Following"
               size="small"
               style={{ height: "100%" }}
             >
-              {profile.following.length > 0 ? profile.following : "Not following anyone :("}
+              {profile.following && profile.following.length > 0 ? profile.following : "Not following anyone :("}
             </Card>
             <Card title="Saved Crawls" size="small" style={{ height: "100%" }}>
               No Saved crawls yet <a href="/">Explore</a>

@@ -319,14 +319,14 @@ def get_other_user_profile(request, other_username, format=None):
             return Response(
                 {"error": "user does not exists"}, status=status.HTTP_400_BAD_REQUEST
             )
-          
+        target_user = User.objects.get(username = other_username)
         data = {
-            "username": request.user.username,
-            "email": request.user.email,
-            "location": request.user.location,
-            "short_bio": request.user.short_bio,
-            "following": request.user.follows,
-            "followed_by": request.user.followed_by,
+            "username": target_user.username,
+            "email": target_user.email,
+            "location": target_user.location,
+            "short_bio": target_user.short_bio,
+            "following": target_user.follows,
+            "followed_by": target_user.followed_by,
         }
         return Response(data)
     except Exception as e:
