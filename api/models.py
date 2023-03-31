@@ -8,8 +8,6 @@ class UserTest(models.Model):
     email = models.EmailField()
     password = models.TextField()
     verified = models.BooleanField(default=False)
-    # date_of_birth = models.DateField(null=True, blank=True)
-    # location = models.CharField(max_length=50, null=True, blank=True)
     short_bio = models.CharField(max_length=200, null=True)
 
     def __str__(self):
@@ -21,19 +19,14 @@ class User(models.Model):
     email = models.EmailField(unique=True)
     password = models.TextField()
     verified = models.BooleanField(default=False)
-    # date_of_birth = models.DateField(null=True, blank=True)
     location = models.CharField(max_length=200, null=True, blank=True)
     short_bio = models.CharField(max_length=200, null=True, blank=True)
     follows = models.TextField(blank=True, default="")
     followed_by = models.TextField(blank=True, default="")
-    # follows = models.ManyToManyField("self", symmetrical=False, blank=True, related_name='followers')
-    # followed_by = models.ManyToManyField("self", symmetrical=False, blank=True, related_name='followed_by_users')
+    
 
     def __str__(self):
         return self.username
-
-    # def follow(self, user):
-    #     self.follows.add(user)
 
 
 class OTP_Request(models.Model):
