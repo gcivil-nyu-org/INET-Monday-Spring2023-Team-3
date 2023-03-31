@@ -45,8 +45,7 @@ function Profile() {
     setCenter({ lat: latitude, lng: longitude});
     setLocation({lat: latitude, lng: longitude });
     setIsLoading(false);
-    console.log(latitude)
-    console.log(longitude)
+    
   };
   const handleError = (error) => {
     setError(error.message);
@@ -67,7 +66,7 @@ function Profile() {
   const handleGetLocation = () => {
     setIsLoading(true);
     setIsDisabled(true)
-    console.log("hello?")
+    
     navigator.geolocation.getCurrentPosition(handleSuccess, handleError);
   }
 
@@ -79,7 +78,6 @@ function Profile() {
 
 
   const getOtherUserProfile = async () => {
-    console.log(other_username)
     try {
       const { data } = await axios.get(
         `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/auth/get_other_user_profile/${other_username}/`
@@ -97,13 +95,12 @@ function Profile() {
         listFollowing = data.following.split(" ")
         numFollowing = listFollowing.length
       }
-      console.log(listFollowers)
-      console.log(listFollowing)
+      
       setOtherUserProfile(prevProfile => ({ ...prevProfile, numFollowers, numFollowing, listFollowers, listFollowing }));
       
       setIsMounted(true);
     } catch (e) {
-      // history.replace("/");
+      history.replace("/");
       console.log(e)
     }
   };
@@ -115,6 +112,10 @@ function Profile() {
         `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/auth/full_profile/`
       );
       setProfile(data);
+      
+      if (data.username === other_username){
+        history.replace("/");
+      }
      
       let numFollowers = 0;
       let numFollowing = 0;
@@ -129,8 +130,7 @@ function Profile() {
         numFollowing = listFollowing.length
         
       }
-      console.log(listFollowers)
-      console.log(listFollowing)
+      
       if (other_username !== "myprofile" && listFollowing.includes(other_username)){
         setCurrUserFollowsOtherUser(true)
       }
@@ -141,12 +141,11 @@ function Profile() {
       }
      
     } catch (e) {
-      //history.replace("/login");
+      history.replace("/");
       console.log(e)
     }
   };
   const checkIfUserIsFollowing = () => {
-    console.log(otherUserProfile.listFollowers)
     if (otherUserProfile.listFollowers.includes(profile.username)){
       return true
     } else {
@@ -454,7 +453,7 @@ function Profile() {
                   </div>
                   <div className="smaller-badges-div">
                     <div className="smaller-badges">
-                      Crawls <span>1</span>
+                      Posts <span>0</span>
                     </div>
                     <div className="smaller-badges">
                       Followers <span>{otherUserProfile.numFollowers}</span>
