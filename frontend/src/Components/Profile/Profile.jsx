@@ -17,8 +17,6 @@ import {
 } from "@react-google-maps/api";
 
 
-// dayjs.extend(customParseFormat);
-
 
 function Profile() {
   const { other_username } = useParams();
@@ -111,7 +109,6 @@ function Profile() {
   };
   
 
-
   const getProfile = async () => {
     try {
       const { data } = await axios.get(
@@ -119,7 +116,6 @@ function Profile() {
       );
       setProfile(data);
      
-      
       let numFollowers = 0;
       let numFollowing = 0;
       let listFollowers = []
@@ -140,13 +136,11 @@ function Profile() {
       }
 
       setProfile(prevProfile => ({ ...prevProfile, numFollowers, numFollowing, listFollowers, listFollowing }));
-      
       if (other_username === "myprofile"){
         setIsMounted(true);
       }
      
     } catch (e) {
-      //localStorage.removeItem("jwt");
       //history.replace("/login");
       console.log(e)
     }
@@ -160,7 +154,6 @@ function Profile() {
     }
   }
   
-
   const handleClickEditButton = () => {
     setIsEditMode(true);
   };
@@ -174,12 +167,9 @@ function Profile() {
       return;
     }
     try {
-      // userinput.dob = userinput.dob.replaceAll("/","-")
       await axios.post(
           `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/auth/update-user-info/`,
           {
-              // date_of_birth: userinput.dob,
-              // location: userinput.location,
               short_bio: userinput.short_bio,
           }
         );
@@ -187,8 +177,6 @@ function Profile() {
         history.replace("/profile");
         setIsEditMode(false)
         setProfile({
-          // date_of_birth: userinput.dob,
-          // location: userinput.location,
           short_bio: userinput.short_bio,
         })
 
@@ -207,8 +195,6 @@ function Profile() {
           }
         );
         toaster.success("Changes saved!");
-        console.log("done")
-
 
         let oldListFollowing = profile.listFollowing
         oldListFollowing.push(other_username)
@@ -260,13 +246,12 @@ function Profile() {
       key: '0',
     },
   ]
-  
+  // TODO: Filter crawls by author name that matches current profile username
   const getAllCrawls = async () => {
     try {
       const { data } = await axios.get(
         `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/all/`
       );
-      console.log(data)
       
       arr = []
       // if (data.length > 0){
@@ -283,7 +268,6 @@ function Profile() {
       //     }
       //   }
       // }
-      console.log(arr)
       setAllCrawls(data);
     } catch (e) {
       // history.replace("/login");
@@ -296,7 +280,6 @@ function Profile() {
       getProfile().then(() => {
         if (other_username !== "myprofile"){
           getOtherUserProfile();
-          
         }
         
       });
@@ -356,7 +339,6 @@ function Profile() {
               <Button onClick={() => followRequest("uniqueuser")}>Click to follow uniqueuser </Button>
               <Button onClick={() => unfollowRequest("uniqueuser")}>Click to Unfollow uniqueuser </Button>
               <Card title="Current Location" size="small">
-                {/* <p>{profile.location ? profile.location: "No data yet"}</p> */}
                 
                 {center && <GoogleMap
                   mapContainerStyle={mapContainerStyle}
@@ -386,11 +368,7 @@ function Profile() {
                     {isLoading ? "Loading..." : "Get My Location"}
                 </Button>}
               </Card>
-              {/* <Card title="Date of Birth" size="small">
-                <div>
-                  <p>{profile.date_of_birth ? profile.date_of_birth : "No data yet"}</p>
-                </div>
-              </Card> */}
+             
               {!isEditMode ? (
               <Card title="Short Bio" size="small">
                 <div>
@@ -458,7 +436,6 @@ function Profile() {
               <Row>
                 <Col span={4}>
                   <h2>{other_username}</h2>
-                  
                 </Col>
                 <Col span={12}>
                   <div>
@@ -548,8 +525,6 @@ function Profile() {
             </Pane>
           </Col>
         ))} */}
-            
-        
         {/* <Col span={8}>
         </Col>
         <Col span={8}>
