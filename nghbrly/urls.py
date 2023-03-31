@@ -20,6 +20,7 @@ from django.conf.urls.static import static
 from django.shortcuts import render
 
 
+
 def render_react(request):
     return render(request, "index.html")
 
@@ -29,7 +30,12 @@ urlpatterns = (
         path("admin/", admin.site.urls),
         path("api/auth/", include("api.urls")),
         path("api/crawls/", include("crawls.urls")),
+
     ]
     + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     + [re_path(r"^$", render_react), re_path(r"^(?:.*)/?$", render_react)]
+
+
+
 )
