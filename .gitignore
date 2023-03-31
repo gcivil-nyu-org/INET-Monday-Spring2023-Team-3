@@ -5,9 +5,11 @@
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
+!.elasticbeanstalk/01_packages.config
 
 # Django
 *.log
 *.pot
 *.pyc
 __pycache__
+db.sqlite3
