@@ -1,7 +1,7 @@
 import axios from "axios";
 
 import { Pane, toaster, Text, ChevronDownIcon } from "evergreen-ui";
-import { Card, Space, Row, Col, Button, Input, DatePickerProps, DatePicker, Dropdown } from "antd";
+import { Card, Space, Row, Col, Button, Input, Dropdown, Avatar, List } from "antd";
 import { useEffect, useRef, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import "./Profile.css";
@@ -134,13 +134,14 @@ function Profile() {
       if (other_username !== "myprofile" && listFollowing.includes(other_username)){
         setCurrUserFollowsOtherUser(true)
       }
-
+      setFormData({short_bio: data.short_bio})
       setProfile(prevProfile => ({ ...prevProfile, numFollowers, numFollowing, listFollowers, listFollowing }));
       if (other_username === "myprofile"){
         setIsMounted(true);
       }
      
     } catch (e) {
+      console.log(e)
       history.replace("/");
       console.log(e)
     }
@@ -158,6 +159,7 @@ function Profile() {
   };
 
   const handleSubmitUpdate = async (e) => {
+
     e.preventDefault();
 
     let userinput = formData;
@@ -166,18 +168,19 @@ function Profile() {
       return;
     }
     try {
+      console.log(profile.username)
+      console.log(userinput.short_bio)
       await axios.post(
           `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/auth/update-user-info/`,
           {
               short_bio: userinput.short_bio,
+              target_username: profile.username
           }
         );
         toaster.success("Changes saved!");
-        history.replace("/profile");
         setIsEditMode(false)
-        setProfile({
-          short_bio: userinput.short_bio,
-        })
+        setProfile(prevProfile => ({ ...prevProfile, short_bio: userinput.short_bio }));
+        
 
     } catch (e) {
       console.log(e)
@@ -295,8 +298,8 @@ function Profile() {
 
     <div key={1} style={{ padding: "32px" }}>
       <Card size="small" style={{ margin: "0.5rem" }}>
-        <Row style={{}}>
-          <Col span={24}>
+        <Row>
+          {/* <Col span={24}>
             <Row>
               <Col span={4}>
                 <div className="circle">Image</div>
@@ -308,6 +311,49 @@ function Profile() {
                 <div style={{ padding: "0.5rem" }}>Member since 2023</div>
               </Col>
             </Row>
+          </Col> */}
+          <Col span={24}>
+            <Row>
+              <Col span={4}>
+                <div className="circle">Image</div>
+              </Col>
+              <Col span={20} style={{ padding: "1rem" }}>
+              <Row>
+                <Col span={4}>
+                  <h2>{profile.username}</h2>
+                </Col>
+                <Col span={12}>
+                  <div>
+                    <div style={{maxWidth:"150px", cursor:"pointer"}} className="">
+                    {!isEditMode?
+                      <Button type="primary" onClick={handleClickEditButton}>
+                        Edit Profile<span style={{paddingLeft:"4px",verticalAlign:"text-top" }}><EditIcon /></span>
+                      </Button>:
+                        <Button type="primary" onClick={handleSubmitUpdate}>
+                          Save changes
+                      </Button>}
+                    </div>
+                  </div>
+                  <div className="smaller-badges-div">
+                    <div className="smaller-badges">
+                      Posts <span>0</span>
+                    </div>
+                    <div className="smaller-badges">
+                      Followers <span>{profile.numFollowers}</span>
+                    </div>
+                    <div className="smaller-badges">
+                      Following <span>{profile.numFollowing}</span>
+                    </div>
+                  </div>
+                  <div className="bio">
+                    <div>
+                      <div>{profile.short_bio ? profile.short_bio : ""}</div>
+                    </div>
+                  </div>
+                </Col>
+              </Row>
+              </Col>
+            </Row>
           </Col>
         </Row>
       </Card>
@@ -315,13 +361,7 @@ function Profile() {
       <Row style={{ paddingTop: "1rem" }}>
         <Col span={24} style={{ padding: "0.5rem" }}>
         
-          {!isEditMode?
-          <Button type="primary" onClick={handleClickEditButton}>
-            Edit Profile<span style={{paddingLeft:"4px",verticalAlign:"text-top" }}><EditIcon /></span>
-          </Button>:
-            <Button type="primary" onClick={handleSubmitUpdate}>
-              Save changes
-            </Button>}
+          
         </Col>
         
         <Col span={8} style={{ padding: "0.5rem" }}>
@@ -335,8 +375,6 @@ function Profile() {
               <Card title="Email" size="small">
                 <p>{profile.email}</p>
               </Card>
-              <Button onClick={() => followRequest("uniqueuser")}>Click to follow uniqueuser </Button>
-              <Button onClick={() => unfollowRequest("uniqueuser")}>Click to Unfollow uniqueuser </Button>
               <Card title="Current Location" size="small">
                 
                 {center && <GoogleMap
@@ -375,9 +413,9 @@ function Profile() {
                 </div>
               </Card>):(
               <Card title="Short Bio" size="small">
-                <Input
+                <textarea
                   placeholder="Enter a short bio about yourself"
-                  type="short_bio"
+                  type="text"
                   id="short_bio"
                   name="Short Bio"
                   value={formData.short_bio}
@@ -403,14 +441,42 @@ function Profile() {
               size="small"
               style={{ height: "100%" }}
             >
-              {profile.followed_by.length > 0 ? profile.followed_by : "No followers yet :("}
+            {(profile.listFollowers && profile.listFollowers.length > 0) ? <List
+                itemLayout="vertical"
+                dataSource={profile.listFollowers}
+                renderItem={(item, index) => (
+                  <List.Item>
+                    <List.Item.Meta
+                      avatar={<Avatar src={`https://joesch.moe/api/v1/random?key=${index}`} />}
+                      title={<a href={`/profile/${item}`}>{item}</a>}
+                      description="TODO: Fetch and show the follower's short bio here"
+                    />
+                  </List.Item>
+                  )}
+              />:
+              <span>No followers yet</span>}
             </Card>
             <Card
               title="Following"
               size="small"
               style={{ height: "100%" }}
             >
-              {profile.following.length > 0 ? profile.following : "Not following anyone :("}
+            
+            {(profile.listFollowing && profile.listFollowing.length > 0) ? <List
+                itemLayout="vertical"
+                dataSource={profile.listFollowing}
+                renderItem={(item, index) => (
+                  <List.Item>
+                    <List.Item.Meta
+                      avatar={<Avatar src={`https://joesch.moe/api/v1/random?key=${index}`} />}
+                      title={<a href={`/profile/${item}`}>{item}</a>}
+                      description="TODO: Fetch and show the follower's short bio here"
+                    />
+                  </List.Item>
+                  )}
+              />:
+              <span>You are not following anyone yet</span>}
+            
             </Card>
             <Card title="Saved Crawls" size="small" style={{ height: "100%" }}>
               No Saved crawls yet <a href="/">Explore</a>
@@ -425,7 +491,7 @@ function Profile() {
 
     <div key={2} style={{ padding: "32px" }}>
       <Card size="small" style={{ margin: "0.5rem", border: "none" }}>
-        <Row style={{}}>
+        <Row>
           <Col span={24}>
             <Row>
               <Col span={4}>

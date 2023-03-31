@@ -12,7 +12,10 @@
   align-items: center;
   justify-content: center;
 }
-
+#short_bio {
+  width: 100%;
+  height: 200px;
+}
 .follow-badge{
   border-top-right-radius: 8px;
   touch-action: manipulation;

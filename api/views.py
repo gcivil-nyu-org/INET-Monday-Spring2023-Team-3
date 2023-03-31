@@ -313,7 +313,6 @@ def full_profile(request, format=None):
 @is_protected_route
 def get_other_user_profile(request, other_username, format=None):
     try:
-        print(other_username)
         otheruser = User.objects.filter(username=other_username).exists()
         print(otheruser)
         if not otheruser:
@@ -338,13 +337,18 @@ def get_other_user_profile(request, other_username, format=None):
 @api_view(["POST"])
 def update_user_info(request):
     try:
-        data = {
-            # "location": request.data["location"],
-            # "date_of_birth": request.data["date_of_birth"],
-            "short_bio": request.data["short_bio"],
-        }
-        User.objects.update(**data)
-        return Response({"success": True}, status=status.HTTP_201_CREATED)
+        
+        username = request.data["target_username"]
+        print(username)
+        targetuser = User.objects.filter(username = username).exists()
+        if not targetuser:
+            return Response(
+                {"error": "user does not exists"}, status=status.HTTP_400_BAD_REQUEST
+            )
+        target_user = User.objects.get(username = username)
+        target_user.short_bio = request.data["short_bio"]
+        target_user.save()
+        return Response(status=status.HTTP_200_OK)
     except Exception as e:
         print(e)
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
