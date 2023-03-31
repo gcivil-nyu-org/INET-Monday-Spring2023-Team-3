@@ -417,9 +417,9 @@ function Profile() {
                   <h2>{other_username}</h2>
                   
                 </Col>
-                <Col span={4}>
-                  
-                    <div style={{cursor:"pointer"}} className="follow-badge">
+                <Col span={12}>
+                  <div>
+                    <div style={{maxWidth:"150px", cursor:"pointer"}} className="follow-badge">
                       {isCurrUserFollowsOtherUser ? 
                       <Text className="follow"> 
                       <Dropdown menu={{ items }} trigger={['click']}>
@@ -430,9 +430,21 @@ function Profile() {
                       </Text>
                       :
                       <button style={{cursor:"pointer", border:0}} onClick={() => followRequest(other_username)}><Text className="follow">Follow</Text></button>}
-                      
                     </div>
+                  </div>
+                  <div className="smaller-badges-div">
+                    <div className="smaller-badges">
+                      Crawls <span>1</span>
+                    </div>
+                    <div className="smaller-badges">
+                      Followers <span>{otherUserProfile.numFollowers}</span>
+                    </div>
+                    <div className="smaller-badges">
+                      Following <span>{otherUserProfile.numFollowing}</span>
+                    </div>
+                  </div>
                 </Col>
+                
               </Row>
               </Col>
             </Row>
@@ -454,8 +466,6 @@ function Profile() {
               <Card title="Email" size="small">
                 <p>{profile.email}</p>
               </Card>
-              <Button onClick={() => followRequest("uniqueuser")}>Click to follow uniqueuser </Button>
-              <Button onClick={() => unfollowRequest("uniqueuser")}>Click to Unfollow uniqueuser </Button>
               <Card title="Current Location" size="small">
                 {/* <p>{profile.location ? profile.location: "No data yet"}</p> */}
                 

@@ -30,3 +30,8 @@
   font-size: 18px;
   
 }
+.smaller-badges {
+  display: inline-block;
+  margin: 1rem;
+  margin-left: 0;
+}
