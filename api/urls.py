@@ -18,6 +18,7 @@ urlpatterns = [
     path("request-follow/", views.follow),
     path("request-unfollow/", views.unfollow),
     path("get_other_user_profile/<str:other_username>/", views.get_other_user_profile),
+    path("get_user_info_by_username", views.get_user_info_by_username),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

@@ -420,26 +420,27 @@ def unfollow(request):
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
-# @api_view(["GET"])
-# @is_protected_route
-# def get_followers(request, format=None):
-#     data = {
-#         "username": request.user.username,
-#         "email": request.user.email,
-#         "location": request.user.location,
-#         "short_bio": request.user.short_bio,
-#         # "date_of_birth": request.user.date_of_birth,
-#     }
-#     return Response(data)
-
-# @api_view(["GET"])
-# @is_protected_route
-# def get_following(request, format=None):
-#     data = {
-#         "username": request.user.username,
-#         "email": request.user.email,
-#         "location": request.user.location,
-#         "short_bio": request.user.short_bio,
-#         # "date_of_birth": request.user.date_of_birth,
-#     }
-#     return Response(data)
+@api_view(["GET"])
+@is_protected_route
+def get_user_info_by_username(request):
+    try:
+        console.log(username)
+        username = request.data["target_username"]
+        
+        if not username:
+            return Response(
+                {"error": "username parameter is missing."}, status=status.HTTP_400_BAD_REQUEST
+            )
+        target_user = User.objects.get(username = username)
+        
+        user_data = {
+            "username": target_user.username,
+            "location": target_user.location,
+            "short_bio": target_user.short_bio,
+            "following": target_user.follows,
+            "followed_by": target_user.followed_by,
+        }
+        return Response(user_data)
+    except Exception as e:
+        print(e)
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)

@@ -18,7 +18,9 @@ import {
 
 
 
-function Profile() {
+function Profile(props) {
+  const refreshParam = new URLSearchParams(props.location.search).get('refresh');
+
   const { other_username } = useParams();
   const history = useHistory();
   const [isMounted, setIsMounted] = useState(false);
@@ -104,6 +106,20 @@ function Profile() {
       console.log(e)
     }
   };
+
+  const findUserInfoByUsername = async (username) => {
+    let ans = ""
+    try {
+      const { data } = await axios.get(
+        `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/auth/get_other_user_profile/${username}/`
+      );
+      ans = data
+      
+    } catch(e) {
+      console.log(e)
+    }
+    return ans
+  }
   
 
   const getProfile = async () => {
@@ -128,14 +144,30 @@ function Profile() {
       if (data.following.length > 0) {
         listFollowing = data.following.split(" ")
         numFollowing = listFollowing.length
-        
       }
-      
       if (other_username !== "myprofile" && listFollowing.includes(other_username)){
         setCurrUserFollowsOtherUser(true)
       }
+
       setFormData({short_bio: data.short_bio})
-      setProfile(prevProfile => ({ ...prevProfile, numFollowers, numFollowing, listFollowers, listFollowing }));
+      // fetch followers and following users profiles
+      let listFollowersData = []
+      for (let i = 0; i < listFollowers.length; i++){
+        console.log(listFollowers[i])
+        let ans;
+        ans = await findUserInfoByUsername(listFollowers[i])
+        listFollowersData.push(ans)
+      }
+      let listFollowingData = []
+      for (let i = 0; i < listFollowing.length; i++){
+        console.log(listFollowing[i])
+        let ans;
+        ans = await findUserInfoByUsername(listFollowing[i])
+        listFollowingData.push(ans)
+      }
+      console.log(listFollowingData)
+      
+      setProfile(prevProfile => ({ ...prevProfile, numFollowers, numFollowing, listFollowers, listFollowing, listFollowersData, listFollowingData }));
       if (other_username === "myprofile"){
         setIsMounted(true);
       }
@@ -286,8 +318,9 @@ function Profile() {
         
       });
     })
+    console.log("refreshed!")
     
-  }, []);
+  }, [refreshParam]);
 
   if (!isMounted) return <div></div>;
   return (
@@ -441,15 +474,16 @@ function Profile() {
               size="small"
               style={{ height: "100%" }}
             >
-            {(profile.listFollowers && profile.listFollowers.length > 0) ? <List
+            {(profile && profile.listFollowersData && profile.listFollowersData.length > 0 ) ? 
+              <List
                 itemLayout="vertical"
-                dataSource={profile.listFollowers}
+                dataSource={profile.listFollowersData}
                 renderItem={(item, index) => (
                   <List.Item>
                     <List.Item.Meta
-                      avatar={<Avatar src={`https://joesch.moe/api/v1/random?key=${index}`} />}
-                      title={<a href={`/profile/${item}`}>{item}</a>}
-                      description="TODO: Fetch and show the follower's short bio here"
+                      avatar={<Avatar src={`https://www.seekpng.com/png/detail/110-1100707_person-avatar-placeholder.png`} />}
+                      title={<a href={`/profile/${item.username}`}>{item.username}</a>}
+                      description={item.short_bio}
                     />
                   </List.Item>
                   )}
@@ -462,15 +496,16 @@ function Profile() {
               style={{ height: "100%" }}
             >
             
-            {(profile.listFollowing && profile.listFollowing.length > 0) ? <List
+            {(profile && profile.listFollowingData && profile.listFollowingData.length > 0 ) ? 
+            <List
                 itemLayout="vertical"
-                dataSource={profile.listFollowing}
+                dataSource={profile.listFollowingData}
                 renderItem={(item, index) => (
                   <List.Item>
                     <List.Item.Meta
-                      avatar={<Avatar src={`https://joesch.moe/api/v1/random?key=${index}`} />}
-                      title={<a href={`/profile/${item}`}>{item}</a>}
-                      description="TODO: Fetch and show the follower's short bio here"
+                      avatar={<Avatar src={`https://www.seekpng.com/png/detail/110-1100707_person-avatar-placeholder.png`} />}
+                      title={<a href={`/profile/${item.username}`}>{item.username}</a>}
+                      description={item.short_bio}
                     />
                   </List.Item>
                   )}
