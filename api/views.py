@@ -302,17 +302,45 @@ def full_profile(request, format=None):
         "email": request.user.email,
         "location": request.user.location,
         "short_bio": request.user.short_bio,
-        "date_of_birth": request.user.date_of_birth,
+        "following": request.user.follows,
+        "followed_by": request.user.followed_by,
+        # "date_of_birth": request.user.date_of_birth,
     }
     return Response(data)
+
+
+@api_view(["GET"])
+@is_protected_route
+def get_other_user_profile(request, other_username, format=None):
+    try:
+        print(other_username)
+        otheruser = User.objects.filter(username=other_username).exists()
+        print(otheruser)
+        if not otheruser:
+            return Response(
+                {"error": "user does not exists"}, status=status.HTTP_400_BAD_REQUEST
+            )
+        target_user = User.objects.get(username=other_username)
+        data = {
+            "username": target_user.username,
+            "email": target_user.email,
+            "location": target_user.location,
+            "short_bio": target_user.short_bio,
+            "following": target_user.follows,
+            "followed_by": target_user.followed_by,
+        }
+        return Response(data)
+    except Exception as e:
+        print(e)
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(["POST"])
 def update_user_info(request):
     try:
         data = {
-            "location": request.data["location"],
-            "date_of_birth": request.data["date_of_birth"],
+            # "location": request.data["location"],
+            # "date_of_birth": request.data["date_of_birth"],
             "short_bio": request.data["short_bio"],
         }
         User.objects.update(**data)
@@ -320,3 +348,94 @@ def update_user_info(request):
     except Exception as e:
         print(e)
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(["POST"])
+@is_protected_route
+def follow(request):
+    try:
+        target_username = request.data["target_address"]
+        self_username = request.data["self_address"]
+
+        target_user = User.objects.get(username=target_username)
+        self_user = User.objects.get(username=self_username)
+
+        # check if already following
+        if target_username not in self_user.follows:
+            oldList = []
+            if len(self_user.follows) > 0:
+                oldList = self_user.follows.split(" ")
+            oldList.append(target_username)
+            self_user.follows = " ".join(oldList)
+            self_user.save()
+
+        if self_username not in target_user.followed_by:
+            oldList2 = []
+            if len(target_user.followed_by) > 0:
+                oldList2 = target_user.followed_by.split(" ")
+            oldList2.append(self_username)
+            target_user.followed_by = " ".join(oldList2)
+            target_user.save()
+
+        return Response(status=status.HTTP_200_OK)
+    except Exception as e:
+        print(e)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(["POST"])
+@is_protected_route
+def unfollow(request):
+    try:
+        target_username = request.data["target_address"]
+        self_username = request.data["self_address"]
+        target_user = User.objects.get(username=target_username)
+        self_user = User.objects.get(username=self_username)
+
+        # check if already not following.
+        if target_username in self_user.follows:
+            oldList = []
+            if len(self_user.follows) > 0:
+                oldList = self_user.follows.split(" ")
+
+            oldList.remove(target_username)
+            self_user.follows = " ".join(oldList)
+            self_user.save()
+
+        if self_username in target_user.followed_by:
+            oldList2 = []
+            if len(target_user.followed_by) > 0:
+                oldList2 = target_user.followed_by.split(" ")
+            oldList2.remove(self_username)
+            target_user.followed_by = " ".join(oldList2)
+            target_user.save()
+
+        return Response(status=status.HTTP_200_OK)
+    except Exception as e:
+        print(e)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+# @api_view(["GET"])
+# @is_protected_route
+# def get_followers(request, format=None):
+#     data = {
+#         "username": request.user.username,
+#         "email": request.user.email,
+#         "location": request.user.location,
+#         "short_bio": request.user.short_bio,
+#         # "date_of_birth": request.user.date_of_birth,
+#     }
+#     return Response(data)
+
+# @api_view(["GET"])
+# @is_protected_route
+# def get_following(request, format=None):
+#     data = {
+#         "username": request.user.username,
+#         "email": request.user.email,
+#         "location": request.user.location,
+#         "short_bio": request.user.short_bio,
+#         # "date_of_birth": request.user.date_of_birth,
+#     }
+#     return Response(data)

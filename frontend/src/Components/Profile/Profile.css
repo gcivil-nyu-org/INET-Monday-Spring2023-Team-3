@@ -12,3 +12,26 @@
   align-items: center;
   justify-content: center;
 }
+
+.follow-badge{
+  border-top-right-radius: 8px;
+  touch-action: manipulation;
+  border-bottom-color: var(--always-dark-overlay);
+  background: #eee;
+  box-shadow: 0 2px 2px -2px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 30px;
+  border-radius: 10px;
+}
+.follow-badge .follow {
+  text-align: center;
+  font-size: 18px;
+  
+}
+.smaller-badges {
+  display: inline-block;
+  margin: 1rem;
+  margin-left: 0;
+}
