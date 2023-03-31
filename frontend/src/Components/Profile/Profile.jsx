@@ -208,6 +208,16 @@ function Profile() {
         );
         toaster.success("Changes saved!");
         console.log("done")
+
+
+        let oldListFollowing = profile.listFollowing
+        oldListFollowing.push(other_username)
+        setProfile(prevProfile => ({ ...prevProfile, listFollowing: oldListFollowing, numFollowing: prevProfile.numFollowing+1 }));
+        
+        let oldListFollowers = otherUserProfile.listFollowers
+        oldListFollowers.push(profile.username);
+        setOtherUserProfile(prevProfile => ({...prevProfile, listFollowers: oldListFollowers, numFollowers: prevProfile.numFollowers+1 }))
+        
         setCurrUserFollowsOtherUser(true)
         
         
@@ -404,7 +414,7 @@ function Profile() {
   //  Exploring other user's profile version
 
     <div key={2} style={{ padding: "32px" }}>
-      <Card size="small" style={{ margin: "0.5rem" }}>
+      <Card size="small" style={{ margin: "0.5rem", border: "none" }}>
         <Row style={{}}>
           <Col span={24}>
             <Row>
@@ -443,6 +453,11 @@ function Profile() {
                       Following <span>{otherUserProfile.numFollowing}</span>
                     </div>
                   </div>
+                  <div className="bio">
+                    <div>
+                      <div>{otherUserProfile.short_bio ? otherUserProfile.short_bio : "No data yet"}</div>
+                    </div>
+                  </div>
                 </Col>
                 
               </Row>
@@ -453,87 +468,16 @@ function Profile() {
       </Card>
 
       <Row style={{ paddingTop: "1rem" }}>
-       
-        
-        <Col span={8} style={{ padding: "0.5rem" }}>
-            <Space
-              direction="vertical"
-              size="middle"
-              style={{
-                display: "flex",
-              }}
-            >
-              <Card title="Email" size="small">
-                <p>{profile.email}</p>
-              </Card>
-              <Card title="Current Location" size="small">
-                {/* <p>{profile.location ? profile.location: "No data yet"}</p> */}
-                
-                {center && <GoogleMap
-                  mapContainerStyle={mapContainerStyle}
-                  center={center}
-                  onClick={handleMapClick}
-                  zoom={14}
-                  onLoad={handleLoad}
-                >
-                <Marker 
-                  position={center} 
-                  icon= {{
-                    url: "https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png",
-                    scaledSize: new google.maps.Size(50, 50)
-                  }}
-                  center={
-                    {
-                      lat: 40.723301,
-                      lng: -74.002988,
-                    }
-                  }
-                  title="your location" 
-                  label="A" />
-                </GoogleMap>}
-                
-                {!center && 
-                <Button disabled={isDisabled} onClick={handleGetLocation}>
-                    {isLoading ? "Loading..." : "Get My Location"}
-                </Button>}
-              </Card>
-              
-              <Card title="Short Bio" size="small">
-                <div>
-                  <p>{profile.short_bio ? profile.short_bio : "No data yet"}</p>
-                </div>
-              </Card>
-              
-            </Space>
-          </Col>
-        
-        <Col span={16} style={{ padding: "0.5rem" }}>
-          <Space
-            direction="vertical"
-            size="middle"
-            style={{
-              display: "flex",
-            }}
-          >
-            <Card
-              title="My Followers"
-              size="small"
-              style={{ height: "100%" }}
-            >
-              {profile.followed_by && profile.followed_by.length > 0 ? profile.followed_by : "No followers yet :("}
-            </Card>
-            <Card
-              title="Following"
-              size="small"
-              style={{ height: "100%" }}
-            >
-              {profile.following && profile.following.length > 0 ? profile.following : "Not following anyone :("}
-            </Card>
-            <Card title="Saved Crawls" size="small" style={{ height: "100%" }}>
-              No Saved crawls yet <a href="/">Explore</a>
-            </Card>
-          </Space>
+        <Col span={8}>
+            
         </Col>
+        <Col span={8}>
+
+        </Col>
+        <Col span={8}>
+
+        </Col>
+     
       </Row>
     </div>
     }
