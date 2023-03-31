@@ -23,7 +23,6 @@ class User(models.Model):
     short_bio = models.CharField(max_length=200, null=True, blank=True)
     follows = models.TextField(blank=True, default="")
     followed_by = models.TextField(blank=True, default="")
-    
 
     def __str__(self):
         return self.username
