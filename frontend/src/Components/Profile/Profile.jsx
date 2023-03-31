@@ -153,19 +153,16 @@ function Profile(props) {
       // fetch followers and following users profiles
       let listFollowersData = []
       for (let i = 0; i < listFollowers.length; i++){
-        console.log(listFollowers[i])
         let ans;
         ans = await findUserInfoByUsername(listFollowers[i])
         listFollowersData.push(ans)
       }
       let listFollowingData = []
       for (let i = 0; i < listFollowing.length; i++){
-        console.log(listFollowing[i])
         let ans;
         ans = await findUserInfoByUsername(listFollowing[i])
         listFollowingData.push(ans)
       }
-      console.log(listFollowingData)
       
       setProfile(prevProfile => ({ ...prevProfile, numFollowers, numFollowing, listFollowers, listFollowing, listFollowersData, listFollowingData }));
       if (other_username === "myprofile"){
@@ -175,7 +172,6 @@ function Profile(props) {
     } catch (e) {
       console.log(e)
       history.replace("/");
-      console.log(e)
     }
   };
   const checkIfUserIsFollowing = () => {
@@ -200,8 +196,7 @@ function Profile(props) {
       return;
     }
     try {
-      console.log(profile.username)
-      console.log(userinput.short_bio)
+      
       await axios.post(
           `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/auth/update-user-info/`,
           {
@@ -318,7 +313,6 @@ function Profile(props) {
         
       });
     })
-    console.log("refreshed!")
     
   }, [refreshParam]);
 

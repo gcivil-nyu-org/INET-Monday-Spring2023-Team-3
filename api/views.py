@@ -423,9 +423,7 @@ def unfollow(request):
 @is_protected_route
 def get_user_info_by_username(request):
     try:
-        console.log(username)
         username = request.data["target_username"]
-
         if not username:
             return Response(
                 {"error": "username parameter is missing."},
