@@ -279,19 +279,15 @@ function Profile(props) {
       key: '0',
     },
   ]
-  // TODO: Filter crawls by author name that matches current profile username
+  
   const getAllCrawls = async () => {
-    console.log("no?")
     try {
       const { data } = await axios.get(
         `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/all/`
       );
-      console.log(data)
-      
       let arr = []
       if (data.length > 0){
         for (let i = 0; i < data.length; i++) {
-          console.log(data[i]);
           if (other_username === "myprofile") {
             if (data[i].author === profile.username){
               arr.push(data[i])
@@ -303,12 +299,10 @@ function Profile(props) {
           }
         }
       }
-      console.log(data)
       setAllCrawls(arr);
 
     } catch (e) {
       console.log(e)
-
       //history.replace("/");
     }
   };
