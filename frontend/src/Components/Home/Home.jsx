@@ -120,11 +120,11 @@ function Home() {
                             alignItems: "center",
                           }}>
                           <div style={{ fontWeight: "bolder", fontSize: 12 }}>
-                            {/* <ClockCircleOutlined /> */}
+                            <ClockCircleOutlined />
                             {" "}
                             { x.data.directions.routes[0].legs[idx - 1].duration.text}
                             <div style={{ height: 4 }} />
-                            {/* <SwapOutlined />  */}
+                            <SwapOutlined /> 
                             Distance:
                             {" "}
                             {( x.data.directions.routes[0].legs[idx - 1].distance.value / 1000).toFixed(1)}km
