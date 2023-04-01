@@ -17,12 +17,11 @@ import {
 } from "@react-google-maps/api";
 
 const placeholder_image_urls = [
-  "https://cdn.pixabay.com/photo/2014/05/09/21/16/library-340997_1280.jpg",
+  "https://cdn.pixabay.com/photo/2017/02/25/17/38/george-washington-bridge-2098351_1280.jpg",
   "https://cdn.pixabay.com/photo/2016/11/23/15/32/pedestrians-1853552_1280.jpg",
   "https://cdn.pixabay.com/photo/2016/08/10/15/15/coffee-1583562_1280.jpg",
-]
-
-
+  "https://cdn.pixabay.com/photo/2019/07/21/07/12/new-york-4352072_1280.jpg",
+];
 
 function Profile(props) {
   const refreshParam = new URLSearchParams(props.location.search).get('r');
