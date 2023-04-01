@@ -1,11 +1,11 @@
 import axios from "axios";
 
-import { Pane, toaster, Text, ChevronDownIcon } from "evergreen-ui";
+import { Pane, toaster, Text, ChevronDownIcon, Heading } from "evergreen-ui";
 import { Card, Space, Row, Col, Button, Input, Dropdown, Avatar, List } from "antd";
 import { useEffect, useRef, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import "./Profile.css";
-import { EditIcon } from "evergreen-ui";
+import { EditIcon, HeartIcon, CommentIcon } from "evergreen-ui";
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import {
@@ -16,11 +16,16 @@ import {
   DirectionsRenderer,
 } from "@react-google-maps/api";
 
+const placeholder_image_urls = [
+  "https://cdn.pixabay.com/photo/2014/05/09/21/16/library-340997_1280.jpg",
+  "https://cdn.pixabay.com/photo/2016/11/23/15/32/pedestrians-1853552_1280.jpg",
+  "https://cdn.pixabay.com/photo/2016/08/10/15/15/coffee-1583562_1280.jpg",
+]
+
 
 
 function Profile(props) {
   const refreshParam = new URLSearchParams(props.location.search).get('r');
-
   const { other_username } = useParams();
   const history = useHistory();
   const [isMounted, setIsMounted] = useState(false);
@@ -277,32 +282,38 @@ function Profile(props) {
   ]
   // TODO: Filter crawls by author name that matches current profile username
   const getAllCrawls = async () => {
+    console.log("no?")
     try {
       const { data } = await axios.get(
         `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/all/`
       );
+      console.log(data)
       
-      arr = []
-      // if (data.length > 0){
-      //   for (let i = 0; i < data.length; i++) {
-      //     console.log(data[i]);
-      //     if (other_username === "myprofile") {
-      //       if (data[i].author === profile.username){
-      //         arr.push(data[i])
-      //       }
-      //     } else {
-      //       if (data[i].author === other_username){
-      //         arr.push(data[i])
-      //       }
-      //     }
-      //   }
-      // }
-      setAllCrawls(data);
+      let arr = []
+      if (data.length > 0){
+        for (let i = 0; i < data.length; i++) {
+          console.log(data[i]);
+          if (other_username === "myprofile") {
+            if (data[i].author === profile.username){
+              arr.push(data[i])
+            }
+          } else {
+            if (data[i].author === other_username){
+              arr.push(data[i])
+            }
+          }
+        }
+      }
+      console.log(data)
+      setAllCrawls(arr);
+
     } catch (e) {
-      // history.replace("/login");
+      console.log(e)
+
+      //history.replace("/");
     }
   };
-
+  const { Meta } = Card;
   useEffect(() => {
     getAllCrawls().then(() => {
 
@@ -404,7 +415,8 @@ function Profile(props) {
               </Card>
               <Card title="Current Location" size="small">
                 
-                {center && <GoogleMap
+                {center && 
+                <GoogleMap
                   mapContainerStyle={mapContainerStyle}
                   center={center}
                   onClick={handleMapClick}
@@ -571,54 +583,35 @@ function Profile(props) {
       </Card>
 
       <Row style={{ paddingTop: "1rem", padding: "12px" }}>
-        <div><h2>Crawls</h2></div>
+        <div style={{width:"100%"}}>
+          <h3>Crawls</h3>
+        </div>
         
-        {allCrawls.map((x) => (
-          <Col span={8}>
-            <h3>{x.author}</h3>
-            <h3 size={800}>{x.title}</h3>
-            <Pane style={{ display: "flex" }}>
-              <GoogleMap
-                mapContainerStyle={{ width: "100%", height: 400 }}
-                zoom={10}
-              >
-                <DirectionsRenderer
-                  options={{
-                    directions: x.data.directions,
-                  }}
-                />
-              </GoogleMap>
-              <Pane
-                style={{
-                  width: 500,
-                  height: 500,
-                  overflow: "scroll",
-                  marginTop: 14,
-                }}
-              >
-                {x.data.points.map((p, idx) => (
-                  <Pane
-                    style={{
-                      borderBottom: "1px solid #DDD",
-                      padding: "16px",
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                    }}
-                  >
-                    <Heading>
-                      {String.fromCharCode("A".charCodeAt(0) + idx)}. {p.name}
-                    </Heading>
-                  </Pane>
-                ))}
-              </Pane>
-            </Pane>
-          </Col>
-        ))}
-        {/* <Col span={8}>
-        </Col>
-        <Col span={8}>
-        </Col> */}
+  <div>
+    {allCrawls && allCrawls.map((x, index) => (
+      <Card
+          className="img-container"
+          style={{
+            display: "inline-block",
+            margin: "1rem"
+          }}
+          cover={
+            <img className='img' alt="example" src={placeholder_image_urls[index]}
+            />
+          }
+          actions={[
+            <HeartIcon />,
+            <CommentIcon/>,
+          ]}
+        >
+          <Meta
+            avatar={<Avatar src="" />}
+            title={x.title}
+            description="TODO: Add description field for each crawl and show here?"
+          />
+        </Card>
+        ))} 
+        </div>
      
       </Row>
     </div>

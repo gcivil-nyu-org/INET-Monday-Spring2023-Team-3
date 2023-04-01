@@ -38,3 +38,16 @@
   margin: 1rem;
   margin-left: 0;
 }
+
+.img-container {
+  width: 400px;
+  height: auto;
+  overflow: hidden; /* hide any overflowing image */
+}
+
+img {
+  width: 100%; /* set width to 100% of container */
+  height: 100%; /* set height to 100% of container */
+  object-fit: contain; /* scale image while maintaining aspect ratio to fit within container */
+}
+
