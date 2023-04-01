@@ -15,6 +15,10 @@ import {
   Marker,
   DirectionsRenderer,
 } from "@react-google-maps/api";
+import {
+  ClockCircleOutlined,
+  SwapOutlined,
+} from "@ant-design/icons";
 
 const placeholder_image_urls = [
   "https://cdn.pixabay.com/photo/2017/02/25/17/38/george-washington-bridge-2098351_1280.jpg",
@@ -330,6 +334,7 @@ function Profile(props) {
     <div key={1} style={{ padding: "32px" }}>
       <Card size="small" style={{ margin: "0.5rem" }}>
         <Row>
+          
           {/* <Col span={24}>
             <Row>
               <Col span={4}>
@@ -583,13 +588,13 @@ function Profile(props) {
   <div>
     {allCrawls && allCrawls.map((x, index) => (
       <Card
-          className="img-container"
+          className="profile-img-container"
           style={{
             display: "inline-block",
             margin: "1rem"
           }}
           cover={
-            <img className='img' alt="example" src={placeholder_image_urls[index]}
+            <img className='profile-img' alt="example" src={placeholder_image_urls[index]}
             />
           }
           actions={[

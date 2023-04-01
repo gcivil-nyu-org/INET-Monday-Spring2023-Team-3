@@ -312,8 +312,6 @@ def full_profile(request, format=None):
 @api_view(["POST", "GET"])
 @is_protected_route
 def get_other_user_profile(request, other_username):
-    print("get_other_user_profile function called")
-    print("other_username:", other_username)
     try:
         target_user = User.objects.get(username=other_username)
         if not target_user:
