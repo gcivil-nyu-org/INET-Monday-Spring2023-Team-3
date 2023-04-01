@@ -28,16 +28,24 @@ function Home() {
       history.replace("/login");
     }
   };
+  const handleLoad = (map) => {
+    console.log('Map loaded:', map);
+  };
 
   const getAllCrawls = async () => {
     try {
       const { data } = await axios.get(
         `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/all/`
       );
-      setAllCrawls(data);
+      
+      let data2 = data.slice(0,2);
+      setAllCrawls(data2);
+
+      // setAllCrawls(data) //TODO: UNCOMMENT!!!!
+      console.log(data)
     } catch (e) {
-      // localStorage.removeItem("jwt");
-      // history.replace("/login");
+      localStorage.removeItem("jwt");
+      history.replace("/login");
     }
   };
 
@@ -58,11 +66,13 @@ function Home() {
             <Pane style={{ display: "flex" }}>
               <GoogleMap
                 mapContainerStyle={{ width: "100%", height: 400 }}
-                zoom={10}
+                zoom={14}
+                onLoad={handleLoad}
+                center={x.data.points[0].location}
               >
                 <DirectionsRenderer
                   options={{
-                    directions: x.data.directions,
+                    directions: {...x.data.directions, status:"OK"},
                   }}
                 />
               </GoogleMap>

@@ -416,7 +416,7 @@ function Profile(props) {
                   zoom={14}
                   onLoad={handleLoad}
                 >
-                <Marker 
+                {/* <Marker 
                   position={center} 
                   icon= {{
                     url: "https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png",
@@ -429,7 +429,7 @@ function Profile(props) {
                     }
                   }
                   title="your location" 
-                  label="A" />
+                  label="A" /> */}
                 </GoogleMap>}
                 
                 {!center && 

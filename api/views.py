@@ -342,7 +342,7 @@ def get_other_user_profile(request, other_username, format=None):
 def update_user_info(request):
     try:
         username = request.data["target_username"]
-        print(username)
+        
         targetuser = User.objects.filter(username=username).exists()
         if not targetuser:
             return Response(
@@ -363,7 +363,6 @@ def follow(request):
     try:
         target_username = request.data["target_address"]
         self_username = request.data["self_address"]
-
         target_user = User.objects.get(username=target_username)
         self_user = User.objects.get(username=self_username)
 
