@@ -187,11 +187,6 @@ class OTPTest(APITestCase):
 
 
 class UserInfoTest(APITestCase):
-    def setUp(self):
-        data = {"username": "test_u", "email": "test@gmail.com", "password": "test_pw"}
-        User.objects.create(**data)
-        response = self.client.post(reverse("register"), data)
-
     def test_get_user_info_by_username_success(self):
         response = self.client.get("/api/get_other_user_profile/test_u/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
