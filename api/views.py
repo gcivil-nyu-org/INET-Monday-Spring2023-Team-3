@@ -313,13 +313,17 @@ def full_profile(request, format=None):
 @is_protected_route
 def get_other_user_profile(request, other_username, format=None):
     try:
-        otheruser = User.objects.filter(username=other_username).exists()
-        print(otheruser)
-        if not otheruser:
+        # otheruser = User.objects.filter(username=other_username).exists()
+        
+        # if not otheruser:
+        #     return Response(
+        #         {"error": "user does not exists"}, status=status.HTTP_400_BAD_REQUEST
+        #     )
+        target_user = User.objects.get(username=other_username)
+        if not target_user:
             return Response(
                 {"error": "user does not exists"}, status=status.HTTP_400_BAD_REQUEST
             )
-        target_user = User.objects.get(username=other_username)
         data = {
             "username": target_user.username,
             "email": target_user.email,
@@ -417,28 +421,3 @@ def unfollow(request):
     except Exception as e:
         print(e)
         return Response(status=status.HTTP_400_BAD_REQUEST)
-
-
-@api_view(["GET"])
-@is_protected_route
-def get_user_info_by_username(request):
-    try:
-        username = request.data["target_username"]
-        if not username:
-            return Response(
-                {"error": "username parameter is missing."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        target_user = User.objects.get(username=username)
-
-        user_data = {
-            "username": target_user.username,
-            "location": target_user.location,
-            "short_bio": target_user.short_bio,
-            "following": target_user.follows,
-            "followed_by": target_user.followed_by,
-        }
-        return Response(user_data)
-    except Exception as e:
-        print(e)
-        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
