@@ -309,7 +309,7 @@ def full_profile(request, format=None):
     return Response(data)
 
 
-@api_view(["POST","GET"])
+@api_view(["POST", "GET"])
 @is_protected_route
 def get_other_user_profile(request, other_username):
     print("get_other_user_profile function called")
@@ -318,8 +318,7 @@ def get_other_user_profile(request, other_username):
         target_user = User.objects.get(username=other_username)
         if not target_user:
             return Response(
-                {"error": "user does not exists"}, 
-                status=status.HTTP_400_BAD_REQUEST
+                {"error": "user does not exists"}, status=status.HTTP_400_BAD_REQUEST
             )
         data = {
             "username": target_user.username,
@@ -339,7 +338,7 @@ def get_other_user_profile(request, other_username):
 def update_user_info(request):
     try:
         username = request.data["target_username"]
-        
+
         targetuser = User.objects.filter(username=username).exists()
         if not targetuser:
             return Response(
