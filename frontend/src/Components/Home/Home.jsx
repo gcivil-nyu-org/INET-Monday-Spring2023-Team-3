@@ -38,11 +38,7 @@ function Home() {
         `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/all/`
       );
       
-      let data2 = data.slice(0,2);
-      setAllCrawls(data2);
-
-      // setAllCrawls(data) //TODO: UNCOMMENT!!!!
-      console.log(data)
+      setAllCrawls(data)
     } catch (e) {
       localStorage.removeItem("jwt");
       history.replace("/login");
@@ -67,12 +63,10 @@ function Home() {
               <GoogleMap
                 mapContainerStyle={{ width: "100%", height: 400 }}
                 zoom={14}
-                onLoad={handleLoad}
-                center={x.data.points[0].location}
               >
                 <DirectionsRenderer
                   options={{
-                    directions: {...x.data.directions, status:"OK"},
+                    directions: x.data.directions,
                   }}
                 />
               </GoogleMap>
@@ -124,21 +118,16 @@ function Home() {
                             display: "flex",
                             justifyContent: "space-between",
                             alignItems: "center",
-                          }}
-                        >
+                          }}>
                           <div style={{ fontWeight: "bolder", fontSize: 12 }}>
-                            <ClockCircleOutlined />{" "}
-                            {
-                              x.data.directions.routes[0].legs[idx - 1].duration
-                                .text
-                            }
+                            {/* <ClockCircleOutlined /> */}
+                            {" "}
+                            { x.data.directions.routes[0].legs[idx - 1].duration.text}
                             <div style={{ height: 4 }} />
-                            <SwapOutlined /> Distance:{" "}
-                            {(
-                              x.data.directions.routes[0].legs[idx - 1].distance
-                                .value / 1000
-                            ).toFixed(1)}
-                            km
+                            {/* <SwapOutlined />  */}
+                            Distance:
+                            {" "}
+                            {( x.data.directions.routes[0].legs[idx - 1].distance.value / 1000).toFixed(1)}km
                           </div>
                         </Pane>
                       )}
