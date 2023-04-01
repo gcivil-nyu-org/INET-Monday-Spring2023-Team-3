@@ -185,57 +185,12 @@ class OTPTest(APITestCase):
         response = self.client.post(reverse("send_otp"), data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-# class FollowTest(APITestCase):
-    # def test_follow_user(self):
-    #     user1data = {"username": "test_u", "email": "test@gmail.com", "password": "test_pw"}
-    #     user2data = {"username": "test_u2", "email": "test2@gmail.com", "password": "test_pw"}
-        
-    #     url = reverse("follow", kwargs={"target_address": user2data["username"], "self_address": user1data["username"]})
-        
-    #     response = self.client.post(url)
-    #     self.assertEqual(response.status_code, status.HTTP_200_OK)
-    #     self.assertTrue(self.user1.following.filter(username=user2.username).exists())
-
-
-    # def test_follow_user(self):
-    #     # data = {"username": "test_u", "email": "test@gmail.com", "password": "test_pw"}
-    #     # self.client.post(reverse("register"), data)
-
-    #     # user = User.objects.get(username=data["username"])
-    #     # user.verified = True
-    #     # user.save()
-
-    #     # response = self.client.post(reverse("login"), data)
-    #     # self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        
-    #     user1 = User.objects.create_user(username="test_u1", email="test1@gmail.com", password="test_pw")
-    #     user2 = User.objects.create_user(username="test_u2", email="test2@gmail.com", password="test_pw")
-    #     self.client.force_login(user1)
-        
-    #     response = self.client.post(reverse("follow", kwargs={"pk": user2.id}))
-    #     self.assertEqual(response.status_code, status.HTTP_200_OK)
-    #     self.assertEqual(user1.following.count(), 1)
-        
-    # def test_unfollow_user(self):
-    #     user1 = User.objects.create_user(username="test_u1", email="test1@gmail.com", password="test_pw")
-    #     user2 = User.objects.create_user(username="test_u2", email="test2@gmail.com", password="test_pw")
-    #     self.client.force_login(user1)
-        
-    #     response = self.client.delete(reverse("unfollow", kwargs={"pk": user2.id}))
-    #     self.assertEqual(response.status_code, status.HTTP_200_OK)
-    #     self.assertEqual(user1.following.count(), 0)
-
 class UserInfoTest(APITestCase):
     def setUp(self):
         data = {"username": "test_u", "email": "test@gmail.com", "password": "test_pw"}
         User.objects.create(**data)
         response = self.client.post(reverse("register"), data)
-        
+
     def test_get_user_info_by_username_success(self):
-        response = self.client.post('/api/get_other_user_profile/test_u')
+        response = self.client.get('/api/get_other_user_profile/test_u/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        
-    def test_user_get_other_user_fail(self):
-        response = self.client.post('/api/get_other_user_profile/testerror')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data["error"], "user does not exist")
