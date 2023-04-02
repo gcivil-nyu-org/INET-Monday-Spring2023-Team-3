@@ -1,4 +1,4 @@
-from rest_framework.test import APITestCase  # , APIRequestFactory
+from rest_framework.test import APITestCase
 from rest_framework import status
 from django.urls import reverse
 from api.models import User, OTP_Request
