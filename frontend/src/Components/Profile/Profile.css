@@ -13,6 +13,12 @@
   justify-content: center;
 }
 
+  img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+} 
+
 .follow-badge{
   border-top-right-radius: 8px;
   touch-action: manipulation;
@@ -28,7 +34,7 @@
 .follow-badge .follow {
   text-align: center;
   font-size: 18px;
-  
+
 }
 .smaller-badges {
   display: inline-block;

@@ -14,6 +14,7 @@ import math
 import random
 import requests
 from datetime import datetime, timezone
+from .serializers import ImageSerializer
 
 SECRET_KEY = settings.SECRET_KEY
 
@@ -297,6 +298,9 @@ def profile(request, format=None):
 @api_view(["GET"])
 @is_protected_route
 def full_profile(request, format=None):
+    target_user = User.objects.get(username=request.user.username)
+    # serializer for profile pic
+    serializer_profilepic = ImageSerializer(target_user, context={"request":request}, many=False)
     data = {
         "username": request.user.username,
         "email": request.user.email,
@@ -305,6 +309,8 @@ def full_profile(request, format=None):
         "following": request.user.follows,
         "followed_by": request.user.followed_by,
         # "date_of_birth": request.user.date_of_birth,
+        "profile_pic": serializer_profilepic.data["profile_pic"],
+
     }
     return Response(data)
 
@@ -321,6 +327,9 @@ def get_other_user_profile(request, other_username, format=None):
                 {"error": "user does not exists"}, status=status.HTTP_400_BAD_REQUEST
             )
         target_user = User.objects.get(username=other_username)
+
+        # serializer for profile pic
+        serializer_profilepic = ImageSerializer(target_user, context={"request":request}, many=False)
         data = {
             "username": target_user.username,
             "email": target_user.email,
@@ -328,7 +337,9 @@ def get_other_user_profile(request, other_username, format=None):
             "short_bio": target_user.short_bio,
             "following": target_user.follows,
             "followed_by": target_user.followed_by,
+            "profile_pic": serializer_profilepic.data["profile_pic"],
         }
+
         return Response(data)
     except Exception as e:
         print(e)

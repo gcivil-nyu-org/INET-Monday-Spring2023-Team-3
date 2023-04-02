@@ -20,4 +20,5 @@ urlpatterns = [
     path("get_other_user_profile/<str:other_username>/", views.get_other_user_profile),
 ]
 
+
 urlpatterns = format_suffix_patterns(urlpatterns)

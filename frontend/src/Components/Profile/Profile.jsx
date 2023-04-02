@@ -36,7 +36,7 @@ function Profile() {
   const [location, setLocation] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isCurrUserFollowsOtherUser, setCurrUserFollowsOtherUser] = useState(false)
-  
+
   const [allCrawls, setAllCrawls] = useState([]);
 
   const handleSuccess = (position) => {
@@ -45,7 +45,7 @@ function Profile() {
     setCenter({ lat: latitude, lng: longitude});
     setLocation({lat: latitude, lng: longitude });
     setIsLoading(false);
-    
+
   };
   const handleError = (error) => {
     setError(error.message);
@@ -66,7 +66,7 @@ function Profile() {
   const handleGetLocation = () => {
     setIsLoading(true);
     setIsDisabled(true)
-    
+
     navigator.geolocation.getCurrentPosition(handleSuccess, handleError);
   }
 
@@ -95,16 +95,16 @@ function Profile() {
         listFollowing = data.following.split(" ")
         numFollowing = listFollowing.length
       }
-      
+
       setOtherUserProfile(prevProfile => ({ ...prevProfile, numFollowers, numFollowing, listFollowers, listFollowing }));
-      
+
       setIsMounted(true);
     } catch (e) {
       history.replace("/");
       console.log(e)
     }
   };
-  
+
 
   const getProfile = async () => {
     try {
@@ -112,11 +112,11 @@ function Profile() {
         `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/auth/full_profile/`
       );
       setProfile(data);
-      
+
       if (data.username === other_username){
         history.replace("/");
       }
-     
+
       let numFollowers = 0;
       let numFollowing = 0;
       let listFollowers = []
@@ -128,9 +128,9 @@ function Profile() {
       if (data.following.length > 0) {
         listFollowing = data.following.split(" ")
         numFollowing = listFollowing.length
-        
+
       }
-      
+
       if (other_username !== "myprofile" && listFollowing.includes(other_username)){
         setCurrUserFollowsOtherUser(true)
       }
@@ -139,7 +139,7 @@ function Profile() {
       if (other_username === "myprofile"){
         setIsMounted(true);
       }
-     
+
     } catch (e) {
       history.replace("/");
       console.log(e)
@@ -152,7 +152,7 @@ function Profile() {
       return false
     }
   }
-  
+
   const handleClickEditButton = () => {
     setIsEditMode(true);
   };
@@ -198,14 +198,14 @@ function Profile() {
         let oldListFollowing = profile.listFollowing
         oldListFollowing.push(other_username)
         setProfile(prevProfile => ({ ...prevProfile, listFollowing: oldListFollowing, numFollowing: prevProfile.numFollowing+1 }));
-        
+
         let oldListFollowers = otherUserProfile.listFollowers
         oldListFollowers.push(profile.username);
         setOtherUserProfile(prevProfile => ({...prevProfile, listFollowers: oldListFollowers, numFollowers: prevProfile.numFollowers+1 }))
-        
+
         setCurrUserFollowsOtherUser(true)
-        
-        
+
+
     } catch (e) {
       console.log(e)
 
@@ -223,13 +223,13 @@ function Profile() {
           }
         );
         toaster.success("Unfollow request successful.");
-        
+
 
         let oldListFollowing = profile.listFollowing
         const index = oldListFollowing.indexOf(other_username);
         const x = oldListFollowing.splice(index, 1);
         setProfile(prevProfile => ({ ...prevProfile, listFollowing: x, numFollowing: prevProfile.numFollowing-1 }));
-        
+
         let oldListFollowers = otherUserProfile.listFollowers
         const index2 = oldListFollowers.indexOf(profile.username);
         const y = oldListFollowers.splice(index2, 1);
@@ -251,7 +251,7 @@ function Profile() {
       const { data } = await axios.get(
         `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/all/`
       );
-      
+
       arr = []
       // if (data.length > 0){
       //   for (let i = 0; i < data.length; i++) {
@@ -273,6 +273,7 @@ function Profile() {
     }
   };
 
+
   useEffect(() => {
     getAllCrawls().then(() => {
 
@@ -280,16 +281,16 @@ function Profile() {
         if (other_username !== "myprofile"){
           getOtherUserProfile();
         }
-        
+
       });
     })
-    
+
   }, []);
 
   if (!isMounted) return <div></div>;
   return (
     <div>
-    {other_username === "myprofile" ? 
+    {other_username === "myprofile" ?
 
     // current user's profile version
 
@@ -299,7 +300,11 @@ function Profile() {
           <Col span={24}>
             <Row>
               <Col span={4}>
-                <div className="circle">Image</div>
+                <div className="circle">
+                    <img src={profile.profile_pic}
+                          alt="Profile Image"
+                    />
+                </div>
               </Col>
               <Col span={20} style={{ padding: "1rem" }}>
                 <div style={{ padding: "0.5rem", fontSize: "1.4rem" }}>
@@ -314,7 +319,7 @@ function Profile() {
 
       <Row style={{ paddingTop: "1rem" }}>
         <Col span={24} style={{ padding: "0.5rem" }}>
-        
+
           {!isEditMode?
           <Button type="primary" onClick={handleClickEditButton}>
             Edit Profile<span style={{paddingLeft:"4px",verticalAlign:"text-top" }}><EditIcon /></span>
@@ -323,7 +328,7 @@ function Profile() {
               Save changes
             </Button>}
         </Col>
-        
+
         <Col span={8} style={{ padding: "0.5rem" }}>
             <Space
               direction="vertical"
@@ -338,7 +343,7 @@ function Profile() {
               <Button onClick={() => followRequest("uniqueuser")}>Click to follow uniqueuser </Button>
               <Button onClick={() => unfollowRequest("uniqueuser")}>Click to Unfollow uniqueuser </Button>
               <Card title="Current Location" size="small">
-                
+
                 {center && <GoogleMap
                   mapContainerStyle={mapContainerStyle}
                   center={center}
@@ -346,8 +351,8 @@ function Profile() {
                   zoom={14}
                   onLoad={handleLoad}
                 >
-                <Marker 
-                  position={center} 
+                <Marker
+                  position={center}
                   icon= {{
                     url: "https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png",
                     scaledSize: new google.maps.Size(50, 50)
@@ -358,16 +363,16 @@ function Profile() {
                       lng: -74.002988,
                     }
                   }
-                  title="your location" 
+                  title="your location"
                   label="A" />
                 </GoogleMap>}
-                
-                {!center && 
+
+                {!center &&
                 <Button disabled={isDisabled} onClick={handleGetLocation}>
                     {isLoading ? "Loading..." : "Get My Location"}
                 </Button>}
               </Card>
-             
+
               {!isEditMode ? (
               <Card title="Short Bio" size="small">
                 <div>
@@ -389,7 +394,7 @@ function Profile() {
               }
             </Space>
           </Col>
-        
+
         <Col span={16} style={{ padding: "0.5rem" }}>
           <Space
             direction="vertical"
@@ -420,7 +425,7 @@ function Profile() {
       </Row>
     </div>
     :
-    
+
   //  Exploring other user's profile version
 
     <div key={2} style={{ padding: "32px" }}>
@@ -439,8 +444,8 @@ function Profile() {
                 <Col span={12}>
                   <div>
                     <div style={{maxWidth:"150px", cursor:"pointer"}} className="follow-badge">
-                      {isCurrUserFollowsOtherUser ? 
-                      <Text className="follow"> 
+                      {isCurrUserFollowsOtherUser ?
+                      <Text className="follow">
                       <Dropdown menu={{ items }} trigger={['click']}>
                           <a onClick={(e) => e.preventDefault()}>
                               Following <ChevronDownIcon />
@@ -528,7 +533,7 @@ function Profile() {
         </Col>
         <Col span={8}>
         </Col> */}
-     
+
       </Row>
     </div>
     }
