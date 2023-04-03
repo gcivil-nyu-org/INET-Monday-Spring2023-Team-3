@@ -10,6 +10,8 @@ import {
 } from "@ant-design/icons";
 import Map from "../Map/Map";
 import { secondsToHms, TRANSIT_TYPES } from "../../common";
+import { Avatar, List } from "antd";
+import { UserOutlined } from '@ant-design/icons';
 
 function Home() {
   const history = useHistory();
@@ -38,7 +40,6 @@ function Home() {
       const { data } = await axios.get(
         `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/all/`
       );
-      
       setAllCrawls(data)
     } catch (e) {
       localStorage.removeItem("jwt");
@@ -54,12 +55,17 @@ function Home() {
   if (!isMounted) return <div></div>;
   return (
     <Pane style={{ padding: 32 }}>
-      <h1>All crawls</h1>
-      <Pane style={{ marginTop: 24, width: "60%" }}>
+     
+      <Pane style={{ marginTop: 4, width: "60%" }}>
         {allCrawls.map((x, index) => (
           <Pane key={index}>
-            <Heading size={800}>{x.title}</Heading>
-            <h4>by <a href={`/profile/${x.author}`}>{x.author}</a></h4>
+            <h2 style={{marginBottom:"0"}} size={800}>{index+1}. {x.title}</h2>
+            <div>
+              <h3 style={{marginLeft: "1rem", display: "inline-block"}}>
+                <span style={{fontWeight:"normal"}}>by</span> 
+                  <a className="profile-author-name" href={`/profile/${x.author}`} style={{textDecoration:"auto"}}>{" "}{x.author}</a>
+              </h3>
+            </div>
             <Pane style={{ display: "flex" }}>
               <GoogleMap
                 key={index}
@@ -123,12 +129,10 @@ function Home() {
                           }}>
                           
                           <div style={{ fontWeight: "bolder", fontSize: 12 }}>
-                            {/* <ClockCircleOutlined /> */}
                             <TimeIcon />
                             {" "}
                             { x.data.directions.routes[0].legs[idx - 1].duration.text}
                             <div style={{ height: 4 }} />
-                            {/* <SwapOutlined />  */}
                             <SwapHorizontalIcon/>
                             Distance:
                             {" "}
