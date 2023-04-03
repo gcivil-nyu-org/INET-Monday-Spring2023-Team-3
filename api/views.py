@@ -1,5 +1,5 @@
 from random_username.generate import generate_username
-from rest_framework import status, viewsets
+from rest_framework import status
 from rest_framework.decorators import api_view, parser_classes
 from rest_framework.response import Response
 from django.contrib.auth.hashers import make_password, check_password
@@ -15,9 +15,7 @@ import random
 import requests
 from datetime import datetime, timezone
 from .serializers import ImageSerializer
-from rest_framework.generics import ListAPIView
 from .forms import UserForm
-from django.http import HttpResponse
 from django.shortcuts import render
 from rest_framework.parsers import MultiPartParser, FormParser
 
@@ -374,7 +372,7 @@ def profile_pic(request):
     target_user.profile_pic = request.FILES.get("file")
     target_user.save()
 
-    target_user = User.objects.get(username=username)
+    # target_user = User.objects.get(username=username)
     print("profile_pic: ", target_user.profile_pic)
     response = {"result": "User Profile Updated"}
     return Response(response)
