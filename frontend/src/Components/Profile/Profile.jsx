@@ -222,6 +222,31 @@ function Profile(props) {
     }
   };
 
+  const [postimage, setPostImage] = useState(null);
+  const handleChange = (e) => {
+  		if ([e.target.name] == 'image') {
+  			setPostImage({
+  				image: e.target.files,
+  			});
+  			console.log(e.target.files);
+  		}
+  	};
+
+  const handleUpload = (e) => {
+		e.preventDefault();
+    let formData = new FormData();
+    formData.append('file', postimage.image[0]);
+    formData.append('target_username', profile.username);
+    axios.post(
+    `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/auth/profile_pic/`,
+    // `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/auth/profile_pic/ismael_nyu/`,
+    formData
+    );
+    window.location.reload(false)
+	};
+
+
+
   const followRequest = async (target_username) => {
     try {
       await axios.post(
@@ -341,6 +366,13 @@ function Profile(props) {
                 <div className="circle">
                   <img src={profile.profile_pic}
                         alt="Profile Image"
+                  />
+                </div>
+                <div>
+                  <input accept="image/*" id="post-image" type="file" name="image" type="file" onChange={handleChange}/>
+                  <Button type="submit" fullWidth variant="contained" color="primary" onClick={handleUpload}>
+                      Upload
+                  </Button>
                 </div>
               </Col>
               <Col span={20} style={{ padding: "1rem" }}>
