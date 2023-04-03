@@ -49,7 +49,6 @@ def crawl_get_all(request):
     return Response(out)
 
 
-
 @api_view(["POST"])
 @is_protected_route
 def crawl_delete(request):
