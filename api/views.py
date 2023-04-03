@@ -365,20 +365,6 @@ def profile_pic(request):
     return Response(response)
 
 
-# @api_view(["POST"])
-# def profile_pic2(request, username):
-#     target_user = User.objects.get(username=username)
-#     form = UserForm(instance=target_user)
-
-#     if request.method == "POST":
-#         form = UserForm(request.POST, request.FILES, instance=target_user)
-#         if form.is_valid():
-#             form.save()
-
-#     context = {"form": form}
-#     return render(request, "test/form_test.html", context)
-
-
 @api_view(["POST"])
 def update_user_info(request):
     try:
