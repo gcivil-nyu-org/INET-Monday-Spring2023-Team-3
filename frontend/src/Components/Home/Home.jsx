@@ -10,6 +10,7 @@ import {
 } from "@ant-design/icons";
 import Map from "../Map/Map";
 import { secondsToHms, TRANSIT_TYPES } from "../../common";
+import { Card, Space, Row, Col, Button, Input, Dropdown, Avatar, List } from "antd";
 
 function Home() {
   const history = useHistory();
@@ -38,7 +39,7 @@ function Home() {
       const { data } = await axios.get(
         `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/all/`
       );
-      
+      console.log(data)
       setAllCrawls(data)
     } catch (e) {
       localStorage.removeItem("jwt");
@@ -58,8 +59,13 @@ function Home() {
       <Pane style={{ marginTop: 24, width: "60%" }}>
         {allCrawls.map((x, index) => (
           <Pane key={index}>
-            <Heading size={800}>{x.title}</Heading>
-            <h4>by <a href={`/profile/${x.author}`}>{x.author}</a></h4>
+            <h2 style={{marginBottom:"0"}} size={800}>{index+1}. {x.title}</h2>
+            <Row>
+              <Col span={8}>
+                  <Avatar src={`https://www.seekpng.com/png/detail/110-1100707_person-avatar-placeholder.png`} />
+                  <h3 style={{marginLeft: "1rem", display: "inline-block"}}>{x.author}</h3>
+              </Col>
+            </Row>
             <Pane style={{ display: "flex" }}>
               <GoogleMap
                 key={index}
@@ -123,12 +129,10 @@ function Home() {
                           }}>
                           
                           <div style={{ fontWeight: "bolder", fontSize: 12 }}>
-                            {/* <ClockCircleOutlined /> */}
                             <TimeIcon />
                             {" "}
                             { x.data.directions.routes[0].legs[idx - 1].duration.text}
                             <div style={{ height: 4 }} />
-                            {/* <SwapOutlined />  */}
                             <SwapHorizontalIcon/>
                             Distance:
                             {" "}
