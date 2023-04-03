@@ -320,7 +320,7 @@ def full_profile(request, format=None):
     return Response(data)
 
 
-@api_view(["POST", "GET"])
+@api_view(["GET"])
 @is_protected_route
 def get_other_user_profile(request, other_username):
     try:
@@ -352,44 +352,38 @@ def get_other_user_profile(request, other_username):
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-@api_view(["POST", "GET"])
+@api_view(["POST"])
 @is_protected_route
 @parser_classes([MultiPartParser, FormParser])
 def profile_pic(request):
     # def profile_pic(request, username):
     data = request.data
-    print("data: ", data)
 
     # target_user = User.objects.get(username=username)
     target_user = User.objects.get(username=request.data["target_username"])
-    print("target_user: ", target_user)
 
     file = request.FILES
-    print("file: ", file)
-
-    print("profile_pic: ", target_user.profile_pic)
 
     target_user.profile_pic = request.FILES.get("file")
     target_user.save()
 
     # target_user = User.objects.get(username=username)
-    print("profile_pic: ", target_user.profile_pic)
     response = {"result": "User Profile Updated"}
     return Response(response)
 
 
 # @api_view(["POST"])
-def profile_pic2(request, username):
-    target_user = User.objects.get(username=username)
-    form = UserForm(instance=target_user)
+# def profile_pic2(request, username):
+#     target_user = User.objects.get(username=username)
+#     form = UserForm(instance=target_user)
 
-    if request.method == "POST":
-        form = UserForm(request.POST, request.FILES, instance=target_user)
-        if form.is_valid():
-            form.save()
+#     if request.method == "POST":
+#         form = UserForm(request.POST, request.FILES, instance=target_user)
+#         if form.is_valid():
+#             form.save()
 
-    context = {"form": form}
-    return render(request, "test/form_test.html", context)
+#     context = {"form": form}
+#     return render(request, "test/form_test.html", context)
 
 
 @api_view(["POST"])

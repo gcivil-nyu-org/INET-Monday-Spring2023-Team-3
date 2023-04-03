@@ -18,8 +18,6 @@ urlpatterns = [
     path("request-unfollow/", views.unfollow),
     path("get_other_user_profile/<str:other_username>/", views.get_other_user_profile),
     path("profile_pic/", views.profile_pic),
-    # path("profile_pic/<str:username>/", views.profile_pic),
-    path("profile_pic_form/<str:username>/", views.profile_pic2),
 ]
 
 
