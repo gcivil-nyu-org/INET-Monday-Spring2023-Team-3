@@ -3,7 +3,7 @@ import axios from "axios";
 import { Pane, toaster, Text, ChevronDownIcon, Heading } from "evergreen-ui";
 import { Card, Space, Row, Col, Button, Input, Dropdown, Avatar, List } from "antd";
 import { useEffect, useRef, useState } from "react";
-import { useHistory, useParams } from "react-router-dom";
+import { Link, useHistory, useParams } from "react-router-dom";
 import "./Profile.css";
 import { EditIcon, HeartIcon, CommentIcon } from "evergreen-ui";
 import {
@@ -500,7 +500,7 @@ function Profile(props) {
                   <List.Item>
                     <List.Item.Meta
                       avatar={<Avatar src={`https://www.seekpng.com/png/detail/110-1100707_person-avatar-placeholder.png`} />}
-                      title={<a href={`/profile/${item.username}`}>{item.username}</a>}
+                      title={<Link to={`/profile/${item.username}`}>{item.username}</Link>}
                       description={item.short_bio}
                     />
                   </List.Item>
@@ -522,7 +522,7 @@ function Profile(props) {
                   <List.Item>
                     <List.Item.Meta
                       avatar={<Avatar src={PlaceholderProfileImage} />}
-                      title={<a href={`/profile/${item.username}`}>{item.username}</a>}
+                      title={<Link to={`/profile/${item.username}`}>{item.username}</Link>}
                       description={item.short_bio}
                     />
                   </List.Item>
@@ -532,7 +532,7 @@ function Profile(props) {
 
             </Card>
             <Card title="Saved Crawls" size="small" style={{ height: "100%" }}>
-              No Saved crawls yet <a href="/">Explore</a>
+              No Saved crawls yet <Link to="/">Explore</Link>
             </Card>
           </Space>
         </Col>

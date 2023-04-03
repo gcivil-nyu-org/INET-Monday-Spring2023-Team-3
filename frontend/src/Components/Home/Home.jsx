@@ -2,7 +2,7 @@ import { DirectionsRenderer, GoogleMap } from "@react-google-maps/api";
 import axios from "axios";
 import { Pane, Heading, Text, TimeIcon, SwapHorizontalIcon } from "evergreen-ui";
 import { useEffect, useState } from "react";
-import { useHistory } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import {
   ClockCircleOutlined,
   SwapOutlined,
@@ -63,7 +63,7 @@ function Home() {
             <div>
               <h3 style={{marginLeft: "1rem", display: "inline-block"}}>
                 <span style={{fontWeight:"normal"}}>by</span> 
-                  <a className="profile-author-name" href={`/profile/${x.author}`} style={{textDecoration:"auto"}}>{" "}{x.author}</a>
+                  <Link className="profile-author-name" to={`/profile/${x.author}`} style={{textDecoration:"auto"}}>{" "}{x.author}</Link>
               </h3>
             </div>
             <Pane style={{ display: "flex" }}>
