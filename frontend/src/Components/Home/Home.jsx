@@ -39,7 +39,6 @@ function Home() {
       const { data } = await axios.get(
         `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/all/`
       );
-      console.log(data)
       setAllCrawls(data)
     } catch (e) {
       localStorage.removeItem("jwt");
