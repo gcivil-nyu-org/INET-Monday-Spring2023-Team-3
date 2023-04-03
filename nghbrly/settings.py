@@ -50,7 +50,7 @@ INSTALLED_APPS = [
     "api",
     "crawls.apps.CrawlsConfig",
     # "api.apps.ApiConfig",
-    "rest_framework",
+    # "rest_framework",
 ]
 
 MIDDLEWARE = [
