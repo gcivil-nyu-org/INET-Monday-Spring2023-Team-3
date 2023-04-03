@@ -10,7 +10,8 @@ import {
 } from "@ant-design/icons";
 import Map from "../Map/Map";
 import { secondsToHms, TRANSIT_TYPES } from "../../common";
-import { Card, Space, Row, Col, Button, Input, Dropdown, Avatar, List } from "antd";
+import { Avatar, List } from "antd";
+import { UserOutlined } from '@ant-design/icons';
 
 function Home() {
   const history = useHistory();
@@ -54,17 +55,17 @@ function Home() {
   if (!isMounted) return <div></div>;
   return (
     <Pane style={{ padding: 32 }}>
-      <h1>All crawls</h1>
-      <Pane style={{ marginTop: 24, width: "60%" }}>
+     
+      <Pane style={{ marginTop: 4, width: "60%" }}>
         {allCrawls.map((x, index) => (
           <Pane key={index}>
             <h2 style={{marginBottom:"0"}} size={800}>{index+1}. {x.title}</h2>
-            <Row>
-              <Col span={8}>
-                  <Avatar src={`https://www.seekpng.com/png/detail/110-1100707_person-avatar-placeholder.png`} />
-                  <h3 style={{marginLeft: "1rem", display: "inline-block"}}>{x.author}</h3>
-              </Col>
-            </Row>
+            <div>
+              <h3 style={{marginLeft: "1rem", display: "inline-block"}}>
+                <span style={{fontWeight:"normal"}}>by</span> 
+                  <a className="profile-author-name" href={`/profile/${x.author}`} style={{textDecoration:"auto"}}>{" "}{x.author}</a>
+              </h3>
+            </div>
             <Pane style={{ display: "flex" }}>
               <GoogleMap
                 key={index}
