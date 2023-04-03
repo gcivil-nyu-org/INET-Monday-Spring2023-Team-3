@@ -1,6 +1,6 @@
 from random_username.generate import generate_username
-from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework import status, viewsets
+from rest_framework.decorators import api_view, parser_classes
 from rest_framework.response import Response
 from django.contrib.auth.hashers import make_password, check_password
 from django.core.mail import send_mail
@@ -15,6 +15,13 @@ import random
 import requests
 from datetime import datetime, timezone
 from .serializers import ImageSerializer
+from rest_framework.generics import ListAPIView
+from .forms import UserForm
+from django.http import HttpResponse
+from django.shortcuts import render
+from rest_framework.parsers import MultiPartParser, FormParser
+
+
 
 SECRET_KEY = settings.SECRET_KEY
 
@@ -343,6 +350,47 @@ def get_other_user_profile(request, other_username):
     except Exception as e:
         print(e)
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(["POST", "GET"])
+@is_protected_route
+@parser_classes([MultiPartParser, FormParser])
+def profile_pic(request):
+# def profile_pic(request, username):
+    data = request.data
+    print('data: ', data)
+
+    # target_user = User.objects.get(username=username)
+    target_user = User.objects.get(username=request.data["target_username"])
+    print('target_user: ', target_user)
+
+    file = request.FILES
+    print('file: ', file)
+
+    print('profile_pic: ', target_user.profile_pic)
+
+    target_user.profile_pic = request.FILES.get('file')
+    target_user.save()
+
+    target_user = User.objects.get(username=username)
+    print('profile_pic: ', target_user.profile_pic)
+    response = {"result":'User Profile Updated'}
+    return Response(response)
+
+
+# @api_view(["POST"])
+def profile_pic2(request, username):
+    target_user = User.objects.get(username=username)
+    form = UserForm(instance=target_user)
+
+    if request.method == "POST":
+        form = UserForm(request.POST, request.FILES, instance=target_user)
+        if form.is_valid():
+            form.save()
+
+    context = {'form':form}
+    return render(request, 'test/form_test.html', context)
+
 
 
 @api_view(["POST"])
