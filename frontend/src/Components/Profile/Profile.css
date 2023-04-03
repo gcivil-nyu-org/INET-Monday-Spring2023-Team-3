@@ -1,4 +1,4 @@
-.circle {
+.profile-circle {
   /* display: flex;
     width: 100px;
     height: 100px;
@@ -11,13 +11,7 @@
   display: flex; /* or inline-flex */
   align-items: center;
   justify-content: center;
-}
-
-
-  img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  overflow: hidden;
 }
 
 
@@ -38,7 +32,7 @@
   height: 30px;
   border-radius: 10px;
 }
-.follow-badge .follow {
+.profile-follow-badge .profile-follow {
   text-align: center;
   font-size: 18px;
 

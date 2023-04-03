@@ -13,6 +13,7 @@ import {
   Marker,
   DirectionsRenderer,
 } from "@react-google-maps/api";
+import PlaceholderProfileImage from '../../static/sample.jpg';
 
 
 const placeholder_image_urls = [
@@ -355,13 +356,14 @@ function Profile(props) {
           <Col span={24}>
             <Row>
               <Col span={4}>
-                <div className="circle">
-                  <img src={profile.profile_pic}
+                <div className="profile-circle">
+                  <img style={{width: "100%", height: "100%", objectFit: "cover"}}
+                  src={profile.profile_pic || PlaceholderProfileImage}
                         alt="Profile Image"
                   />
                 </div>
                 <div>
-                  <input accept="image/*" id="post-image" type="file" name="image" type="file" onChange={handleChange}/>
+                  <input accept="image/*" id="post-image" name="image" type="file" onChange={handleChange}/>
                   <Button type="submit" fullWidth variant="contained" color="primary" onClick={handleUpload}>
                       Upload
                   </Button>
@@ -519,7 +521,7 @@ function Profile(props) {
                 renderItem={(item, index) => (
                   <List.Item>
                     <List.Item.Meta
-                      avatar={<Avatar src={`https://www.seekpng.com/png/detail/110-1100707_person-avatar-placeholder.png`} />}
+                      avatar={<Avatar src={PlaceholderProfileImage} />}
                       title={<a href={`/profile/${item.username}`}>{item.username}</a>}
                       description={item.short_bio}
                     />
@@ -546,7 +548,12 @@ function Profile(props) {
           <Col span={24}>
             <Row>
               <Col span={3}>
-                <div className="circle">Image</div>
+              <div className="profile-circle">
+                  <img style={{width: "100%", height: "100%", objectFit: "cover"}}
+                  src={PlaceholderProfileImage}
+                        alt="Profile Image"
+                  />
+                </div>
               </Col>
               <Col span={20} style={{ padding: "1rem" }}>
               <Row>
@@ -555,9 +562,9 @@ function Profile(props) {
                 </Col>
                 <Col span={12}>
                   <div>
-                    <div style={{maxWidth:"150px", cursor:"pointer"}} className="follow-badge">
+                    <div style={{maxWidth:"150px", cursor:"pointer"}} className="profile-follow-badge">
                       {isCurrUserFollowsOtherUser ?
-                      <Text className="follow">
+                      <Text className="profile-follow">
                       <Dropdown menu={{ items }} trigger={['click']}>
                           <a onClick={(e) => e.preventDefault()}>
                               Following <ChevronDownIcon />
@@ -565,7 +572,7 @@ function Profile(props) {
                       </Dropdown>
                       </Text>
                       :
-                      <button style={{cursor:"pointer", border:0}} onClick={() => followRequest(other_username)}><Text className="follow">Follow</Text></button>}
+                      <button style={{cursor:"pointer", border:0}} onClick={() => followRequest(other_username)}><Text className="profile-follow">Follow</Text></button>}
                     </div>
                   </div>
                   <div className="smaller-badges-div">
@@ -615,7 +622,7 @@ function Profile(props) {
           ]}
         >
           <Meta
-            avatar={<Avatar src="" />}
+            avatar={<Avatar src={PlaceholderProfileImage} />}
             title={x.title}
             description="TODO: Add description field for each crawl and show here?"
           />
