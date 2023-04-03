@@ -15,8 +15,6 @@ import random
 import requests
 from datetime import datetime, timezone
 from .serializers import ImageSerializer
-from .forms import UserForm
-from django.shortcuts import render
 from rest_framework.parsers import MultiPartParser, FormParser
 
 
@@ -356,13 +354,8 @@ def get_other_user_profile(request, other_username):
 @is_protected_route
 @parser_classes([MultiPartParser, FormParser])
 def profile_pic(request):
-    # def profile_pic(request, username):
-    data = request.data
-
     # target_user = User.objects.get(username=username)
     target_user = User.objects.get(username=request.data["target_username"])
-
-    file = request.FILES
 
     target_user.profile_pic = request.FILES.get("file")
     target_user.save()
