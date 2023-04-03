@@ -641,7 +641,7 @@ function Profile(props) {
                           height: "100%",
                           objectFit: "cover",
                         }}
-                        src={PlaceholderProfileImage}
+                        src={otherUserProfile.profile_pic || PlaceholderProfileImage}
                         alt="Profile Image"
                       />
                     </div>
@@ -666,12 +666,13 @@ function Profile(props) {
                                 </Dropdown>
                               </Text>
                             ) : (
-                              <button
-                                style={{ cursor: "pointer", border: 0 }}
-                                onClick={() => followRequest(other_username)}
-                              >
-                                <Text className="profile-follow">Follow</Text>
-                              </button>
+                                <Text className="profile-follow">
+                                <Dropdown menu={{ items }} trigger={["click"]}>
+                                  <a onClick={() => followRequest(other_username)}>
+                                    Follow
+                                  </a>
+                                </Dropdown>
+                              </Text>
                             )}
                           </div>
                         </div>

@@ -19,7 +19,7 @@
   height: 200px;
 }
 
-.follow-badge {
+.profile-follow-badge {
   border-top-right-radius: 8px;
   touch-action: manipulation;
   border-bottom-color: var(--always-dark-overlay);
