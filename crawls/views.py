@@ -37,8 +37,15 @@ def crawl_get_all(request):
     """
     crawls = Crawl.objects.all()
     out = []
+
     for i in range(len(crawls)):
-        out.append({"title": crawls[i].title, "data": json.loads(crawls[i].data)})
+        out.append(
+            {
+                "title": crawls[i].title,
+                "data": json.loads(crawls[i].data),
+                "author": crawls[i].author,
+            }
+        )
     return Response(out)
 
 

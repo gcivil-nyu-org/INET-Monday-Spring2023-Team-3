@@ -76,7 +76,11 @@ root.render(
           <Switch>
             <PrivateRoute path="/" exact component={Home} />
             <PrivateRoute path="/create" exact component={Create} />
-            <PrivateRoute path="/profile" exact component={Profile} />
+            <PrivateRoute
+              path="/profile/:other_username"
+              exact
+              component={Profile}
+            />
             <Route exact path="/register">
               <Register />
             </Route>

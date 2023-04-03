@@ -1,14 +1,23 @@
 import { DirectionsRenderer, GoogleMap } from "@react-google-maps/api";
 import axios from "axios";
-import { Pane, Heading, Text } from "evergreen-ui";
+import {
+  Pane,
+  Heading,
+  Text,
+  TimeIcon,
+  SwapHorizontalIcon,
+} from "evergreen-ui";
 import { useEffect, useState } from "react";
-import { useHistory } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import {
   ClockCircleOutlined,
   SwapOutlined,
+  SwapRightOutlined,
 } from "@ant-design/icons";
 import Map from "../Map/Map";
 import { secondsToHms, TRANSIT_TYPES } from "../../common";
+import { Avatar, List } from "antd";
+import { UserOutlined } from "@ant-design/icons";
 
 function Home() {
   const history = useHistory();
@@ -28,6 +37,9 @@ function Home() {
       history.replace("/login");
     }
   };
+  const handleLoad = (map) => {
+    console.log("Map loaded:", map);
+  };
 
   const getAllCrawls = async () => {
     try {
@@ -36,8 +48,8 @@ function Home() {
       );
       setAllCrawls(data);
     } catch (e) {
-      // localStorage.removeItem("jwt");
-      // history.replace("/login");
+      localStorage.removeItem("jwt");
+      history.replace("/login");
     }
   };
 
@@ -49,15 +61,30 @@ function Home() {
   if (!isMounted) return <div></div>;
   return (
     <Pane style={{ padding: 32 }}>
-      <h1>All crawls</h1>
-      <Pane style={{ marginTop: 24, width: "60%" }}>
-        {allCrawls.map((x) => (
-          <Pane>
-            <Heading size={800}>{x.title}</Heading>
+      <Pane style={{ marginTop: 4, width: "60%" }}>
+        {allCrawls.map((x, index) => (
+          <Pane key={index}>
+            <h2 style={{ marginBottom: "0" }} size={800}>
+              {index + 1}. {x.title}
+            </h2>
+            <div>
+              <h3 style={{ marginLeft: "1rem", display: "inline-block" }}>
+                <span style={{ fontWeight: "normal" }}>by</span>
+                <Link
+                  className="profile-author-name"
+                  to={`/profile/${x.author}`}
+                  style={{ textDecoration: "auto" }}
+                >
+                  {" "}
+                  {x.author}
+                </Link>
+              </h3>
+            </div>
             <Pane style={{ display: "flex" }}>
               <GoogleMap
+                key={index}
                 mapContainerStyle={{ width: "100%", height: 400 }}
-                zoom={10}
+                zoom={14}
               >
                 <DirectionsRenderer
                   options={{
@@ -88,7 +115,7 @@ function Home() {
                   </div>
                 </Pane>
                 {x.data.points.map((p, idx) => (
-                  <Pane>
+                  <Pane key={idx}>
                     <Pane
                       style={{
                         borderBottom: "1px solid #DDD",
@@ -116,13 +143,14 @@ function Home() {
                           }}
                         >
                           <div style={{ fontWeight: "bolder", fontSize: 12 }}>
-                            <ClockCircleOutlined />{" "}
+                            <TimeIcon />{" "}
                             {
                               x.data.directions.routes[0].legs[idx - 1].duration
                                 .text
                             }
                             <div style={{ height: 4 }} />
-                            <SwapOutlined /> Distance:{" "}
+                            <SwapHorizontalIcon />
+                            Distance:{" "}
                             {(
                               x.data.directions.routes[0].legs[idx - 1].distance
                                 .value / 1000

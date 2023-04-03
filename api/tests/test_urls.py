@@ -13,5 +13,6 @@ class TestUrls(SimpleTestCase):
         self.assertEquals(resolve(url).func, user_login)
 
     def test_profile_url_is_resolves(self):
-        url = reverse("profile")
+        username = "jennifer"
+        url = reverse("profile", kwargs={"other_username": username})
         self.assertEquals(resolve(url).func, profile)
