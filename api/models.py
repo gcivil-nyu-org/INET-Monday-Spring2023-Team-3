@@ -13,8 +13,10 @@ class UserTest(models.Model):
     def __str__(self):
         return self.username
 
+
 def upload_to(instance, filename):
-    return 'profiles/{filename}'.format(filename=filename)
+    return "profiles/{filename}".format(filename=filename)
+
 
 class User(models.Model):
     username = models.TextField(unique=True)
@@ -25,7 +27,9 @@ class User(models.Model):
     short_bio = models.TextField(blank=True, default="")
     follows = models.TextField(blank=True, default="")
     followed_by = models.TextField(blank=True, default="")
-    profile_pic = models.ImageField(null=True, blank=True, upload_to=upload_to, default='profiles/sample.jpg')
+    profile_pic = models.ImageField(
+        null=True, blank=True, upload_to=upload_to, default="profiles/sample.jpg"
+    )
 
     def __str__(self):
         return self.username

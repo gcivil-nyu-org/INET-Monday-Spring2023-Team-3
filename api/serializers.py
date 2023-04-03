@@ -1,10 +1,11 @@
 from rest_framework import serializers
 from .models import User
 
+
 class ImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = '__all__'
+        fields = "__all__"
 
     # This is the magic function which does the work
     # def get_photo_url(self, obj):

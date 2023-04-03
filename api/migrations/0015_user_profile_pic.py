@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('api', '0014_merge_0012_auto_20230329_2005_0013_auto_20230330_1603'),
+        ("api", "0014_merge_0012_auto_20230329_2005_0013_auto_20230330_1603"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='user',
-            name='profile_pic',
-            field=models.ImageField(blank=True, null=True, upload_to=''),
+            model_name="user",
+            name="profile_pic",
+            field=models.ImageField(blank=True, null=True, upload_to=""),
         ),
     ]

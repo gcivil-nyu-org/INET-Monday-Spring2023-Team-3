@@ -22,7 +22,6 @@ from django.shortcuts import render
 from rest_framework.parsers import MultiPartParser, FormParser
 
 
-
 SECRET_KEY = settings.SECRET_KEY
 
 
@@ -307,7 +306,9 @@ def profile(request, format=None):
 def full_profile(request, format=None):
     target_user = User.objects.get(username=request.user.username)
     # serializer for profile pic
-    serializer_profilepic = ImageSerializer(target_user, context={"request":request}, many=False)
+    serializer_profilepic = ImageSerializer(
+        target_user, context={"request": request}, many=False
+    )
     data = {
         "username": request.user.username,
         "email": request.user.email,
@@ -317,7 +318,6 @@ def full_profile(request, format=None):
         "followed_by": request.user.followed_by,
         # "date_of_birth": request.user.date_of_birth,
         "profile_pic": serializer_profilepic.data["profile_pic"],
-
     }
     return Response(data)
 
@@ -334,7 +334,9 @@ def get_other_user_profile(request, other_username):
         target_user = User.objects.get(username=other_username)
 
         # serializer for profile pic
-        serializer_profilepic = ImageSerializer(target_user, context={"request":request}, many=False)
+        serializer_profilepic = ImageSerializer(
+            target_user, context={"request": request}, many=False
+        )
 
         data = {
             "username": target_user.username,
@@ -356,25 +358,25 @@ def get_other_user_profile(request, other_username):
 @is_protected_route
 @parser_classes([MultiPartParser, FormParser])
 def profile_pic(request):
-# def profile_pic(request, username):
+    # def profile_pic(request, username):
     data = request.data
-    print('data: ', data)
+    print("data: ", data)
 
     # target_user = User.objects.get(username=username)
     target_user = User.objects.get(username=request.data["target_username"])
-    print('target_user: ', target_user)
+    print("target_user: ", target_user)
 
     file = request.FILES
-    print('file: ', file)
+    print("file: ", file)
 
-    print('profile_pic: ', target_user.profile_pic)
+    print("profile_pic: ", target_user.profile_pic)
 
-    target_user.profile_pic = request.FILES.get('file')
+    target_user.profile_pic = request.FILES.get("file")
     target_user.save()
 
     target_user = User.objects.get(username=username)
-    print('profile_pic: ', target_user.profile_pic)
-    response = {"result":'User Profile Updated'}
+    print("profile_pic: ", target_user.profile_pic)
+    response = {"result": "User Profile Updated"}
     return Response(response)
 
 
@@ -388,9 +390,8 @@ def profile_pic2(request, username):
         if form.is_valid():
             form.save()
 
-    context = {'form':form}
-    return render(request, 'test/form_test.html', context)
-
+    context = {"form": form}
+    return render(request, "test/form_test.html", context)
 
 
 @api_view(["POST"])

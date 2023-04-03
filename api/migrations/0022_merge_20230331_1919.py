@@ -4,11 +4,9 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('api', '0021_merge_20230331_1734'),
-        ('api', '0015_user_profile_pic'),
+        ("api", "0021_merge_20230331_1734"),
+        ("api", "0015_user_profile_pic"),
     ]
 
-    operations = [
-    ]
+    operations = []

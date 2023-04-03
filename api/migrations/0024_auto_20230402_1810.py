@@ -5,15 +5,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('api', '0023_merge_20230402_1406'),
+        ("api", "0023_merge_20230402_1406"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='user',
-            name='profile_pic',
-            field=models.ImageField(blank=True, default='profiles/sample.jpg', null=True, upload_to=api.models.upload_to),
+            model_name="user",
+            name="profile_pic",
+            field=models.ImageField(
+                blank=True,
+                default="profiles/sample.jpg",
+                null=True,
+                upload_to=api.models.upload_to,
+            ),
         ),
     ]
