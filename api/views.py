@@ -104,10 +104,6 @@ def email_verify(request):
     """
     try:
         user = User.objects.get(email=request.data["email"])
-        if not user:
-            return Response(
-                {"error": "User does not exist."}, status=status.HTTP_400_BAD_REQUEST
-            )
         otpRequest = OTP_Request.objects.filter(user=user).order_by("-created_at")[0]
         secondsSince = (
             datetime.now(timezone.utc) - otpRequest.created_at
@@ -128,6 +124,10 @@ def email_verify(request):
         return Response(
             {"error": "Incorrect OTP. Please try again."},
             status=status.HTTP_400_BAD_REQUEST,
+        )
+    except ObjectDoesNotExist:
+        return Response(
+            {"error": "user does not exist"}, status=status.HTTP_400_BAD_REQUEST
         )
     except Exception as e:
         print(e)
@@ -315,14 +315,12 @@ def full_profile(request, format=None):
     return Response(data)
 
 
-@api_view(["GET"])
+@api_view(["POST", "GET"])
 @is_protected_route
-def get_other_user_profile(request, other_username, format=None):
+def get_other_user_profile(request, other_username):
     try:
-        print(other_username)
-        otheruser = User.objects.filter(username=other_username).exists()
-        print(otheruser)
-        if not otheruser:
+        target_user = User.objects.get(username=other_username)
+        if not target_user:
             return Response(
                 {"error": "user does not exists"}, status=status.HTTP_400_BAD_REQUEST
             )
@@ -330,6 +328,7 @@ def get_other_user_profile(request, other_username, format=None):
 
         # serializer for profile pic
         serializer_profilepic = ImageSerializer(target_user, context={"request":request}, many=False)
+
         data = {
             "username": target_user.username,
             "email": target_user.email,
@@ -349,13 +348,17 @@ def get_other_user_profile(request, other_username, format=None):
 @api_view(["POST"])
 def update_user_info(request):
     try:
-        data = {
-            # "location": request.data["location"],
-            # "date_of_birth": request.data["date_of_birth"],
-            "short_bio": request.data["short_bio"],
-        }
-        User.objects.update(**data)
-        return Response({"success": True}, status=status.HTTP_201_CREATED)
+        username = request.data["target_username"]
+
+        targetuser = User.objects.filter(username=username).exists()
+        if not targetuser:
+            return Response(
+                {"error": "user does not exists"}, status=status.HTTP_400_BAD_REQUEST
+            )
+        target_user = User.objects.get(username=username)
+        target_user.short_bio = request.data["short_bio"]
+        target_user.save()
+        return Response(status=status.HTTP_200_OK)
     except Exception as e:
         print(e)
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -367,7 +370,6 @@ def follow(request):
     try:
         target_username = request.data["target_address"]
         self_username = request.data["self_address"]
-
         target_user = User.objects.get(username=target_username)
         self_user = User.objects.get(username=self_username)
 
@@ -425,28 +427,3 @@ def unfollow(request):
     except Exception as e:
         print(e)
         return Response(status=status.HTTP_400_BAD_REQUEST)
-
-
-# @api_view(["GET"])
-# @is_protected_route
-# def get_followers(request, format=None):
-#     data = {
-#         "username": request.user.username,
-#         "email": request.user.email,
-#         "location": request.user.location,
-#         "short_bio": request.user.short_bio,
-#         # "date_of_birth": request.user.date_of_birth,
-#     }
-#     return Response(data)
-
-# @api_view(["GET"])
-# @is_protected_route
-# def get_following(request, format=None):
-#     data = {
-#         "username": request.user.username,
-#         "email": request.user.email,
-#         "location": request.user.location,
-#         "short_bio": request.user.short_bio,
-#         # "date_of_birth": request.user.date_of_birth,
-#     }
-#     return Response(data)

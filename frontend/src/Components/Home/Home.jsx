@@ -1,11 +1,12 @@
 import { DirectionsRenderer, GoogleMap } from "@react-google-maps/api";
 import axios from "axios";
-import { Pane, Heading, Text } from "evergreen-ui";
+import { Pane, Heading, Text, TimeIcon, SwapHorizontalIcon } from "evergreen-ui";
 import { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import {
   ClockCircleOutlined,
   SwapOutlined,
+  SwapRightOutlined
 } from "@ant-design/icons";
 import Map from "../Map/Map";
 import { secondsToHms, TRANSIT_TYPES } from "../../common";
@@ -28,16 +29,20 @@ function Home() {
       history.replace("/login");
     }
   };
+  const handleLoad = (map) => {
+    console.log('Map loaded:', map);
+  };
 
   const getAllCrawls = async () => {
     try {
       const { data } = await axios.get(
         `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/all/`
       );
-      setAllCrawls(data);
+      
+      setAllCrawls(data)
     } catch (e) {
-      // localStorage.removeItem("jwt");
-      // history.replace("/login");
+      localStorage.removeItem("jwt");
+      history.replace("/login");
     }
   };
 
@@ -51,13 +56,15 @@ function Home() {
     <Pane style={{ padding: 32 }}>
       <h1>All crawls</h1>
       <Pane style={{ marginTop: 24, width: "60%" }}>
-        {allCrawls.map((x) => (
-          <Pane>
+        {allCrawls.map((x, index) => (
+          <Pane key={index}>
             <Heading size={800}>{x.title}</Heading>
+            <h4>by <a href={`/profile/${x.author}`}>{x.author}</a></h4>
             <Pane style={{ display: "flex" }}>
               <GoogleMap
+                key={index}
                 mapContainerStyle={{ width: "100%", height: 400 }}
-                zoom={10}
+                zoom={14}
               >
                 <DirectionsRenderer
                   options={{
@@ -88,7 +95,7 @@ function Home() {
                   </div>
                 </Pane>
                 {x.data.points.map((p, idx) => (
-                  <Pane>
+                  <Pane key={idx}>
                     <Pane
                       style={{
                         borderBottom: "1px solid #DDD",
@@ -113,21 +120,20 @@ function Home() {
                             display: "flex",
                             justifyContent: "space-between",
                             alignItems: "center",
-                          }}
-                        >
+                          }}>
+                          
                           <div style={{ fontWeight: "bolder", fontSize: 12 }}>
-                            <ClockCircleOutlined />{" "}
-                            {
-                              x.data.directions.routes[0].legs[idx - 1].duration
-                                .text
-                            }
+                            {/* <ClockCircleOutlined /> */}
+                            <TimeIcon />
+                            {" "}
+                            { x.data.directions.routes[0].legs[idx - 1].duration.text}
                             <div style={{ height: 4 }} />
-                            <SwapOutlined /> Distance:{" "}
-                            {(
-                              x.data.directions.routes[0].legs[idx - 1].distance
-                                .value / 1000
-                            ).toFixed(1)}
-                            km
+                            {/* <SwapOutlined />  */}
+                            <SwapHorizontalIcon/>
+                            Distance:
+                            {" "}
+                            {( x.data.directions.routes[0].legs[idx - 1].distance.value / 1000).toFixed(1)}km
+                            
                           </div>
                         </Pane>
                       )}

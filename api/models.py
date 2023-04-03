@@ -8,7 +8,7 @@ class UserTest(models.Model):
     email = models.EmailField()
     password = models.TextField()
     verified = models.BooleanField(default=False)
-    short_bio = models.CharField(max_length=200, null=True)
+    short_bio = models.TextField(blank=True, default="")
 
     def __str__(self):
         return self.username
@@ -20,7 +20,7 @@ class User(models.Model):
     password = models.TextField()
     verified = models.BooleanField(default=False)
     location = models.CharField(max_length=200, null=True, blank=True)
-    short_bio = models.CharField(max_length=200, null=True, blank=True)
+    short_bio = models.TextField(blank=True, default="")
     follows = models.TextField(blank=True, default="")
     followed_by = models.TextField(blank=True, default="")
     profile_pic = models.ImageField(null=True, blank=True, upload_to='profiles')

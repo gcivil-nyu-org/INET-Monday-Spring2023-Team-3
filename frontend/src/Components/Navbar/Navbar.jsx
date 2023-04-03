@@ -7,6 +7,7 @@ function Navbar() {
   const history = useHistory();
   const location = useLocation();
   const [isMounted, setIsMounted] = useState(false);
+  const uniqueParam = new Date().getTime();
 
   const logout = () => {
     localStorage.removeItem("jwt");
@@ -48,7 +49,7 @@ function Navbar() {
         <Link style={{ textDecoration: "none" }} to="/create">
           <Text style={{ marginLeft: 24 }}>Create</Text>
         </Link>
-        <Link style={{ textDecoration: "none" }} to="/profile/myprofile">
+        <Link style={{ textDecoration: "none" }} to={`/profile/myprofile?r=${uniqueParam}`}>
           <Text style={{ marginLeft: 24 }}>Profile</Text>
         </Link>
       </Pane>

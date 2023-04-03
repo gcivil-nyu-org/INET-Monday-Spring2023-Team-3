@@ -13,11 +13,18 @@
   justify-content: center;
 }
 
+
   img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-} 
+}
+
+
+#short_bio {
+  width: 100%;
+  height: 200px;
+}
 
 .follow-badge{
   border-top-right-radius: 8px;
@@ -40,4 +47,17 @@
   display: inline-block;
   margin: 1rem;
   margin-left: 0;
+}
+
+
+.profile-img-container {
+  width: 400px;
+  height: auto;
+  overflow: hidden;
+}
+
+.profile-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }

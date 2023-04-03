@@ -1,11 +1,11 @@
 import axios from "axios";
 
-import { Pane, toaster, Text, ChevronDownIcon } from "evergreen-ui";
-import { Card, Space, Row, Col, Button, Input, DatePickerProps, DatePicker, Dropdown } from "antd";
+import { Pane, toaster, Text, ChevronDownIcon, Heading } from "evergreen-ui";
+import { Card, Space, Row, Col, Button, Input, Dropdown, Avatar, List } from "antd";
 import { useEffect, useRef, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import "./Profile.css";
-import { EditIcon } from "evergreen-ui";
+import { EditIcon, HeartIcon, CommentIcon } from "evergreen-ui";
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import {
@@ -15,10 +15,20 @@ import {
   Marker,
   DirectionsRenderer,
 } from "@react-google-maps/api";
+import {
+  ClockCircleOutlined,
+  SwapOutlined,
+} from "@ant-design/icons";
 
+const placeholder_image_urls = [
+  "https://cdn.pixabay.com/photo/2017/02/25/17/38/george-washington-bridge-2098351_1280.jpg",
+  "https://cdn.pixabay.com/photo/2016/11/23/15/32/pedestrians-1853552_1280.jpg",
+  "https://cdn.pixabay.com/photo/2016/08/10/15/15/coffee-1583562_1280.jpg",
+  "https://cdn.pixabay.com/photo/2019/07/21/07/12/new-york-4352072_1280.jpg",
+];
 
-
-function Profile() {
+function Profile(props) {
+  const refreshParam = new URLSearchParams(props.location.search).get('r');
   const { other_username } = useParams();
   const history = useHistory();
   const [isMounted, setIsMounted] = useState(false);
@@ -106,6 +116,20 @@ function Profile() {
   };
 
 
+  const findUserInfoByUsername = async (username) => {
+    let ans = ""
+    try {
+      const { data } = await axios.get(
+        `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/auth/get_other_user_profile/${username}/`
+      );
+      ans = data
+
+    } catch(e) {
+      console.log(e)
+    }
+    return ans
+  }
+
   const getProfile = async () => {
     try {
       const { data } = await axios.get(
@@ -114,7 +138,7 @@ function Profile() {
       setProfile(data);
 
       if (data.username === other_username){
-        history.replace("/");
+        history.replace("/profile/myprofile");
       }
 
       let numFollowers = 0;
@@ -128,21 +152,34 @@ function Profile() {
       if (data.following.length > 0) {
         listFollowing = data.following.split(" ")
         numFollowing = listFollowing.length
-
       }
-
       if (other_username !== "myprofile" && listFollowing.includes(other_username)){
         setCurrUserFollowsOtherUser(true)
       }
 
-      setProfile(prevProfile => ({ ...prevProfile, numFollowers, numFollowing, listFollowers, listFollowing }));
+      setFormData({short_bio: data.short_bio})
+      // fetch followers and following users profiles
+      let listFollowersData = []
+      for (let i = 0; i < listFollowers.length; i++){
+        let ans;
+        ans = await findUserInfoByUsername(listFollowers[i])
+        listFollowersData.push(ans)
+      }
+      let listFollowingData = []
+      for (let i = 0; i < listFollowing.length; i++){
+        let ans;
+        ans = await findUserInfoByUsername(listFollowing[i])
+        listFollowingData.push(ans)
+      }
+
+      setProfile(prevProfile => ({ ...prevProfile, numFollowers, numFollowing, listFollowers, listFollowing, listFollowersData, listFollowingData }));
       if (other_username === "myprofile"){
         setIsMounted(true);
       }
 
     } catch (e) {
-      history.replace("/");
       console.log(e)
+      history.replace("/");
     }
   };
   const checkIfUserIsFollowing = () => {
@@ -158,6 +195,7 @@ function Profile() {
   };
 
   const handleSubmitUpdate = async (e) => {
+
     e.preventDefault();
 
     let userinput = formData;
@@ -166,18 +204,18 @@ function Profile() {
       return;
     }
     try {
+
       await axios.post(
           `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/auth/update-user-info/`,
           {
               short_bio: userinput.short_bio,
+              target_username: profile.username
           }
         );
         toaster.success("Changes saved!");
-        history.replace("/profile");
         setIsEditMode(false)
-        setProfile({
-          short_bio: userinput.short_bio,
-        })
+        setProfile(prevProfile => ({ ...prevProfile, short_bio: userinput.short_bio }));
+
 
     } catch (e) {
       console.log(e)
@@ -245,35 +283,34 @@ function Profile() {
       key: '0',
     },
   ]
-  // TODO: Filter crawls by author name that matches current profile username
+
   const getAllCrawls = async () => {
     try {
       const { data } = await axios.get(
         `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/all/`
       );
+      let arr = []
+      if (data.length > 0){
+        for (let i = 0; i < data.length; i++) {
+          if (other_username === "myprofile") {
+            if (data[i].author === profile.username){
+              arr.push(data[i])
+            }
+          } else {
+            if (data[i].author === other_username){
+              arr.push(data[i])
+            }
+          }
+        }
+      }
+      setAllCrawls(arr);
 
-      arr = []
-      // if (data.length > 0){
-      //   for (let i = 0; i < data.length; i++) {
-      //     console.log(data[i]);
-      //     if (other_username === "myprofile") {
-      //       if (data[i].author === profile.username){
-      //         arr.push(data[i])
-      //       }
-      //     } else {
-      //       if (data[i].author === other_username){
-      //         arr.push(data[i])
-      //       }
-      //     }
-      //   }
-      // }
-      setAllCrawls(data);
     } catch (e) {
-      // history.replace("/login");
+      console.log(e)
+      //history.replace("/");
     }
   };
-
-
+  const { Meta } = Card;
   useEffect(() => {
     getAllCrawls().then(() => {
 
@@ -285,7 +322,7 @@ function Profile() {
       });
     })
 
-  }, []);
+  }, [refreshParam]);
 
   if (!isMounted) return <div></div>;
   return (
@@ -296,21 +333,51 @@ function Profile() {
 
     <div key={1} style={{ padding: "32px" }}>
       <Card size="small" style={{ margin: "0.5rem" }}>
-        <Row style={{}}>
+        <Row>
+
           <Col span={24}>
             <Row>
               <Col span={4}>
                 <div className="circle">
-                    <img src={profile.profile_pic}
-                          alt="Profile Image"
-                    />
+                  <img src={profile.profile_pic}
+                        alt="Profile Image"
                 </div>
               </Col>
               <Col span={20} style={{ padding: "1rem" }}>
-                <div style={{ padding: "0.5rem", fontSize: "1.4rem" }}>
-                  {profile.username}
-                </div>
-                <div style={{ padding: "0.5rem" }}>Member since 2023</div>
+              <Row>
+                <Col span={4}>
+                  <h2>{profile.username}</h2>
+                </Col>
+                <Col span={12}>
+                  <div>
+                    <div style={{maxWidth:"150px", cursor:"pointer"}} className="">
+                    {!isEditMode?
+                      <Button type="primary" onClick={handleClickEditButton}>
+                        Edit Profile<span style={{paddingLeft:"4px",verticalAlign:"text-top" }}><EditIcon /></span>
+                      </Button>:
+                        <Button type="primary" onClick={handleSubmitUpdate}>
+                          Save changes
+                      </Button>}
+                    </div>
+                  </div>
+                  <div className="smaller-badges-div">
+                    <div className="smaller-badges">
+                      Posts <span>0</span>
+                    </div>
+                    <div className="smaller-badges">
+                      Followers <span>{profile.numFollowers}</span>
+                    </div>
+                    <div className="smaller-badges">
+                      Following <span>{profile.numFollowing}</span>
+                    </div>
+                  </div>
+                  <div className="bio">
+                    <div>
+                      <div>{profile.short_bio ? profile.short_bio : ""}</div>
+                    </div>
+                  </div>
+                </Col>
+              </Row>
               </Col>
             </Row>
           </Col>
@@ -320,6 +387,7 @@ function Profile() {
       <Row style={{ paddingTop: "1rem" }}>
         <Col span={24} style={{ padding: "0.5rem" }}>
 
+
           {!isEditMode?
           <Button type="primary" onClick={handleClickEditButton}>
             Edit Profile<span style={{paddingLeft:"4px",verticalAlign:"text-top" }}><EditIcon /></span>
@@ -327,6 +395,10 @@ function Profile() {
             <Button type="primary" onClick={handleSubmitUpdate}>
               Save changes
             </Button>}
+
+
+
+
         </Col>
 
         <Col span={8} style={{ padding: "0.5rem" }}>
@@ -340,18 +412,17 @@ function Profile() {
               <Card title="Email" size="small">
                 <p>{profile.email}</p>
               </Card>
-              <Button onClick={() => followRequest("uniqueuser")}>Click to follow uniqueuser </Button>
-              <Button onClick={() => unfollowRequest("uniqueuser")}>Click to Unfollow uniqueuser </Button>
               <Card title="Current Location" size="small">
 
-                {center && <GoogleMap
+                {center &&
+                <GoogleMap
                   mapContainerStyle={mapContainerStyle}
                   center={center}
                   onClick={handleMapClick}
                   zoom={14}
                   onLoad={handleLoad}
                 >
-                <Marker
+                {/* <Marker
                   position={center}
                   icon= {{
                     url: "https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png",
@@ -365,6 +436,8 @@ function Profile() {
                   }
                   title="your location"
                   label="A" />
+                  title="your location"
+                  label="A" /> */}
                 </GoogleMap>}
 
                 {!center &&
@@ -380,9 +453,9 @@ function Profile() {
                 </div>
               </Card>):(
               <Card title="Short Bio" size="small">
-                <Input
+                <textarea
                   placeholder="Enter a short bio about yourself"
-                  type="short_bio"
+                  type="text"
                   id="short_bio"
                   name="Short Bio"
                   value={formData.short_bio}
@@ -408,14 +481,44 @@ function Profile() {
               size="small"
               style={{ height: "100%" }}
             >
-              {profile.followed_by.length > 0 ? profile.followed_by : "No followers yet :("}
+            {(profile && profile.listFollowersData && profile.listFollowersData.length > 0 ) ?
+              <List
+                itemLayout="vertical"
+                dataSource={profile.listFollowersData}
+                renderItem={(item, index) => (
+                  <List.Item>
+                    <List.Item.Meta
+                      avatar={<Avatar src={`https://www.seekpng.com/png/detail/110-1100707_person-avatar-placeholder.png`} />}
+                      title={<a href={`/profile/${item.username}`}>{item.username}</a>}
+                      description={item.short_bio}
+                    />
+                  </List.Item>
+                  )}
+              />:
+              <span>No followers yet</span>}
             </Card>
             <Card
               title="Following"
               size="small"
               style={{ height: "100%" }}
             >
-              {profile.following.length > 0 ? profile.following : "Not following anyone :("}
+
+            {(profile && profile.listFollowingData && profile.listFollowingData.length > 0 ) ?
+            <List
+                itemLayout="vertical"
+                dataSource={profile.listFollowingData}
+                renderItem={(item, index) => (
+                  <List.Item>
+                    <List.Item.Meta
+                      avatar={<Avatar src={`https://www.seekpng.com/png/detail/110-1100707_person-avatar-placeholder.png`} />}
+                      title={<a href={`/profile/${item.username}`}>{item.username}</a>}
+                      description={item.short_bio}
+                    />
+                  </List.Item>
+                  )}
+              />:
+              <span>You are not following anyone yet</span>}
+
             </Card>
             <Card title="Saved Crawls" size="small" style={{ height: "100%" }}>
               No Saved crawls yet <a href="/">Explore</a>
@@ -430,7 +533,7 @@ function Profile() {
 
     <div key={2} style={{ padding: "32px" }}>
       <Card size="small" style={{ margin: "0.5rem", border: "none" }}>
-        <Row style={{}}>
+        <Row>
           <Col span={24}>
             <Row>
               <Col span={4}>
@@ -481,58 +584,36 @@ function Profile() {
       </Card>
 
       <Row style={{ paddingTop: "1rem", padding: "12px" }}>
-        <div><h2>Crawls</h2></div>
-        {allCrawls && allCrawls.length > 0 && allCrawls.map((x) => (
-          <div>
-            {x.author}
-          </div>
+        <div style={{width:"100%"}}>
+          <h3>Crawls</h3>
+        </div>
+
+  <div>
+    {allCrawls && allCrawls.map((x, index) => (
+      <Card
+          className="profile-img-container"
+          style={{
+            display: "inline-block",
+            margin: "1rem"
+          }}
+          cover={
+            <img className='profile-img' alt="example" src={placeholder_image_urls[index]}
+            />
+          }
+          actions={[
+            <HeartIcon />,
+            <CommentIcon/>,
+          ]}
+        >
+          <Meta
+            avatar={<Avatar src="" />}
+            title={x.title}
+            description="TODO: Add description field for each crawl and show here?"
+          />
+        </Card>
         ))}
-        {/* {allCrawls.map((x) => (
-          <Col span={8}>
-            <h3>{x.author}</h3>
-            <h3 size={800}>{x.title}</h3>
-            <Pane style={{ display: "flex" }}>
-              <GoogleMap
-                mapContainerStyle={{ width: "100%", height: 400 }}
-                zoom={10}
-              >
-                <DirectionsRenderer
-                  options={{
-                    directions: x.data.directions,
-                  }}
-                />
-              </GoogleMap>
-              <Pane
-                style={{
-                  width: 500,
-                  height: 500,
-                  overflow: "scroll",
-                  marginTop: 14,
-                }}
-              >
-                {x.data.points.map((p, idx) => (
-                  <Pane
-                    style={{
-                      borderBottom: "1px solid #DDD",
-                      padding: "16px",
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                    }}
-                  >
-                    <Heading>
-                      {String.fromCharCode("A".charCodeAt(0) + idx)}. {p.name}
-                    </Heading>
-                  </Pane>
-                ))}
-              </Pane>
-            </Pane>
-          </Col>
-        ))} */}
-        {/* <Col span={8}>
-        </Col>
-        <Col span={8}>
-        </Col> */}
+        </div>
+
 
       </Row>
     </div>
