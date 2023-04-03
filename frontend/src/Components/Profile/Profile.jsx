@@ -6,8 +6,6 @@ import { useEffect, useRef, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import "./Profile.css";
 import { EditIcon, HeartIcon, CommentIcon } from "evergreen-ui";
-import dayjs from 'dayjs';
-import customParseFormat from 'dayjs/plugin/customParseFormat';
 import {
   GoogleMap,
   useLoadScript,
@@ -15,10 +13,7 @@ import {
   Marker,
   DirectionsRenderer,
 } from "@react-google-maps/api";
-import {
-  ClockCircleOutlined,
-  SwapOutlined,
-} from "@ant-design/icons";
+
 
 const placeholder_image_urls = [
   "https://cdn.pixabay.com/photo/2017/02/25/17/38/george-washington-bridge-2098351_1280.jpg",
@@ -243,7 +238,6 @@ function Profile(props) {
         
         setCurrUserFollowsOtherUser(true)
         
-        
     } catch (e) {
       console.log(e)
 
@@ -262,7 +256,6 @@ function Profile(props) {
         );
         toaster.success("Unfollow request successful.");
         
-
         let oldListFollowing = profile.listFollowing
         const index = oldListFollowing.indexOf(other_username);
         const x = oldListFollowing.splice(index, 1);
@@ -332,25 +325,12 @@ function Profile(props) {
     // current user's profile version
 
     <div key={1} style={{ padding: "32px" }}>
-      <Card size="small" style={{ margin: "0.5rem" }}>
+      <Card size="small" style={{ margin: "0.5rem", border: "none" }}>
         <Row>
           
-          {/* <Col span={24}>
-            <Row>
-              <Col span={4}>
-                <div className="circle">Image</div>
-              </Col>
-              <Col span={20} style={{ padding: "1rem" }}>
-                <div style={{ padding: "0.5rem", fontSize: "1.4rem" }}>
-                  {profile.username}
-                </div>
-                <div style={{ padding: "0.5rem" }}>Member since 2023</div>
-              </Col>
-            </Row>
-          </Col> */}
           <Col span={24}>
             <Row>
-              <Col span={4}>
+              <Col span={3}>
                 <div className="circle">Image</div>
               </Col>
               <Col span={20} style={{ padding: "1rem" }}>
@@ -421,20 +401,7 @@ function Profile(props) {
                   zoom={14}
                   onLoad={handleLoad}
                 >
-                {/* <Marker 
-                  position={center} 
-                  icon= {{
-                    url: "https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png",
-                    scaledSize: new google.maps.Size(50, 50)
-                  }}
-                  center={
-                    {
-                      lat: 40.723301,
-                      lng: -74.002988,
-                    }
-                  }
-                  title="your location" 
-                  label="A" /> */}
+                
                 </GoogleMap>}
                 
                 {!center && 
@@ -533,7 +500,7 @@ function Profile(props) {
         <Row>
           <Col span={24}>
             <Row>
-              <Col span={4}>
+              <Col span={3}>
                 <div className="circle">Image</div>
               </Col>
               <Col span={20} style={{ padding: "1rem" }}>
