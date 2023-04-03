@@ -1,17 +1,23 @@
 import { DirectionsRenderer, GoogleMap } from "@react-google-maps/api";
 import axios from "axios";
-import { Pane, Heading, Text, TimeIcon, SwapHorizontalIcon } from "evergreen-ui";
+import {
+  Pane,
+  Heading,
+  Text,
+  TimeIcon,
+  SwapHorizontalIcon,
+} from "evergreen-ui";
 import { useEffect, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import {
   ClockCircleOutlined,
   SwapOutlined,
-  SwapRightOutlined
+  SwapRightOutlined,
 } from "@ant-design/icons";
 import Map from "../Map/Map";
 import { secondsToHms, TRANSIT_TYPES } from "../../common";
 import { Avatar, List } from "antd";
-import { UserOutlined } from '@ant-design/icons';
+import { UserOutlined } from "@ant-design/icons";
 
 function Home() {
   const history = useHistory();
@@ -32,7 +38,7 @@ function Home() {
     }
   };
   const handleLoad = (map) => {
-    console.log('Map loaded:', map);
+    console.log("Map loaded:", map);
   };
 
   const getAllCrawls = async () => {
@@ -40,7 +46,7 @@ function Home() {
       const { data } = await axios.get(
         `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/all/`
       );
-      setAllCrawls(data)
+      setAllCrawls(data);
     } catch (e) {
       localStorage.removeItem("jwt");
       history.replace("/login");
@@ -55,15 +61,23 @@ function Home() {
   if (!isMounted) return <div></div>;
   return (
     <Pane style={{ padding: 32 }}>
-     
       <Pane style={{ marginTop: 4, width: "60%" }}>
         {allCrawls.map((x, index) => (
           <Pane key={index}>
-            <h2 style={{marginBottom:"0"}} size={800}>{index+1}. {x.title}</h2>
+            <h2 style={{ marginBottom: "0" }} size={800}>
+              {index + 1}. {x.title}
+            </h2>
             <div>
-              <h3 style={{marginLeft: "1rem", display: "inline-block"}}>
-                <span style={{fontWeight:"normal"}}>by</span> 
-                  <Link className="profile-author-name" to={`/profile/${x.author}`} style={{textDecoration:"auto"}}>{" "}{x.author}</Link>
+              <h3 style={{ marginLeft: "1rem", display: "inline-block" }}>
+                <span style={{ fontWeight: "normal" }}>by</span>
+                <Link
+                  className="profile-author-name"
+                  to={`/profile/${x.author}`}
+                  style={{ textDecoration: "auto" }}
+                >
+                  {" "}
+                  {x.author}
+                </Link>
               </h3>
             </div>
             <Pane style={{ display: "flex" }}>
@@ -126,18 +140,22 @@ function Home() {
                             display: "flex",
                             justifyContent: "space-between",
                             alignItems: "center",
-                          }}>
-                          
+                          }}
+                        >
                           <div style={{ fontWeight: "bolder", fontSize: 12 }}>
-                            <TimeIcon />
-                            {" "}
-                            { x.data.directions.routes[0].legs[idx - 1].duration.text}
+                            <TimeIcon />{" "}
+                            {
+                              x.data.directions.routes[0].legs[idx - 1].duration
+                                .text
+                            }
                             <div style={{ height: 4 }} />
-                            <SwapHorizontalIcon/>
-                            Distance:
-                            {" "}
-                            {( x.data.directions.routes[0].legs[idx - 1].distance.value / 1000).toFixed(1)}km
-                            
+                            <SwapHorizontalIcon />
+                            Distance:{" "}
+                            {(
+                              x.data.directions.routes[0].legs[idx - 1].distance
+                                .value / 1000
+                            ).toFixed(1)}
+                            km
                           </div>
                         </Pane>
                       )}
