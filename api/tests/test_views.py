@@ -1,7 +1,7 @@
 from rest_framework.test import APITestCase
 from rest_framework import status
 from django.urls import reverse
-from api.models import User, OTP_Request
+from api.models import User, OTP_Request, RecoverRequest
 import datetime
 
 
@@ -169,6 +169,24 @@ class EmailTest(APITestCase):
 
         response = self.client.post(reverse("verify"), data)
         self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def test_verify_recovery_success(self):
+        data = {"username": "test_u", "email": "test@gmail.com", "password": "test_pw"}
+        self.client.post(reverse("register"), data)
+
+        user = User.objects.get(username=data["username"])
+        user.verified = True
+        user.save()
+
+        response = self.client.post(reverse("login"), data)
+        jwt = response.data["jwt"]
+
+        rr = RecoverRequest(token=jwt, used=False)
+        rr.user = user
+        rr.save()
+
+        response = self.client.post("/api/verify-recovery")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
 class OTPTest(APITestCase):
