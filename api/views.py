@@ -6,7 +6,7 @@ from django.contrib.auth.hashers import make_password, check_password
 from django.core.mail import send_mail
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from .models import User, OTP_Request, RecoverRequest
+from .models import User, OTP_Request, RecoverRequest, Follow
 from .decorators import is_protected_route
 import jwt
 import json
@@ -215,8 +215,7 @@ def verify_recovery(request):
         user = User.objects.get(email=decoded_jwt["email"])
         rr = RecoverRequest.objects.get(user=user, token=encoded_jwt)
         if (
-            not rr
-            or rr.used
+            rr.used
             or (
                 datetime.now() - datetime.fromtimestamp(decoded_jwt["created_at"])
             ).total_seconds()
@@ -224,6 +223,9 @@ def verify_recovery(request):
         ):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         User.objects.get(email=decoded_jwt["email"])
+    except ObjectDoesNotExist as e:
+        print(e)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
     except Exception as e:
         print(e)
         return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -300,22 +302,37 @@ def profile(request, format=None):
 @api_view(["GET"])
 @is_protected_route
 def full_profile(request, format=None):
-    target_user = User.objects.get(username=request.user.username)
-    # serializer for profile pic
-    serializer_profilepic = ImageSerializer(
-        target_user, context={"request": request}, many=False
-    )
-    data = {
-        "username": request.user.username,
-        "email": request.user.email,
-        "location": request.user.location,
-        "short_bio": request.user.short_bio,
-        "following": request.user.follows,
-        "followed_by": request.user.followed_by,
-        # "date_of_birth": request.user.date_of_birth,
-        "profile_pic": serializer_profilepic.data["profile_pic"],
-    }
-    return Response(data)
+    try:
+        target_user = User.objects.get(username=request.user.username)
+        # serializer for profile pic
+        serializer_profilepic = ImageSerializer(
+            target_user, context={"request": request}, many=False
+        )
+        # returns a query set which needs to be converted to a list
+        follows_set = Follow.objects.filter(follows=target_user)
+        follows_list = []
+        for follow_entry in follows_set:
+            follows_list.append(follow_entry.followed.username)
+
+        followed_set = Follow.objects.filter(followed=target_user)
+        followed_list = []
+        for follow_entry in followed_set:
+            followed_list.append(follow_entry.follows.username)
+
+        data = {
+            "username": request.user.username,
+            "email": request.user.email,
+            "location": request.user.location,
+            "short_bio": request.user.short_bio,
+            "following": " ".join(follows_list),
+            "followed_by": " ".join(followed_list),
+            # "date_of_birth": request.user.date_of_birth,
+            "profile_pic": serializer_profilepic.data["profile_pic"],
+        }
+        return Response(data)
+    except Exception as e:
+        print(e)
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(["GET"])
@@ -323,10 +340,6 @@ def full_profile(request, format=None):
 def get_other_user_profile(request, other_username):
     try:
         target_user = User.objects.get(username=other_username)
-        if not target_user:
-            return Response(
-                {"error": "user does not exists"}, status=status.HTTP_400_BAD_REQUEST
-            )
         target_user = User.objects.get(username=other_username)
 
         # serializer for profile pic
@@ -334,17 +347,32 @@ def get_other_user_profile(request, other_username):
             target_user, context={"request": request}, many=False
         )
 
+        # returns a query set which needs to be converted to a list
+        follows_set = Follow.objects.filter(follows=target_user)
+        follows_list = []
+        for follow_entry in follows_set:
+            follows_list.append(follow_entry.followed.username)
+
+        followed_set = Follow.objects.filter(followed=target_user)
+        followed_list = []
+        for follow_entry in followed_set:
+            followed_list.append(follow_entry.follows.username)
+
         data = {
             "username": target_user.username,
             "email": target_user.email,
             "location": target_user.location,
             "short_bio": target_user.short_bio,
-            "following": target_user.follows,
-            "followed_by": target_user.followed_by,
+            "following": " ".join(follows_list),
+            "followed_by": " ".join(followed_list),
             "profile_pic": serializer_profilepic.data["profile_pic"],
         }
 
         return Response(data)
+    except ObjectDoesNotExist:
+        return Response(
+            {"error": "user does not exists"}, status=status.HTTP_400_BAD_REQUEST
+        )
     except Exception as e:
         print(e)
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -393,27 +421,16 @@ def follow(request):
         target_user = User.objects.get(username=target_username)
         self_user = User.objects.get(username=self_username)
 
-        # check if already following
-        if target_username not in self_user.follows:
-            oldList = []
-            if len(self_user.follows) > 0:
-                oldList = self_user.follows.split(" ")
-            oldList.append(target_username)
-            self_user.follows = " ".join(oldList)
-            self_user.save()
-
-        if self_username not in target_user.followed_by:
-            oldList2 = []
-            if len(target_user.followed_by) > 0:
-                oldList2 = target_user.followed_by.split(" ")
-            oldList2.append(self_username)
-            target_user.followed_by = " ".join(oldList2)
-            target_user.save()
+        # get_or_create will only create table entry if it doesn't already exist
+        Follow.objects.get_or_create(follows=self_user, followed=target_user)
 
         return Response(status=status.HTTP_200_OK)
+    except ObjectDoesNotExist as oe:
+        print(oe)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
     except Exception as e:
         print(e)
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(["POST"])
@@ -425,23 +442,7 @@ def unfollow(request):
         target_user = User.objects.get(username=target_username)
         self_user = User.objects.get(username=self_username)
 
-        # check if already not following.
-        if target_username in self_user.follows:
-            oldList = []
-            if len(self_user.follows) > 0:
-                oldList = self_user.follows.split(" ")
-
-            oldList.remove(target_username)
-            self_user.follows = " ".join(oldList)
-            self_user.save()
-
-        if self_username in target_user.followed_by:
-            oldList2 = []
-            if len(target_user.followed_by) > 0:
-                oldList2 = target_user.followed_by.split(" ")
-            oldList2.remove(self_username)
-            target_user.followed_by = " ".join(oldList2)
-            target_user.save()
+        Follow.objects.filter(follows=self_user, followed=target_user).delete()
 
         return Response(status=status.HTTP_200_OK)
     except Exception as e:
