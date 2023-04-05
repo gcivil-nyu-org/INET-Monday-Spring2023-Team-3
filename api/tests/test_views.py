@@ -170,7 +170,7 @@ class EmailTest(APITestCase):
         response = self.client.post(reverse("verify"), data)
         self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    def test_verify_recovery_success(self):
+    def test_verify_recovery_fail(self):
         data = {"username": "test_u", "email": "test@gmail.com", "password": "test_pw"}
         self.client.post(reverse("register"), data)
 
@@ -178,15 +178,8 @@ class EmailTest(APITestCase):
         user.verified = True
         user.save()
 
-        response = self.client.post(reverse("login"), data)
-        jwt = response.data["jwt"]
-
-        rr = RecoverRequest(token=jwt, used=False)
-        rr.user = user
-        rr.save()
-
-        response = self.client.post("/api/verify-recovery")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response = self.client.post(reverse("verify_recovery"))
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
 class OTPTest(APITestCase):

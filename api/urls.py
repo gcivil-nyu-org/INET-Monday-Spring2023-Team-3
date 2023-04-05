@@ -9,7 +9,7 @@ urlpatterns = [
     path("verify/", views.email_verify, name="verify"),
     path("send-otp/", views.send_otp, name="send_otp"),
     path("recover/", views.send_recovery, name="recover"),
-    path("verify-recovery/", views.verify_recovery),
+    path("verify-recovery/", views.verify_recovery, name="verify_recovery"),
     path("update-password/", views.update_password),
     path("google-oauth/", views.google_verify),
     path("full_profile/", views.full_profile, name="full_profile"),
