@@ -307,13 +307,24 @@ def full_profile(request, format=None):
     serializer_profilepic = ImageSerializer(
         target_user, context={"request": request}, many=False
     )
+    # returns a query set which needs to be converted to a list
+    follows_set = Follow.objects.filter(follows=target_user)
+    follows_list = []
+    for follow_entry in follows_set:
+        follows_list.append(follow_entry.followed.username)
+
+    followed_set = Follow.objects.filter(followed=target_user)
+    followed_list = []
+    for follow_entry in followed_set:
+        followed_list.append(follow_entry.followed.username)
+
     data = {
         "username": request.user.username,
         "email": request.user.email,
         "location": request.user.location,
         "short_bio": request.user.short_bio,
-        "following": request.user.follows,
-        "followed_by": request.user.followed_by,
+        "following": " ".join(follows_list),
+        "followed_by": " ".join(followed_list),
         # "date_of_birth": request.user.date_of_birth,
         "profile_pic": serializer_profilepic.data["profile_pic"],
     }

@@ -84,3 +84,16 @@ class FollowTest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(len(Follow.objects.all()), 0)
+
+    def test_full_profile_success(self):
+        self.test_follow_success()
+        to_follow2 = User.objects.create(
+            username="to_follow2", email="12@gmail.com", password="1234"
+        )
+
+        data = {"self_address": self.username, "target_address": to_follow2.username}
+        self.client.post(reverse("follow"), data)
+
+        response = self.client.get(reverse("full_profile"))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['following'], "to_follow to_follow2")
