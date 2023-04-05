@@ -96,4 +96,42 @@ class FollowTest(APITestCase):
 
         response = self.client.get(reverse("full_profile"))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['following'], "to_follow to_follow2")
+        self.assertEqual(response.data["following"], "to_follow to_follow2")
+
+    def test_full_profile_fail_bad_auth(self):
+        response = self.client.get(reverse("full_profile"))
+        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def test_other_user_profile_success(self):
+        self.test_follow_success()
+        to_follow2 = User.objects.create(
+            username="to_follow2", email="12@gmail.com", password="1234"
+        )
+
+        data = {"self_address": self.username, "target_address": to_follow2.username}
+        self.client.post(reverse("follow"), data)
+
+        response = self.client.get(
+            reverse(
+                "other_user_profile", kwargs={"other_username": to_follow2.username}
+            )
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["followed_by"], "test_u")
+
+    def test_other_user_profile_fail_no_user(self):
+        self.test_follow_success()
+
+        response = self.client.get(
+            reverse("other_user_profile", kwargs={"other_username": "to_follow2"})
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_other_user_profile_fail_bad_auth(self):
+        response = self.client.get(
+            reverse("other_user_profile", kwargs={"other_username": "to_follow2"})
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
