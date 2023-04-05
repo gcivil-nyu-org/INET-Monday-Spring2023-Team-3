@@ -215,8 +215,7 @@ def verify_recovery(request):
         user = User.objects.get(email=decoded_jwt["email"])
         rr = RecoverRequest.objects.get(user=user, token=encoded_jwt)
         if (
-            not rr
-            or rr.used
+            rr.used
             or (
                 datetime.now() - datetime.fromtimestamp(decoded_jwt["created_at"])
             ).total_seconds()
@@ -224,6 +223,9 @@ def verify_recovery(request):
         ):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         User.objects.get(email=decoded_jwt["email"])
+    except ObjectDoesNotExist as e:
+        print(e)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
     except Exception as e:
         print(e)
         return Response(status=status.HTTP_400_BAD_REQUEST)
