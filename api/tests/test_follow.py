@@ -59,3 +59,28 @@ class FollowTest(APITestCase):
 
         response = self.client.post(reverse("follow"), data)
         self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def test_unfollow_success(self):
+        self.test_follow_success()
+        data = {"self_address": self.username, "target_address": "to_follow"}
+        response = self.client.post(reverse("unfollow"), data)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(Follow.objects.all()), 0)
+
+    def test_unfollow_twice(self):
+        self.test_follow_success()
+        data = {"self_address": self.username, "target_address": "to_follow"}
+        self.client.post(reverse("unfollow"), data)
+        response = self.client.post(reverse("unfollow"), data)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(Follow.objects.all()), 0)
+
+    def test_unfollow_fail(self):
+        self.authenticate()
+        data = {"self_address": self.username, "target_address": "to_follow"}
+        response = self.client.post(reverse("unfollow"), data)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(len(Follow.objects.all()), 0)

@@ -416,24 +416,8 @@ def unfollow(request):
         target_user = User.objects.get(username=target_username)
         self_user = User.objects.get(username=self_username)
 
-        # check if already not following.
-        if target_username in self_user.follows:
-            oldList = []
-            if len(self_user.follows) > 0:
-                oldList = self_user.follows.split(" ")
-
-            oldList.remove(target_username)
-            self_user.follows = " ".join(oldList)
-            self_user.save()
-
-        if self_username in target_user.followed_by:
-            oldList2 = []
-            if len(target_user.followed_by) > 0:
-                oldList2 = target_user.followed_by.split(" ")
-            oldList2.remove(self_username)
-            target_user.followed_by = " ".join(oldList2)
-            target_user.save()
-
+        Follow.objects.filter(follows=self_user, followed=target_user).delete()
+        
         return Response(status=status.HTTP_200_OK)
     except Exception as e:
         print(e)
