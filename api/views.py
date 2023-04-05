@@ -417,7 +417,7 @@ def unfollow(request):
         self_user = User.objects.get(username=self_username)
 
         Follow.objects.filter(follows=self_user, followed=target_user).delete()
-        
+
         return Response(status=status.HTTP_200_OK)
     except Exception as e:
         print(e)
