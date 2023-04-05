@@ -14,7 +14,7 @@ urlpatterns = [
     path("google-oauth/", views.google_verify),
     path("full_profile/", views.full_profile, name="full_profile"),
     path("update-user-info/", views.update_user_info),
-    path("request-follow/", views.follow),
+    path("request-follow/", views.follow, name="follow"),
     path("request-unfollow/", views.unfollow),
     path("get_other_user_profile/<str:other_username>/", views.get_other_user_profile),
     path("profile_pic/", views.profile_pic),

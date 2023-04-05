@@ -6,7 +6,7 @@ from django.contrib.auth.hashers import make_password, check_password
 from django.core.mail import send_mail
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from .models import User, OTP_Request, RecoverRequest
+from .models import User, OTP_Request, RecoverRequest, Follow
 from .decorators import is_protected_route
 import jwt
 import json
@@ -395,27 +395,16 @@ def follow(request):
         target_user = User.objects.get(username=target_username)
         self_user = User.objects.get(username=self_username)
 
-        # check if already following
-        if target_username not in self_user.follows:
-            oldList = []
-            if len(self_user.follows) > 0:
-                oldList = self_user.follows.split(" ")
-            oldList.append(target_username)
-            self_user.follows = " ".join(oldList)
-            self_user.save()
-
-        if self_username not in target_user.followed_by:
-            oldList2 = []
-            if len(target_user.followed_by) > 0:
-                oldList2 = target_user.followed_by.split(" ")
-            oldList2.append(self_username)
-            target_user.followed_by = " ".join(oldList2)
-            target_user.save()
+        # get_or_create will only create table entry if it doesn't already exist
+        Follow.objects.get_or_create(follows=self_user, followed=target_user)
 
         return Response(status=status.HTTP_200_OK)
+    except ObjectDoesNotExist as oe:
+        print(oe)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
     except Exception as e:
         print(e)
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(["POST"])
