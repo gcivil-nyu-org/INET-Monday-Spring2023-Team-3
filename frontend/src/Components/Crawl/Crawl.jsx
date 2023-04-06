@@ -31,8 +31,9 @@ function Crawl(props) {
   const history = useHistory();
   const [isMounted, setIsMounted] = useState(false);
   const [crawlDetail, setCrawlDetail] = useState({});
-  const [currUser, setCurrUser] = useState({});
-
+  
+  const [profile, setProfile] = useState({});
+  const [isCurrUserAuthor, setIsCurrUserAuthor] = useState(false);
 
   const [otherUserProfile, setOtherUserProfile] = useState({});
   const [isEditMode, setIsEditMode] = useState(false);
@@ -106,13 +107,13 @@ function Crawl(props) {
 
   const get_crawl_by_id = async () => {
     try {
-        console.log(crawl_id)
-        console.log(typeof(crawl_id))
+        
       const { data } = await axios.get(
         `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/get_crawl_by_id/${crawl_id}/`
       );
-      console.log(data)
-      setCrawlDetail(data);
+      await setCrawlDetail(data);
+      return data;
+      
 
     //   if (data.username === other_username) {
     //     history.replace("/");
@@ -139,28 +140,54 @@ function Crawl(props) {
       console.log(e.target.files);
     }
   };
+
+  const getProfile = async () => {
+    try {
+      const { data } = await axios.get(
+        `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/auth/full_profile/`
+      );
+      setProfile(data);
+      console.log(data)
+      return data;
+    } catch (e) {
+      console.log(e);
+      history.replace("/");
+    }
+  };
+
+
+  const getData = async () => {
+    // await getProfile();
+    // await get_crawl_by_id();
+    getProfile().then((currUserProfile)=>{
+        get_crawl_by_id().then((currCrawl)=>{
+            if (currUserProfile.username == currCrawl.author){
+                console.log("Curr user is the author of this crawl. ");
+                setIsCurrUserAuthor(true)
+            }
+            setIsMounted(true);
+        })
+    })
+  }
+
   useEffect(() => {
-    get_crawl_by_id().then(() => {
-    //   getProfile().then(() => {
-    //     if (other_username !== "myprofile") {
-    //       getOtherUserProfile();
-    //     }
-    //   });
-
-    setIsMounted(true);
-    });
-
+    getData();
   }, []);
 
   if (!isMounted) return <div></div>;
   return (
     <div>
+        
         <div key={1} style={{ padding: "32px" }}>
             <div>
-                {crawlDetail.title}
+                Title: {crawlDetail.title}
             </div>
             <div>
-                {crawlDetail.author}
+                <div>Author: {crawlDetail.author}</div>
+                <div>Current User: {profile.username}</div>
+                <div>
+                Mode: {isCurrUserAuthor ? "Current user is the author of this crawl":"Viewing other's crawl mode."}
+                </div>
             </div>
 
         </div>

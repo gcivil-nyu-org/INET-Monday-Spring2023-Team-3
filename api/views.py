@@ -303,6 +303,8 @@ def profile(request, format=None):
 @is_protected_route
 def full_profile(request, format=None):
     try:
+        
+       
         target_user = User.objects.get(username=request.user.username)
         # serializer for profile pic
         serializer_profilepic = ImageSerializer(
@@ -329,6 +331,7 @@ def full_profile(request, format=None):
             # "date_of_birth": request.user.date_of_birth,
             "profile_pic": serializer_profilepic.data["profile_pic"],
         }
+        print(data)
         return Response(data)
     except Exception as e:
         print(e)
