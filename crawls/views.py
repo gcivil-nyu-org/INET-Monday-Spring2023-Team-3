@@ -41,6 +41,7 @@ def crawl_get_all(request):
     for i in range(len(crawls)):
         out.append(
             {
+                "id": crawls[i].id,
                 "title": crawls[i].title,
                 "data": json.loads(crawls[i].data),
                 "author": crawls[i].author,
@@ -63,3 +64,35 @@ def crawl_delete(request):
         )
     crawl.delete()
     return Response(status=status.HTTP_202_ACCEPTED)
+
+@api_view(["GET"])
+@is_protected_route
+def get_crawl_by_id(request, crawl_id):
+   
+    try:
+        
+        target_crawl = Crawl.objects.get(id = crawl_id)
+        print(target_crawl)
+        res = {
+                "id": target_crawl.id,
+                "title": target_crawl.title,
+                "data": json.loads(target_crawl.data),
+                "author": target_crawl.author,
+        }
+        return Response(res)
+        # return render(request, 'crawl_detail.html', {'crawl': crawl})
+    except:
+        print("whats wrong")
+        return Response(
+            {"error": "crawl does not exist"}, status=status.HTTP_400_BAD_REQUEST
+        )
+
+
+@api_view(["GET"])
+@is_protected_route
+def crawl(request, format=None):
+    data = {
+        "username": request.user.username,
+        "email": request.user.email,
+    }
+    return Response(data)

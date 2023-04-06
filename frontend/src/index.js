@@ -23,6 +23,7 @@ import { LoadScript } from "@react-google-maps/api";
 import Navbar from "./Components/Navbar/Navbar";
 import Create from "./Components/Create/Create";
 import Profile from "./Components/Profile/Profile";
+import Crawl from "./Components/Crawl/Crawl";
 
 axios.interceptors.request.use(function (config) {
   const token = localStorage.getItem("jwt");
@@ -80,6 +81,11 @@ root.render(
               path="/profile/:other_username"
               exact
               component={Profile}
+            />
+            <PrivateRoute
+              path="/crawl/:crawl_id"
+              exact
+              component={Crawl}
             />
             <Route exact path="/register">
               <Register />
