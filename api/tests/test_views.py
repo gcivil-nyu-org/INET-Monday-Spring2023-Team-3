@@ -2,7 +2,7 @@ from rest_framework.test import APITestCase
 from rest_framework import status
 from django.urls import reverse
 from api.models import User, OTP_Request
-import datetime
+from datetime import datetime
 
 
 class RegisterTest(APITestCase):
@@ -91,7 +91,7 @@ class EmailTest(APITestCase):
             user=user,
             otp=otp_num,
             verified="False",
-            created_at=datetime.datetime.now(),
+            created_at=datetime.now(),
             tries=0,
         )
 
@@ -119,7 +119,7 @@ class EmailTest(APITestCase):
             user=user,
             otp=otp_num,
             verified="False",
-            created_at=datetime.datetime.now(),
+            created_at=datetime.now(),
             tries=5,
         )
 
@@ -142,7 +142,7 @@ class EmailTest(APITestCase):
             user=user,
             otp=otp_num,
             verified="False",
-            created_at=datetime.datetime.now(),
+            created_at=datetime.now(),
             tries=5,
         )
 
@@ -163,7 +163,7 @@ class EmailTest(APITestCase):
             user=user,
             otp=otp_num,
             verified="False",
-            created_at=datetime.datetime.now(),
+            created_at=datetime.now(),
             tries=0,
         )
 

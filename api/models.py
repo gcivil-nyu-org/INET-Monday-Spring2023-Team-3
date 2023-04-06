@@ -25,14 +25,22 @@ class User(models.Model):
     verified = models.BooleanField(default=False)
     location = models.CharField(max_length=200, null=True, blank=True)
     short_bio = models.TextField(blank=True, default="")
-    follows = models.TextField(blank=True, default="")
-    followed_by = models.TextField(blank=True, default="")
     profile_pic = models.ImageField(
         null=True, blank=True, upload_to=upload_to, default="profiles/sample.jpg"
     )
 
     def __str__(self):
         return self.username
+
+
+class Follow(models.Model):
+    follows = models.ForeignKey(User, on_delete=models.CASCADE, related_name="follows")
+    followed = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="followed"
+    )
+
+    def __str__(self):
+        return "{} follows {}".format(self.follows, self.followed)
 
 
 class OTP_Request(models.Model):
