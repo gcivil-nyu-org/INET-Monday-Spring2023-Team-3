@@ -44,6 +44,7 @@ function Crawl(props) {
   const [chosenPoints, setChosenPoints] = useState([]);
   const [directions, setDirections] = useState({});
   const searchBox = useRef(null);
+  const [otherUserProfile, setOtherUserProfile] = useState({});
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -144,7 +145,6 @@ function Crawl(props) {
         );
       }
       if (res !== null && res.status === "OK") {
-        console.log(res);
         out.geocoded_waypoints.push(...res.geocoded_waypoints);
         out.routes[0].legs.push(...res.routes[0].legs);
         out.routes[0].bounds.extend({
@@ -170,7 +170,6 @@ function Crawl(props) {
         );
       }
     }
-    console.log(out);
     setDirections(out);
     setChosenPoints(_points);
   };
@@ -202,10 +201,7 @@ function Crawl(props) {
         let formattedDate = convertDateHumanReadable(data.created_at)
         data.formattedDate = formattedDate;
         await setCrawlDetail(data);
-        console.log(data)
         await setFormData(data);
-        console.log(data.data.directions)
-        console.log(data.data.points)
         await setDirections(data.data.directions);
         await setChosenPoints(data.data.points);
 
@@ -260,11 +256,23 @@ function Crawl(props) {
         `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/auth/full_profile/`
       );
       setProfile(data);
-      console.log(data)
       return data;
     } catch (e) {
       console.log(e);
       history.replace("/");
+    }
+  };
+
+  const getOtherUserProfile = async (username) => {
+    try {
+      const { data } = await axios.get(
+        `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/auth/get_other_user_profile/${username}/`
+      );
+      setOtherUserProfile(data);
+      return data;
+    } catch (e) {
+      history.replace("/");
+      console.log(e);
     }
   };
 
@@ -529,17 +537,23 @@ function Crawl(props) {
           )}
         </Pane>
       </Pane>
-    
   );
 
 
   const getData = async () => {
     getProfile().then((currUserProfile)=>{
         get_crawl_by_id().then((currCrawl)=>{
+
             if (currUserProfile.username == currCrawl.author){
-                setIsCurrUserAuthor(true)
+                setIsCurrUserAuthor(true);
+                setIsMounted(true);
+            } else {
+              // need to import the author's profile to use their profile image.
+                getOtherUserProfile(currCrawl.author).then((r) =>{
+                  console.log(r)
+                  setIsMounted(true);
+                })
             }
-            setIsMounted(true);
         })
     })
   }
@@ -680,7 +694,7 @@ function Crawl(props) {
                                 height: "100%",
                                 objectFit: "cover",
                               }}
-                              src={profile.profile_pic || PlaceholderProfileImage}
+                              src={otherUserProfile.profile_pic || PlaceholderProfileImage}
                               alt="Profile Image"
                             />
                           </div>
@@ -703,9 +717,6 @@ function Crawl(props) {
                 </Pane>
             </div>
         </div>
-
-
-
         }
 
     </div>

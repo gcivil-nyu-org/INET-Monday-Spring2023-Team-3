@@ -656,7 +656,7 @@ function Profile(props) {
                   >
                     <Meta
                       avatar={<Avatar src={PlaceholderProfileImage} />}
-                      title={<a href={`/crawl/${x.id}`}>x.title</a>}
+                      title={<a href={`/crawl/${x.id}`}>{x.title}</a>}
                       description={x.description}
                     />
                   </Card> 
