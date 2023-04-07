@@ -3,7 +3,7 @@ from .models import Crawl
 
 
 class CrawlAdmin(admin.ModelAdmin):
-    list_display = ("author", "title", "data")
+    list_display = ("id", "author", "title", "data")
 
 
 # Register your models here.
