@@ -45,6 +45,8 @@ def crawl_get_all(request):
                 "title": crawls[i].title,
                 "data": json.loads(crawls[i].data),
                 "author": crawls[i].author,
+                "description": crawls[i].description,
+                "created_at": crawls[i].created_at,
             }
         )
     return Response(out)
@@ -105,3 +107,24 @@ def update_crawl_by_id(request, crawl_id):
     except:
         print("error!!")
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+
+@api_view(["GET"])
+@is_protected_route
+def get_crawls_by_author(request, username):
+    try:
+        target_crawls = Crawl.objects.filter(author = username)
+        out = []
+        for i in range(len(target_crawls)):
+            out.append({
+                "id": target_crawls[i].id,
+                "title": target_crawls[i].title,
+                "data": json.loads(target_crawls[i].data),
+                "author": target_crawls[i].author,
+            })
+        return Response(out)
+    except:
+        print("whats wrong")
+        return Response(
+            {"error": "No such crawl exist"}, status=status.HTTP_400_BAD_REQUEST
+        )

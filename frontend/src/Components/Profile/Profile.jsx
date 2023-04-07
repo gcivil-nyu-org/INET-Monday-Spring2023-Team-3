@@ -196,6 +196,7 @@ function Profile(props) {
       if (other_username === "myprofile") {
         setIsMounted(true);
       }
+      return data.username
     } catch (e) {
       console.log(e);
       history.replace("/");
@@ -336,7 +337,8 @@ function Profile(props) {
     },
   ];
 
-  const getAllCrawls = async () => {
+
+  const getAllCrawls = async (currUsername) => {
     try {
       const { data } = await axios.get(
         `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/all/`
@@ -344,8 +346,9 @@ function Profile(props) {
       let arr = [];
       if (data.length > 0) {
         for (let i = 0; i < data.length; i++) {
+          console.log(data[i])
           if (other_username === "myprofile") {
-            if (data[i].author === profile.username) {
+            if (data[i].author === currUsername) {
               arr.push(data[i]);
             }
           } else {
@@ -355,16 +358,30 @@ function Profile(props) {
           }
         }
       }
+      
       setAllCrawls(arr);
     } catch (e) {
       console.log(e);
-      //history.replace("/");
     }
   };
   const { Meta } = Card;
+
+
+  // const getData = async () => {
+  //   getProfile().then((currUserProfile)=>{
+  //       get_crawl_by_id().then((currCrawl)=>{
+  //           console.log(currCrawl)
+  //           if (currUserProfile.username == currCrawl.author){
+                
+  //               setIsCurrUserAuthor(true)
+  //           }
+  //           setIsMounted(true);
+  //       })
+  //   })
+  // }
   useEffect(() => {
-    getAllCrawls().then(() => {
-      getProfile().then(() => {
+    getProfile().then((currUsername) => {
+      getAllCrawls(currUsername).then((crawl) => {
         if (other_username !== "myprofile") {
           getOtherUserProfile();
         }
@@ -615,11 +632,39 @@ function Profile(props) {
                   )}
                 </Card>
                 <Card
-                  title="Saved Crawls"
+                  title="My Crawls"
                   size="small"
                   style={{ height: "100%" }}
                 >
-                  No Saved crawls yet <Link to="/">Explore</Link>
+                {allCrawls ?
+                allCrawls.map((x, index) => (
+                  <div>
+                     <Card
+                    className="profile-img-container user-own-profile"
+                    style={{
+                      display: "inline-block",
+                      margin: "1rem",
+                    }}
+                    cover={
+                      <img
+                        className="profile-img my-profile-img"
+                        alt="example"
+                        src={placeholder_image_urls[index]}
+                      />
+                    }
+                    actions={[<HeartIcon />, <CommentIcon />]}
+                  >
+                    <Meta
+                      avatar={<Avatar src={PlaceholderProfileImage} />}
+                      title={<a href={`/crawl/${x.id}`}>x.title</a>}
+                      description={x.description}
+                    />
+                  </Card> 
+                  </div>
+                )): <div>No Saved crawls yet <Link to="/">Explore</Link></div>
+                }
+
+                  
                 </Card>
               </Space>
             </Col>

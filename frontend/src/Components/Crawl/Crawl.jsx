@@ -15,14 +15,14 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { Link, useHistory, useParams } from "react-router-dom";
 import { EditIcon, HeartIcon, CommentIcon } from "evergreen-ui";
-import {
-  GoogleMap,
-  useLoadScript,
-  StandaloneSearchBox,
-  Marker,
-  DirectionsRenderer,
-} from "@react-google-maps/api";
 import PlaceholderProfileImage from "../../static/sample.jpg";
+import convertDateHumanReadable from "./utils";
+import {
+    GoogleMap,
+    StandaloneSearchBox,
+    Marker,
+    DirectionsRenderer,
+  } from "@react-google-maps/api";
 
 
 function Crawl(props) {
@@ -80,20 +80,11 @@ function Crawl(props) {
         const { data } = await axios.get(
             `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/get_crawl_by_id/${crawl_id}/`
         );
-        const date = new Date(data.created_at);
-        const year = date.getFullYear();
-        const month = new Intl.DateTimeFormat('en-US', { month: 'long' }).format(date);
-        const day = date.getDate();
-        const formattedDate = `${month} ${day}, ${year}`;
+        let formattedDate = convertDateHumanReadable(data.created_at)
         data.formattedDate = formattedDate;
         await setCrawlDetail(data);
         await setFormData(data);
         return data;
-    //   if (data.username === other_username) {
-    //     history.replace("/");
-    //   }
-    //   setCrawldetail((prevCrawlDetail) => ({
-    //   }));
       
     } catch (e) {
       console.log(e);
@@ -106,7 +97,6 @@ function Crawl(props) {
   };
 
   const handleSubmitUpdate = async (e) => {
-    console.log(formData)
     e.preventDefault();
     let userinput = formData;
     if (userinput.description === null || userinput.description === "") {
@@ -123,9 +113,10 @@ function Crawl(props) {
       );
       toaster.success("Changes saved!");
       setIsEditMode(false);
-      setProfile((prevProfile) => ({
-        ...prevProfile,
-        short_bio: userinput.short_bio,
+      setCrawlDetail((prevCrawlDetail) => ({
+        ...prevCrawlDetail,
+        title: userinput.title,
+        description: userinput.description,
       }));
     } catch (e) {
       console.log(e);
@@ -149,13 +140,9 @@ function Crawl(props) {
 
 
   const getData = async () => {
-    // await getProfile();
-    // await get_crawl_by_id();
     getProfile().then((currUserProfile)=>{
         get_crawl_by_id().then((currCrawl)=>{
-            console.log(currCrawl)
             if (currUserProfile.username == currCrawl.author){
-                
                 setIsCurrUserAuthor(true)
             }
             setIsMounted(true);
@@ -257,25 +244,6 @@ function Crawl(props) {
         <div>
             <div>
                 <div style={{ maxWidth: "150px", cursor: "pointer" }} className="">
-                    {!isEditMode ? (
-                        <Button type="primary" onClick={handleClickEditButton}>Edit Crawl
-                            <span
-                                style={{
-                                paddingLeft: "4px",
-                                verticalAlign: "text-top",
-                                }}
-                            >
-                                <EditIcon />
-                            </span>
-                        </Button>
-                    ) : (
-                        <Button
-                            type="primary"
-                            onClick={handleSubmitUpdate}
-                        >
-                        Save changes
-                        </Button>
-                    )}
                 </div>
             </div>
 

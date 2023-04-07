@@ -8,6 +8,7 @@ urlpatterns = [
     path("delete/", views.crawl_delete, name="crawl_delete"),
     path("get_crawl_by_id/<str:crawl_id>/", views.get_crawl_by_id, name="get_crawl_by_id"),
     path("update_crawl_by_id/<str:crawl_id>/", views.update_crawl_by_id, name="update_crawl_by_id"),
+    path("get_crawls_by_author/<str:username>/", views.get_crawls_by_author, name="get_crawls_by_author"),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
