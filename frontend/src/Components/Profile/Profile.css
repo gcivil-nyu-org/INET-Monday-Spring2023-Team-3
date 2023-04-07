@@ -13,6 +13,11 @@
   justify-content: center;
   overflow: hidden;
 }
+.crawl .profile-circle {
+  width: 75px;
+  height: 75px;
+  margin-right: 1rem;
+}
 
 #short_bio {
   width: 100%;

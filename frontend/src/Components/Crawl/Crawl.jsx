@@ -1,6 +1,7 @@
 import axios from "axios";
 
-import { Pane, toaster, Text, ChevronDownIcon, Heading, SearchInput } from "evergreen-ui";
+import { Pane, toaster, Text, ChevronDownIcon, Heading, SearchInput, TimeIcon,
+  SwapHorizontalIcon, } from "evergreen-ui";
 import {
   Card,
   Space,
@@ -75,6 +76,7 @@ function Crawl(props) {
     ]);
   };
 
+  const { TextArea } = Input;
   const verify = () => {
     let flag = true;
     if (title.trim().length === 0) {
@@ -173,28 +175,6 @@ function Crawl(props) {
     setChosenPoints(_points);
   };
 
-  // const publish = async () => {
-  //   console.log("publish button -> save button");
-  //   if (!hasSubmittedOnce) setHasSubmittedOnce(true);
-  //   if (!verify()) return;
-  //   try {
-  //     await axios.post(
-  //       `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/`,
-  //       {
-  //         title: title.trim(),
-  //         data: {
-  //           points: chosenPoints,
-  //           directions,
-  //         },
-  //       }
-  //     );
-  //     toaster.success("Your crawl has been posted");
-  //     history.replace("/");
-  //   } catch (e) {
-  //     if (e?.response?.data?.error) toaster.danger(e.response.data.error);
-  //     else toaster.danger("Something went wrong 🙁");
-  //   }
-  // };
 
 
   const handleError = (error) => {
@@ -287,6 +267,94 @@ function Crawl(props) {
     }
   };
 
+
+  const viewModeGmap = (
+    <Pane style={{ display: "flex" }}>
+              <GoogleMap
+                
+                mapContainerStyle={{ width: "100%", height: 400 }}
+                zoom={14}
+              >
+                <DirectionsRenderer
+                  options={{
+                    directions: directions,
+                  }}
+                />
+              </GoogleMap>
+              <Pane
+                style={{
+                  width: 500,
+                  height: 500,
+                  overflow: "scroll",
+                  marginTop: 14,
+                }}
+              >
+                <Pane
+                  style={{
+                    borderBottom: "1px solid #DDD",
+                    padding: "16px",
+                  }}
+                >
+                  <Heading size={700} style={{ marginBottom: 8 }}>
+                    Crawl Stats
+                  </Heading>
+                  <div>Time: {secondsToHms(directions.time)}</div>
+                  <div>
+                    Distance: {(directions.distance / 1000).toFixed(1)}km
+                  </div>
+                </Pane>
+                {chosenPoints.map((p, idx) => (
+                  <Pane key={idx}>
+                    <Pane
+                      style={{
+                        borderBottom: "1px solid #DDD",
+                        padding: "16px",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Pane>
+                        <Heading>
+                          {String.fromCharCode("A".charCodeAt(0) + idx)}.{" "}
+                          {p.name}
+                        </Heading>
+                        <Text>{TRANSIT_TYPES[p.transit]}</Text>
+                      </Pane>
+                      {idx > 0 && (
+                        <Pane
+                          style={{
+                            marginTop: 16,
+                            paddingLeft: 16,
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                          }}
+                        >
+                          <div style={{ fontWeight: "bolder", fontSize: 12 }}>
+                            <TimeIcon />{" "}
+                            {
+                              directions.routes[0].legs[idx - 1].duration
+                                .text
+                            }
+                            <div style={{ height: 4 }} />
+                            <SwapHorizontalIcon />
+                            Distance:{" "}
+                            {(
+                              directions.routes[0].legs[idx - 1].distance
+                                .value / 1000
+                            ).toFixed(1)}
+                            km
+                          </div>
+                        </Pane>
+                      )}
+                    </Pane>
+                  </Pane>
+                ))}
+              </Pane>
+            </Pane>
+
+  );
   
 
   const editModeGmap = (
@@ -461,8 +529,6 @@ function Crawl(props) {
             </Text>
           )}
         </Pane>
-      
-
       </Pane>
     
   );
@@ -485,58 +551,78 @@ function Crawl(props) {
 
   if (!isMounted) return <div></div>;
   return (
-    <div>
+    <div className="crawl">
         {isCurrUserAuthor ?
         <div>
-            <div>
-                <div style={{ maxWidth: "150px", cursor: "pointer" }} className="">
-                    {!isEditMode ? (
-                        <Button type="primary" onClick={handleClickEditButton}>Edit Crawl
-                            <span
-                                style={{
-                                paddingLeft: "4px",
-                                verticalAlign: "text-top",
-                                }}
-                            >
-                                <EditIcon />
-                            </span>
-                        </Button>
-                    ) : (
-                        <Button
-                            type="primary"
-                            onClick={handleSubmitUpdate}
-                        >
-                        Save changes
-                        </Button>
-                    )}
-                </div>
-            </div>
             {!isEditMode ? 
             <div key={1} style={{ padding: "32px" }}>
-                <div>
-                    Title: {crawlDetail.title}
+                <div style={{maxWidth: "150px", cursor: "pointer" }} className="">
+                  <Button type="primary" onClick={handleClickEditButton}>Edit
+                      <span
+                          style={{
+                          paddingLeft: "4px",
+                          verticalAlign: "text-top",
+                          }}
+                      >
+                          <EditIcon />
+                      </span>
+                  </Button>
+                </div>
+                <div className="title-block">
+                  <h1>
+                    {crawlDetail.title}
+                  </h1>
+                </div>
+                <div className="author-block">
+                  <Row>
+                      <Col>
+                        <div className="profile-circle">
+                          <img
+                            style={{
+                              width: "100%",
+                              height: "100%",
+                              objectFit: "cover",
+                            }}
+                            src={profile.profile_pic || PlaceholderProfileImage}
+                            alt="Profile Image"
+                          />
+                        </div>
+                      </Col>
+                      <Col>
+                        <div>
+                           <h3>{crawlDetail.author}</h3>
+                        </div>
+                        <div>
+                          <p>{crawlDetail.formattedDate}</p>
+                        </div>
+                      </Col>
+                  </Row>
                 </div>
                 <div>
-                    <div>Author: {crawlDetail.author}</div>
-                    <div>Current User: {profile.username}</div>
-                    <div>
-                        Mode: {isCurrUserAuthor ? "Current user is the author of this crawl":"Viewing other's crawl mode."}
-                    </div>
-                    <div>
-                        Description: {crawlDetail.description}
-                    </div>
-                    <div>
-                        Publish Date: {crawlDetail.formattedDate}
-                    </div>
+                      <p style={{width:"70%"}}>{crawlDetail.description}</p>
                 </div>
+
+                <Pane style={{ marginTop: 4, width: "60%" }}>
+                  {viewModeGmap}
+                </Pane>
+
             </div> 
             : 
             // Current user is the author and is in Edit mode 
-            <div key={1} style={{ padding: "32px" }}>
+            <div key={1} style={{ padding: "32px", width:"70%" }}>
+                  <div style={{maxWidth: "150px", cursor: "pointer" }} className="">
+                  <Button
+                        type="primary"
+                        onClick={handleSubmitUpdate}
+                        >
+                        Save changes
+                  </Button>
+                  </div>
+
                 <div>
                     <div>
-                    Title: 
-                    <Input placeholder="Edit title."
+                    <h1>Title
+                    <Input placeholder="Edit the title."
                       type="text"
                       id="title"
                       name="title"
@@ -544,34 +630,32 @@ function Crawl(props) {
                       onChange={(e) =>
                         setFormData({ ...formData, title: e.target.value })
                       } />
+                      </h1>
                     </div>
                    
                 </div>
-                <div>
-                    <div>Author: {crawlDetail.author}</div>
-                    <div>Current User: {profile.username}</div>
-                    <div>
+                <div style={{marginBottom:"2rem"}}>
+                    
+                    {/* <div>
                         Mode: {isCurrUserAuthor ? "Current user is the author of this crawl":"Viewing other's crawl mode."}
-                    </div>
+                    </div> */}
                     <div>
-                        <Input placeholder="Edit description."
+                      <h3>Description</h3>
+                        <TextArea placeholder="Edit description."
                             type="text"
                             id="description"
                             name="description"
+                            style={{width:"100%", height:"100px"}}
                             value={formData.description}
                             onChange={(e) =>
                                 setFormData({ ...formData, description: e.target.value })
                         } />
                     </div>
-                    <div>
-                        Publish Date: {crawlDetail.formattedDate}
-                    </div>
+
                 </div>
-                
                 <Pane style={{ display: "flex" }}>
                   {chosenPoints && directions && editModeGmap}
                 </Pane>
-                
             </div>
             }
         </div>
@@ -599,6 +683,9 @@ function Crawl(props) {
                         Publish Date: {crawlDetail.formattedDate}
                     </div>
                 </div>
+                <Pane style={{ marginTop: 4, width: "60%" }}>
+                  {viewModeGmap}
+                </Pane>
             </div>
         </div>
         }
