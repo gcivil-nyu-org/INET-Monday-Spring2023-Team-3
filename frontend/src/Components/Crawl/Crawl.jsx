@@ -31,7 +31,6 @@ import {
 } from "@ant-design/icons";
 import { secondsToHms, TRANSIT_TYPES } from "../../common";
 
-
 function Crawl(props) {
   const { crawl_id } = useParams();
   const history = useHistory();
@@ -40,7 +39,6 @@ function Crawl(props) {
   const [profile, setProfile] = useState({});
   const [isCurrUserAuthor, setIsCurrUserAuthor] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [isDisabled, setIsDisabled] = useState(false);
   const [chosenPoints, setChosenPoints] = useState([]);
   const [directions, setDirections] = useState({});
   const searchBox = useRef(null);
@@ -50,15 +48,9 @@ function Crawl(props) {
     description: "",
     data: "",
   });
-
   const [center, setCenter] = useState(null);
-  const [error, setError] = useState(null);
-  
-  const [titleError, setTitleError] = useState("");
   const [locationsError, setLocationsError] = useState("");
-  const [hasSubmittedOnce, setHasSubmittedOnce] = useState(false);
   
-
   const onLoad = (ref) => (searchBox.current = ref);
   const onPlacesChanged = () => {
     const {
@@ -78,28 +70,7 @@ function Crawl(props) {
   };
 
   const { TextArea } = Input;
-  const verify = () => {
-    let flag = true;
-    if (title.trim().length === 0) {
-      setTitleError("Title is Required");
-      flag = false;
-    } else {
-      setTitleError("");
-    }
-    if (chosenPoints.length < 2) {
-      setLocationsError("Must pick at least 2 locations");
-      flag = false;
-    } else {
-      setLocationsError("");
-    }
-    if (directions && directions.time > 6 * 60 * 60) {
-      toaster.danger("Crawls cannot be longer than 6 hours");
-      flag = false;
-    }
-    return flag;
-  };
   
-
   const updateDirections = async (_points) => {
     const points = (_points || []).map((point) => {
       if (point.placeId) return { placeId: point.placeId };
@@ -174,19 +145,6 @@ function Crawl(props) {
     setChosenPoints(_points);
   };
 
-
-
-  const handleError = (error) => {
-    setError(error.message);
-    setIsDisabled(false);
-    setIsLoading(false);
-  };
-  const handleLoad = (map) => {
-    console.log("Map loaded:", map);
-  };
-  const handleMapClick = ({ latLng }) => {
-    setCenter({ lat: latLng.lat(), lng: latLng.lng() });
-  };
   const mapContainerStyle = {
     width: "750px",
     height: "500px",
@@ -209,7 +167,7 @@ function Crawl(props) {
       
     } catch (e) {
       console.log(e);
-      //history.replace("/");
+      history.replace("/");
     }
   };
 
@@ -249,7 +207,6 @@ function Crawl(props) {
     }
   };
 
-
   const getProfile = async () => {
     try {
       const { data } = await axios.get(
@@ -275,7 +232,6 @@ function Crawl(props) {
       console.log(e);
     }
   };
-
 
   const viewModeGmap = (
     <Pane style={{ display: "flex" }}>
@@ -361,7 +317,6 @@ function Crawl(props) {
                 ))}
               </Pane>
             </Pane>
-
   );
   
 
