@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from django.contrib.auth.hashers import make_password, check_password
 from django.core.mail import send_mail
 from django.conf import settings
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from .models import User, OTP_Request, RecoverRequest, Follow
 from .decorators import is_protected_route
 import jwt
@@ -386,6 +386,11 @@ def profile_pic(request):
     target_user = User.objects.get(username=request.data["target_username"])
 
     target_user.profile_pic = request.FILES.get("file")
+    filesize = target_user.profile_pic.file.size
+    megabyte_limit = 2.0
+    if filesize > megabyte_limit * 1024 * 1024:
+        raise ValidationError("Max file size is %sMB" % str(megabyte_limit))
+
     target_user.save()
 
     # target_user = User.objects.get(username=username)
