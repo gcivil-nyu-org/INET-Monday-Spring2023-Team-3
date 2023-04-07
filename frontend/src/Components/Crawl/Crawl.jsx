@@ -26,22 +26,19 @@ import PlaceholderProfileImage from "../../static/sample.jpg";
 
 
 function Crawl(props) {
-
   const { crawl_id } = useParams();
   const history = useHistory();
   const [isMounted, setIsMounted] = useState(false);
   const [crawlDetail, setCrawlDetail] = useState({});
-  
   const [profile, setProfile] = useState({});
   const [isCurrUserAuthor, setIsCurrUserAuthor] = useState(false);
-
   const [otherUserProfile, setOtherUserProfile] = useState({});
   const [isEditMode, setIsEditMode] = useState(false);
   const [isDisabled, setIsDisabled] = useState(false);
   const [formData, setFormData] = useState({
-    location: "",
-    dob: "",
-    short_bio: "",
+    title: "",
+    description: "",
+    data: "",
   });
 
   const [center, setCenter] = useState(null);
@@ -76,45 +73,22 @@ function Crawl(props) {
     height: "250px",
   };
 
-  const handleGetLocation = () => {
-    setIsLoading(true);
-    setIsDisabled(true);
-
-    navigator.geolocation.getCurrentPosition(handleSuccess, handleError);
-  };
-
-  const dateFormat = "YYYY-MM-DD";
-  const updateFields = (date, dateString) => {
-    setFormData({ ...formData, dob: dateString.replaceAll("/", "-") });
-  };
-
-  const getOtherUserProfile = async () => {
-    console.log("H")
-  };
-
-  const findUserInfoByUsername = async (username) => {
-    let ans = "";
-    try {
-      const { data } = await axios.get(
-        `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/auth/get_other_user_profile/${username}/`
-      );
-      ans = data;
-    } catch (e) {
-      console.log(e);
-    }
-    return ans;
-  };
 
   const get_crawl_by_id = async () => {
     try {
         
-      const { data } = await axios.get(
-        `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/get_crawl_by_id/${crawl_id}/`
-      );
-      await setCrawlDetail(data);
-      return data;
-      
-
+        const { data } = await axios.get(
+            `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/get_crawl_by_id/${crawl_id}/`
+        );
+        const date = new Date(data.created_at);
+        const year = date.getFullYear();
+        const month = new Intl.DateTimeFormat('en-US', { month: 'long' }).format(date);
+        const day = date.getDate();
+        const formattedDate = `${month} ${day}, ${year}`;
+        data.formattedDate = formattedDate;
+        await setCrawlDetail(data);
+        await setFormData(data);
+        return data;
     //   if (data.username === other_username) {
     //     history.replace("/");
     //   }
@@ -131,15 +105,33 @@ function Crawl(props) {
     setIsEditMode(true);
   };
 
-  const [postimage, setPostImage] = useState(null);
-  const handleChange = (e) => {
-    if ([e.target.name] == "image") {
-      setPostImage({
-        image: e.target.files,
-      });
-      console.log(e.target.files);
+  const handleSubmitUpdate = async (e) => {
+    console.log(formData)
+    e.preventDefault();
+    let userinput = formData;
+    if (userinput.description === null || userinput.description === "") {
+      toaster.danger("Error: Please enter valid information! 🙁");
+      return;
+    }
+    try {
+      await axios.post(
+        `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/update_crawl_by_id/${crawl_id}/`,
+        {
+          title: userinput.title,
+          description: userinput.description,
+        }
+      );
+      toaster.success("Changes saved!");
+      setIsEditMode(false);
+      setProfile((prevProfile) => ({
+        ...prevProfile,
+        short_bio: userinput.short_bio,
+      }));
+    } catch (e) {
+      console.log(e);
     }
   };
+
 
   const getProfile = async () => {
     try {
@@ -161,8 +153,9 @@ function Crawl(props) {
     // await get_crawl_by_id();
     getProfile().then((currUserProfile)=>{
         get_crawl_by_id().then((currCrawl)=>{
+            console.log(currCrawl)
             if (currUserProfile.username == currCrawl.author){
-                console.log("Curr user is the author of this crawl. ");
+                
                 setIsCurrUserAuthor(true)
             }
             setIsMounted(true);
@@ -177,20 +170,135 @@ function Crawl(props) {
   if (!isMounted) return <div></div>;
   return (
     <div>
-        
-        <div key={1} style={{ padding: "32px" }}>
+        {isCurrUserAuthor ?
+        <div>
             <div>
-                Title: {crawlDetail.title}
+                <div style={{ maxWidth: "150px", cursor: "pointer" }} className="">
+                    {!isEditMode ? (
+                        <Button type="primary" onClick={handleClickEditButton}>Edit Crawl
+                            <span
+                                style={{
+                                paddingLeft: "4px",
+                                verticalAlign: "text-top",
+                                }}
+                            >
+                                <EditIcon />
+                            </span>
+                        </Button>
+                    ) : (
+                        <Button
+                            type="primary"
+                            onClick={handleSubmitUpdate}
+                        >
+                        Save changes
+                        </Button>
+                    )}
+                </div>
             </div>
-            <div>
-                <div>Author: {crawlDetail.author}</div>
-                <div>Current User: {profile.username}</div>
+            {!isEditMode ? 
+            <div key={1} style={{ padding: "32px" }}>
                 <div>
-                Mode: {isCurrUserAuthor ? "Current user is the author of this crawl":"Viewing other's crawl mode."}
+                    Title: {crawlDetail.title}
+                </div>
+                <div>
+                    <div>Author: {crawlDetail.author}</div>
+                    <div>Current User: {profile.username}</div>
+                    <div>
+                        Mode: {isCurrUserAuthor ? "Current user is the author of this crawl":"Viewing other's crawl mode."}
+                    </div>
+                    <div>
+                        Description: {crawlDetail.description}
+                    </div>
+                    <div>
+                        Publish Date: {crawlDetail.formattedDate}
+                    </div>
+                </div>
+            </div> 
+            : 
+            <div key={1} style={{ padding: "32px" }}>
+                <div>
+                    <div>
+                    Title: 
+                    <Input placeholder="Edit title."
+                      type="text"
+                      id="title"
+                      name="title"
+                      value={formData.title}
+                      onChange={(e) =>
+                        setFormData({ ...formData, title: e.target.value })
+                      } />
+                    </div>
+                   
+                </div>
+                <div>
+                    <div>Author: {crawlDetail.author}</div>
+                    <div>Current User: {profile.username}</div>
+                    <div>
+                        Mode: {isCurrUserAuthor ? "Current user is the author of this crawl":"Viewing other's crawl mode."}
+                    </div>
+                    <div>
+                        <Input placeholder="Edit description."
+                            type="text"
+                            id="description"
+                            name="description"
+                            value={formData.description}
+                            onChange={(e) =>
+                                setFormData({ ...formData, description: e.target.value })
+                        } />
+                    </div>
+                    <div>
+                        Publish Date: {crawlDetail.formattedDate}
+                    </div>
+                </div>
+            </div>
+            }
+        </div>
+        :
+        <div>
+            <div>
+                <div style={{ maxWidth: "150px", cursor: "pointer" }} className="">
+                    {!isEditMode ? (
+                        <Button type="primary" onClick={handleClickEditButton}>Edit Crawl
+                            <span
+                                style={{
+                                paddingLeft: "4px",
+                                verticalAlign: "text-top",
+                                }}
+                            >
+                                <EditIcon />
+                            </span>
+                        </Button>
+                    ) : (
+                        <Button
+                            type="primary"
+                            onClick={handleSubmitUpdate}
+                        >
+                        Save changes
+                        </Button>
+                    )}
                 </div>
             </div>
 
+            <div key={1} style={{ padding: "32px" }}>
+                <div>
+                    Title: {crawlDetail.title}
+                </div>
+                <div>
+                    <div>Author: {crawlDetail.author}</div>
+                    <div>Current User: {profile.username}</div>
+                    <div>
+                        Mode: {isCurrUserAuthor ? "Current user is the author of this crawl":"Viewing other's crawl mode."}
+                    </div>
+                    <div>
+                        Description: {crawlDetail.description}
+                    </div>
+                    <div>
+                        Publish Date: {crawlDetail.formattedDate}
+                    </div>
+                </div>
+            </div>
         </div>
+        }
     </div>
   );
 }

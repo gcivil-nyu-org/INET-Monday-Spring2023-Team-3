@@ -78,21 +78,30 @@ def get_crawl_by_id(request, crawl_id):
                 "title": target_crawl.title,
                 "data": json.loads(target_crawl.data),
                 "author": target_crawl.author,
+                "description": target_crawl.description,
+                "created_at": target_crawl.created_at,
         }
         return Response(res)
-        # return render(request, 'crawl_detail.html', {'crawl': crawl})
     except:
         print("whats wrong")
         return Response(
             {"error": "crawl does not exist"}, status=status.HTTP_400_BAD_REQUEST
         )
 
-
-@api_view(["GET"])
+@api_view(["POST"])
 @is_protected_route
-def crawl(request, format=None):
-    data = {
-        "username": request.user.username,
-        "email": request.user.email,
-    }
-    return Response(data)
+def update_crawl_by_id(request, crawl_id):
+    try:
+        target_crawl = Crawl.objects.filter(id = crawl_id).exists()
+        if not target_crawl:
+            return Response(
+                {"error":"crawl does not exist."}, status=status.HTTP_400_BAD_REQUEST
+            )
+        target_crawl = Crawl.objects.get(id = crawl_id)
+        target_crawl.title = request.data["title"]
+        target_crawl.description = request.data["description"]
+        target_crawl.save()
+        return Response(status=status.HTTP_200_OK)
+    except:
+        print("error!!")
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
