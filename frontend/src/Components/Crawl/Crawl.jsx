@@ -189,8 +189,8 @@ function Crawl(props) {
     setCenter({ lat: latLng.lat(), lng: latLng.lng() });
   };
   const mapContainerStyle = {
-    width: "100%",
-    height: "600px",
+    width: "750px",
+    height: "500px",
   };
 
   const get_crawl_by_id = async () => {
@@ -240,13 +240,14 @@ function Crawl(props) {
           }
         }
       );
-      toaster.success("Changes saved!");
-      setIsEditMode(false);
-      setCrawlDetail((prevCrawlDetail) => ({
+      
+      await setIsEditMode(false);
+      await setCrawlDetail((prevCrawlDetail) => ({
         ...prevCrawlDetail,
         title: userinput.title,
         description: userinput.description,
       }));
+      window.location.reload();
     } catch (e) {
       console.log(e);
     }
@@ -286,7 +287,7 @@ function Crawl(props) {
                   width: 500,
                   height: 500,
                   overflow: "scroll",
-                  marginTop: 14,
+                  margin: "2rem",
                 }}
               >
                 <Pane
@@ -358,9 +359,8 @@ function Crawl(props) {
   
 
   const editModeGmap = (
-    
       <Pane style={{ display: "flex" }}>
-        <Pane style={{ padding: 32, flex: 2 }}>
+        <Pane style={{ padding: 32, paddingLeft: 0, flex: "0 0 70%" }}>
           <Pane
             style={{
               display: "flex",
@@ -417,7 +417,7 @@ function Crawl(props) {
           </Pane>
         </Pane>
         <Pane
-          style={{ width: 500, height: 600, overflow: "scroll", marginTop: 14 }}
+          style={{flex:"0 0 30%", overflow: "scroll", margin: "1rem" }}
         >
           {chosenPoints && directions && chosenPoints.length > 1 && (
             <Pane
@@ -555,7 +555,7 @@ function Crawl(props) {
         {isCurrUserAuthor ?
         <div>
             {!isEditMode ? 
-            <div key={1} style={{ padding: "32px" }}>
+            <div key={1} style={{ padding: "32px", paddingTop:"1rem" }}>
                 <div style={{maxWidth: "150px", cursor: "pointer" }} className="">
                   <Button type="primary" onClick={handleClickEditButton}>Edit
                       <span
@@ -599,7 +599,7 @@ function Crawl(props) {
                   </Row>
                 </div>
                 <div>
-                      <p style={{width:"70%"}}>{crawlDetail.description}</p>
+                      <p style={{width:"80%", marginBottom:"2rem"}}>{crawlDetail.description}</p>
                 </div>
 
                 <Pane style={{ marginTop: 4, width: "60%" }}>
@@ -609,7 +609,7 @@ function Crawl(props) {
             </div> 
             : 
             // Current user is the author and is in Edit mode 
-            <div key={1} style={{ padding: "32px", width:"70%" }}>
+            <div key={1} style={{ padding: "32px", paddingTop:"1rem", width:"100%" }}>
                   <div style={{maxWidth: "150px", cursor: "pointer" }} className="">
                   <Button
                         type="primary"
@@ -620,32 +620,31 @@ function Crawl(props) {
                   </div>
 
                 <div>
-                    <div>
-                    <h1>Title
-                    <Input placeholder="Edit the title."
-                      type="text"
-                      id="title"
-                      name="title"
-                      value={formData.title}
-                      onChange={(e) =>
-                        setFormData({ ...formData, title: e.target.value })
-                      } />
-                      </h1>
-                    </div>
+                    <Row>
+                          <h1 style={{marginBottom:0}}>Title
+                            <div>
+                              <Input placeholder="Edit the title."
+                                style={{width:"800px"}}
+                                type="text"
+                                id="title"
+                                name="title"
+                                value={formData.title}
+                                onChange={(e) =>
+                                  setFormData({ ...formData, title: e.target.value })
+                                } />
+                              </div>
+                            </h1>
+                    </Row>
                    
                 </div>
-                <div style={{marginBottom:"2rem"}}>
-                    
-                    {/* <div>
-                        Mode: {isCurrUserAuthor ? "Current user is the author of this crawl":"Viewing other's crawl mode."}
-                    </div> */}
+                <div style={{marginBottom:"1rem"}}>
                     <div>
-                      <h3>Description</h3>
+                      <h3 style={{marginBottom:0}}>Description</h3>
                         <TextArea placeholder="Edit description."
                             type="text"
                             id="description"
                             name="description"
-                            style={{width:"100%", height:"100px"}}
+                            style={{width:"800px", height:"60px"}}
                             value={formData.description}
                             onChange={(e) =>
                                 setFormData({ ...formData, description: e.target.value })
@@ -666,7 +665,7 @@ function Crawl(props) {
                 </div>
             </div>
 
-            <div key={1} style={{ padding: "32px" }}>
+            <div key={1} style={{ padding: "32px", paddingTop:"1rem" }}>
                 <div>
                     Title: {crawlDetail.title}
                 </div>
