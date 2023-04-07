@@ -138,9 +138,7 @@ class FollowTest(APITestCase):
 
     def test_update_profile_success(self):
         self.authenticate()
-        data = {"target_username": self.username,
-                "short_bio": "I'm a bio!"
-                }
+        data = {"target_username": self.username, "short_bio": "I'm a bio!"}
         response = self.client.post(reverse("update_user_info"), data)
 
         updated_user = User.objects.get(username=self.username)
@@ -149,9 +147,7 @@ class FollowTest(APITestCase):
 
     def test_update_profile_fail_bad_prof(self):
         self.authenticate()
-        data = {"target_username": "wrong username",
-                "short_bio": "I'm a bio!"
-                }
+        data = {"target_username": "wrong username", "short_bio": "I'm a bio!"}
         response = self.client.post(reverse("update_user_info"), data)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
