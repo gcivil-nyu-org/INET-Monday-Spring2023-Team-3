@@ -272,7 +272,6 @@ function Crawl(props) {
   const viewModeGmap = (
     <Pane style={{ display: "flex" }}>
               <GoogleMap
-                
                 mapContainerStyle={{ width: "100%", height: 400 }}
                 zoom={14}
               >
@@ -664,29 +663,49 @@ function Crawl(props) {
                 <div style={{ maxWidth: "150px", cursor: "pointer" }} className="">
                 </div>
             </div>
-
             <div key={1} style={{ padding: "32px", paddingTop:"1rem" }}>
+               <div className="title-block">
+                  <h1>
+                     {crawlDetail.title}
+                  </h1>
+               </div>
+               <div className="author-block">
+
+                  <div style={{display:"flex"}}>
+                    <div >
+                          <div className="profile-circle" style={{}}>
+                            <img
+                              style={{
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "cover",
+                              }}
+                              src={profile.profile_pic || PlaceholderProfileImage}
+                              alt="Profile Image"
+                            />
+                          </div>
+                      </div>
+                      <div style={{display:"inline-block"}}>
+                          <div>
+                            <h3 style={{fontSize:"16px"}}>{crawlDetail.author}</h3>
+                          </div>
+                          <div >
+                            <p style={{fontSize:"14px"}}>{crawlDetail.formattedDate}</p>
+                          </div>
+                      </div>
+                    </div>
+                  </div>
                 <div>
-                    Title: {crawlDetail.title}
-                </div>
-                <div>
-                    <div>Author: {crawlDetail.author}</div>
-                    <div>Current User: {profile.username}</div>
-                    <div>
-                        Mode: {isCurrUserAuthor ? "Current user is the author of this crawl":"Viewing other's crawl mode."}
-                    </div>
-                    <div>
-                        Description: {crawlDetail.description}
-                    </div>
-                    <div>
-                        Publish Date: {crawlDetail.formattedDate}
-                    </div>
-                </div>
+                    <p style={{width:"80%", marginBottom:"2rem"}}>{crawlDetail.description}</p>
+                 </div>
                 <Pane style={{ marginTop: 4, width: "60%" }}>
                   {viewModeGmap}
                 </Pane>
             </div>
         </div>
+
+
+
         }
 
     </div>
