@@ -303,8 +303,6 @@ def profile(request, format=None):
 @is_protected_route
 def full_profile(request, format=None):
     try:
-        
-       
         target_user = User.objects.get(username=request.user.username)
         # serializer for profile pic
         serializer_profilepic = ImageSerializer(
