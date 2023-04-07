@@ -73,7 +73,6 @@ def crawl_delete(request):
 def get_crawl_by_id(request, crawl_id):
     try:
         target_crawl = Crawl.objects.get(id=crawl_id)
-        print(target_crawl)
         res = {
             "id": target_crawl.id,
             "title": target_crawl.title,
@@ -84,7 +83,6 @@ def get_crawl_by_id(request, crawl_id):
         }
         return Response(res)
     except:
-        print("whats wrong")
         return Response(
             {"error": "crawl does not exist"}, status=status.HTTP_400_BAD_REQUEST
         )
@@ -126,7 +124,6 @@ def get_crawls_by_author(request, username):
             )
         return Response(out)
     except:
-        print("whats wrong")
         return Response(
             {"error": "No such crawl exist"}, status=status.HTTP_400_BAD_REQUEST
         )
