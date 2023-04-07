@@ -82,7 +82,7 @@ def get_crawl_by_id(request, crawl_id):
             "created_at": target_crawl.created_at,
         }
         return Response(res)
-    except:
+    except Exception as e:
         return Response(
             {"error": "crawl does not exist"}, status=status.HTTP_400_BAD_REQUEST
         )
@@ -102,8 +102,7 @@ def update_crawl_by_id(request, crawl_id):
         target_crawl.description = request.data["description"]
         target_crawl.save()
         return Response(status=status.HTTP_200_OK)
-    except:
-        print("error!!")
+    except Exception as e:
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
@@ -123,7 +122,7 @@ def get_crawls_by_author(request, username):
                 }
             )
         return Response(out)
-    except:
+    except Exception as e:
         return Response(
             {"error": "No such crawl exist"}, status=status.HTTP_400_BAD_REQUEST
         )
