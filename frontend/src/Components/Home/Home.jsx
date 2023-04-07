@@ -64,9 +64,11 @@ function Home() {
       <Pane style={{ marginTop: 4, width: "60%" }}>
         {allCrawls.map((x, index) => (
           <Pane key={index}>
+            <a href={`/crawl/${x.id}`}>
             <h2 style={{ marginBottom: "0" }} size={800}>
               {index + 1}. {x.title}
             </h2>
+            </a>
             <div>
               <h3 style={{ marginLeft: "1rem", display: "inline-block" }}>
                 <span style={{ fontWeight: "normal" }}>by</span>
