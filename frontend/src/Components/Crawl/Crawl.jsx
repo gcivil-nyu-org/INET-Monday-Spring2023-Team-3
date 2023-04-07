@@ -173,28 +173,28 @@ function Crawl(props) {
     setChosenPoints(_points);
   };
 
-  const publish = async () => {
-    console.log("publish button -> save button");
-    // if (!hasSubmittedOnce) setHasSubmittedOnce(true);
-    // if (!verify()) return;
-    // try {
-    //   await axios.post(
-    //     `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/`,
-    //     {
-    //       title: title.trim(),
-    //       data: {
-    //         points: chosenPoints,
-    //         directions,
-    //       },
-    //     }
-    //   );
-    //   toaster.success("Your crawl has been posted");
-    //   history.replace("/");
-    // } catch (e) {
-    //   if (e?.response?.data?.error) toaster.danger(e.response.data.error);
-    //   else toaster.danger("Something went wrong 🙁");
-    // }
-  };
+  // const publish = async () => {
+  //   console.log("publish button -> save button");
+  //   if (!hasSubmittedOnce) setHasSubmittedOnce(true);
+  //   if (!verify()) return;
+  //   try {
+  //     await axios.post(
+  //       `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/`,
+  //       {
+  //         title: title.trim(),
+  //         data: {
+  //           points: chosenPoints,
+  //           directions,
+  //         },
+  //       }
+  //     );
+  //     toaster.success("Your crawl has been posted");
+  //     history.replace("/");
+  //   } catch (e) {
+  //     if (e?.response?.data?.error) toaster.danger(e.response.data.error);
+  //     else toaster.danger("Something went wrong 🙁");
+  //   }
+  // };
 
 
   const handleError = (error) => {
@@ -210,7 +210,7 @@ function Crawl(props) {
   };
   const mapContainerStyle = {
     width: "100%",
-    height: "250px",
+    height: "600px",
   };
 
   const get_crawl_by_id = async () => {
@@ -254,6 +254,10 @@ function Crawl(props) {
         {
           title: userinput.title,
           description: userinput.description,
+          data: {
+            points: chosenPoints,
+            directions
+          }
         }
       );
       toaster.success("Changes saved!");
@@ -287,7 +291,7 @@ function Crawl(props) {
 
   const editModeGmap = (
     
-      <div>
+      <Pane style={{ display: "flex" }}>
         <Pane style={{ padding: 32, flex: 2 }}>
           <Pane
             style={{
@@ -317,7 +321,7 @@ function Crawl(props) {
             >
               {chosenPoints?.length === 1 ? (
                 <GoogleMap
-                  mapContainerStyle={{ width: "100%", height: 600 }}
+                  mapContainerStyle={mapContainerStyle}
                   zoom={10}
                   center={chosenPoints[0].location}
                 >
@@ -325,7 +329,7 @@ function Crawl(props) {
                 </GoogleMap>
               ) : (
                 <GoogleMap
-                  mapContainerStyle={{ width: "100%", height: 600 }}
+                  mapContainerStyle={mapContainerStyle}
                   zoom={10}
                   center={
                     chosenPoints && chosenPoints.length === 0 && {
@@ -459,7 +463,7 @@ function Crawl(props) {
         </Pane>
       
 
-      </div>
+      </Pane>
     
   );
 
@@ -564,8 +568,9 @@ function Crawl(props) {
                     </div>
                 </div>
                 
-
+                <Pane style={{ display: "flex" }}>
                   {chosenPoints && directions && editModeGmap}
+                </Pane>
                 
             </div>
             }
