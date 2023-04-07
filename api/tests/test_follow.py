@@ -31,8 +31,13 @@ class FollowTest(APITestCase):
         data = {"self_address": self.username, "target_address": to_follow.username}
 
         response = self.client.post(reverse("follow"), data)
+        follow_row = Follow.objects.get(followed=to_follow)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(Follow.objects.all()), 1)
+        self.assertEqual(
+            follow_row.__str__(),
+            "{} follows {}".format(self.username, to_follow.username),
+        )
 
     def test_follow_success_block_double_follow(self):
         self.authenticate()
