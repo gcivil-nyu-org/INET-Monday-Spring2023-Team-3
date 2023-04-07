@@ -550,7 +550,6 @@ function Crawl(props) {
             } else {
               // need to import the author's profile to use their profile image.
                 getOtherUserProfile(currCrawl.author).then((r) =>{
-                  console.log(r)
                   setIsMounted(true);
                 })
             }
