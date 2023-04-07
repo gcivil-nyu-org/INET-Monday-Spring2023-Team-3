@@ -7,8 +7,12 @@ import json
 
 
 class TestCrawls(APITestCase):
+    username = "test_u"
+    email = "test@gmail.com"
+    pw = "test_pw"
+
     def authenticate(self):
-        data = {"username": "test_u", "email": "test@gmail.com", "password": "test_pw"}
+        data = {"username": self.username, "email": self.email, "password": self.pw}
         self.client.post(reverse("register"), data)
 
         user = User.objects.get(username=data["username"])
@@ -26,14 +30,14 @@ class TestCrawls(APITestCase):
         crawl_data = {"google_place_id": "12335"}
         data = {
             "title": "sample_crawl",
-            "author": "test_u",
+            "author": self.username,
             "data": json.dumps(crawl_data),
         }
         Crawl.objects.create(**data)
 
         data = {
             "title": "sample_crawl_2",
-            "author": "test_u",
+            "author": self.username,
             "data": json.dumps(crawl_data),
         }
         Crawl.objects.create(**data)
@@ -55,7 +59,7 @@ class TestCrawls(APITestCase):
         crawl_data = {"google_place_id": "12335"}
         data = {
             "title": "sample_crawl",
-            "author": "test_u",
+            "author": self.username,
             "data": json.dumps(crawl_data),
         }
         Crawl.objects.create(**data)
@@ -75,7 +79,7 @@ class TestCrawls(APITestCase):
         crawl_data = {"google_place_id": "12335"}
         data = {
             "title": "sample_crawl",
-            "author": "test_u",
+            "author": self.username,
             "data": json.dumps(crawl_data),
         }
 
@@ -90,10 +94,20 @@ class TestCrawls(APITestCase):
         crawl_data = {"google_place_id": "12335"}
         data = {
             "title": "sample_crawl",
-            "author": "test_u",
+            "author": self.username,
             "data": json.dumps(crawl_data),
         }
 
         Crawl.objects.create(**data)
         response = self.client.post(reverse("crawl_create"), data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_crawls_by_author(self):
+        self.test_crawl_create_success()
+
+        response = self.client.get(
+            reverse("get_crawls_by_author", kwargs={"username": self.username})
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data[0]["title"], "sample_crawl")
