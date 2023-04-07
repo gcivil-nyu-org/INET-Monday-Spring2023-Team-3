@@ -120,7 +120,6 @@ function Create() {
   }, [title, chosenPoints]);
 
   const updateDirections = async (_points) => {
-    console.log(_points)
     const points = (_points || []).map((point) => {
       if (point.placeId) return { placeId: point.placeId };
       return point.location;
