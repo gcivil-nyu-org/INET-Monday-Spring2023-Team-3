@@ -139,7 +139,7 @@ class TestCrawls(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    def test_update_crawls_by_id_success(self):
+    def test_update_crawl_by_id_success(self):
         self.test_crawls_by_author_success()
 
         response = self.client.post(
@@ -152,7 +152,7 @@ class TestCrawls(APITestCase):
         self.assertEqual(updated_crawl.description, "new description")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_update_crawls_by_id_fail_bad_id(self):
+    def test_update_crawl_by_id_fail_bad_id(self):
         self.test_crawls_by_author_success()
 
         response = self.client.post(

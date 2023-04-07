@@ -135,3 +135,14 @@ class FollowTest(APITestCase):
         )
 
         self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def test_update_profile(self):
+        self.authenticate()
+        data = {"target_username": self.username,
+                "short_bio": "I'm a bio!"
+                }
+        response = self.client.post(reverse("update_user_info"), data)
+
+        updated_user = User.objects.get(username=self.username)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(updated_user.short_bio, data["short_bio"])

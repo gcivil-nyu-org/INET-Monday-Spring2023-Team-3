@@ -13,7 +13,7 @@ urlpatterns = [
     path("update-password/", views.update_password),
     path("google-oauth/", views.google_verify),
     path("full_profile/", views.full_profile, name="full_profile"),
-    path("update-user-info/", views.update_user_info),
+    path("update-user-info/", views.update_user_info, name="update_user_info"),
     path("request-follow/", views.follow, name="follow"),
     path("request-unfollow/", views.unfollow, name="unfollow"),
     path(
