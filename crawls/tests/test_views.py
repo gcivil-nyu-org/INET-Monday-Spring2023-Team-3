@@ -102,7 +102,7 @@ class TestCrawls(APITestCase):
         response = self.client.post(reverse("crawl_create"), data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_crawls_by_author(self):
+    def test_crawls_by_author_success(self):
         self.test_crawl_create_success()
 
         response = self.client.get(
@@ -111,3 +111,61 @@ class TestCrawls(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data[0]["title"], "sample_crawl")
+
+    def test_crawls_by_author_fail_bad_auth(self):
+        response = self.client.get(
+            reverse("get_crawls_by_author", kwargs={"username": self.username})
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def test_crawls_by_id_success(self):
+        self.test_crawls_by_author_success()
+
+        response = self.client.get(reverse("get_crawl_by_id", kwargs={"crawl_id": 1}))
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["title"], "sample_crawl")
+
+    def test_crawls_by_id_fail_bad_id(self):
+        self.test_crawls_by_author_success()
+
+        response = self.client.get(reverse("get_crawl_by_id", kwargs={"crawl_id": 2}))
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_crawls_by_id_fail_bad_auth(self):
+        response = self.client.get(reverse("get_crawl_by_id", kwargs={"crawl_id": 1}))
+
+        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def test_update_crawls_by_id_success(self):
+        self.test_crawls_by_author_success()
+
+        response = self.client.post(
+            reverse("update_crawl_by_id", kwargs={"crawl_id": 1}),
+            {"title": "new_title", "description": "new description"},
+        )
+
+        updated_crawl = Crawl.objects.get(id=1)
+        self.assertEqual(updated_crawl.title, "new_title")
+        self.assertEqual(updated_crawl.description, "new description")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_update_crawls_by_id_fail_bad_id(self):
+        self.test_crawls_by_author_success()
+
+        response = self.client.post(
+            reverse("update_crawl_by_id", kwargs={"crawl_id": 2}),
+            {"title": "new_title", "description": "new description"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_update_crawls_by_id_fail_bad_auth(self):
+        response = self.client.post(
+            reverse("update_crawl_by_id", kwargs={"crawl_id": 2}),
+            {"title": "title", "description": "description"},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)

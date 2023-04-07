@@ -105,7 +105,7 @@ def update_crawl_by_id(request, crawl_id):
         return Response(status=status.HTTP_200_OK)
     except Exception as e:
         print(e)
-        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["GET"])
