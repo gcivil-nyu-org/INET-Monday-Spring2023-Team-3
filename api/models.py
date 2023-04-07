@@ -50,3 +50,9 @@ class OTP_Request(models.Model):
     verified = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     tries = models.IntegerField(default=0)
+
+
+class RecoverRequest(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    token = models.TextField()
+    used = models.BooleanField(default=False)
