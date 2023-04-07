@@ -26,9 +26,6 @@ class User(models.Model):
     profile_pic = models.ImageField(
         null=True, blank=True, upload_to=upload_to, default="profiles/sample.jpg"
     )
-    picture = models.ForeignKey(
-        "ProfileImageModel", null=True, on_delete=models.SET_NULL
-    )
 
     def __str__(self):
         return self.username
