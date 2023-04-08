@@ -131,7 +131,8 @@ def get_crawls_by_author(request, username):
         return Response(
             {"error": "No such crawl exist"}, status=status.HTTP_400_BAD_REQUEST
         )
-        
+
+
 @api_view(["POST"])
 @is_protected_route
 def crawl_delete_by_id(request):
