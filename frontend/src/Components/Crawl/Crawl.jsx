@@ -1,6 +1,6 @@
 import axios from "axios";
 
-import { Pane, toaster, Text, ChevronDownIcon, Heading, SearchInput, TimeIcon,
+import { Pane, Dialog, toaster, Text, ChevronDownIcon, Heading, SearchInput, TimeIcon,
   SwapHorizontalIcon, } from "evergreen-ui";
 import {
   Card,
@@ -50,7 +50,8 @@ function Crawl(props) {
   });
   const [center, setCenter] = useState(null);
   const [locationsError, setLocationsError] = useState("");
-  
+  const [isShown, setIsShown] = useState(false)
+
   const onLoad = (ref) => (searchBox.current = ref);
   const onPlacesChanged = () => {
     const {
@@ -206,6 +207,27 @@ function Crawl(props) {
       console.log(e);
     }
   };
+  const handleClickDeleteButton = () => {
+    setIsShown(true);
+  }
+  const deleteCrawl = async () => {
+    try {
+      await axios.post(
+        `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/crawl_delete_by_id/`,
+        {
+          id: crawl_id,
+        }
+      );
+      toaster.success("Your crawl successfully has been deleted");
+      history.replace("/");
+         setIsShown(false);
+    } catch (e) {
+      toaster.danger("Error! Cannot delete the crawl.");
+      console.log(e)
+      setIsShown(false);
+    }
+  }
+
 
   const getProfile = async () => {
     try {
@@ -523,7 +545,19 @@ function Crawl(props) {
         <div>
             {!isEditMode ? 
             <div key={1} style={{ padding: "32px", paddingTop:"1rem" }}>
-                <div style={{maxWidth: "150px", cursor: "pointer" }} className="">
+              <Pane>
+                  <Dialog
+                    isShown={isShown}
+                    title="Are you sure you want to delete this crawl?"
+                    onCloseComplete={() => setIsShown(false)}
+                    onConfirm={() => deleteCrawl() }
+                    confirmLabel="Yes, delete it"
+                  >
+                    This crawl will be permanently deleted.
+                  </Dialog>
+
+                </Pane>
+                <div style={{display:"flex",maxWidth: "150px", cursor: "pointer" }} className="">
                   <Button type="primary" onClick={handleClickEditButton}>Edit
                       <span
                           style={{
@@ -533,6 +567,13 @@ function Crawl(props) {
                       >
                           <EditIcon />
                       </span>
+                  </Button>
+                  <Button
+                        style={{marginLeft:"1rem"}}
+                        type="primary"
+                        onClick={handleClickDeleteButton}
+                        >
+                        Delete
                   </Button>
                 </div>
                 <div className="title-block">
@@ -578,14 +619,13 @@ function Crawl(props) {
             // Current user is the author and is in Edit mode 
             <div key={1} style={{ padding: "32px", paddingTop:"1rem", width:"100%" }}>
                   <div style={{maxWidth: "150px", cursor: "pointer" }} className="">
-                  <Button
+                    <Button
                         type="primary"
                         onClick={handleSubmitUpdate}
                         >
                         Save changes
-                  </Button>
+                    </Button>
                   </div>
-
                 <div>
                     <Row>
                           <h1 style={{marginBottom:0}}>Title
