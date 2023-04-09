@@ -15,7 +15,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { Link, useHistory, useParams } from "react-router-dom";
 import "./Profile.css";
-import { EditIcon, HeartIcon, CommentIcon } from "evergreen-ui";
+import { EditIcon, HeartIcon, CommentIcon, UploadIcon } from "evergreen-ui";
 import {
   GoogleMap,
   useLoadScript,
@@ -411,6 +411,14 @@ function Profile(props) {
                         onClick={handleUpload}
                       >
                         Upload
+                        <span
+                          style={{
+                            paddingLeft: "4px",
+                            verticalAlign: "text-top",
+                          }}
+                        >
+                          <UploadIcon />
+                        </span>
                       </Button>
                     </div>
                   </Col>
