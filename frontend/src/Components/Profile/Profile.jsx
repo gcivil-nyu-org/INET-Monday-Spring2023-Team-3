@@ -541,7 +541,7 @@ function Profile(props) {
               },
               {
                 label: `${profile.followed_by.length} Follower${
-                  profile.numFollowers === 1 ? "" : "s"
+                  profile?.followed_by?.length === 1 ? "" : "s"
                 }`,
                 key: "FOLLOWERS",
                 // children: `Content of Tab Pane 2`,
