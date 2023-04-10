@@ -26,6 +26,8 @@ function Navbar() {
     "/404",
   ];
 
+  const activeStyle = {fontWeight: "bold", color: "#2474AB"}
+
   if (!isMounted || hiddenRoutes.some((x) => location.pathname.startsWith(x)))
     return <div></div>;
   return (
@@ -44,16 +46,16 @@ function Navbar() {
       </Pane>
       <Pane style={{ flex: 2, marginLeft: 64 }}>
         <Link style={{ textDecoration: "none" }} to="/">
-          <Text>Home</Text>
+          <Text style={location.pathname === "/" ? activeStyle : {}}>Home</Text>
         </Link>
-        <Link style={{ textDecoration: "none" }} to="/create">
-          <Text style={{ marginLeft: 24 }}>Create</Text>
+        <Link style={{ textDecoration: "none", marginLeft: 24 }} to="/create">
+          <Text style={location.pathname === "/create" ? activeStyle : {}}>Create</Text>
         </Link>
         <Link
-          style={{ textDecoration: "none" }}
-          to={`/profile/myprofile?r=${uniqueParam}`}
+          style={{ textDecoration: "none", marginLeft: 24 }}
+          to={`/profile/`}
         >
-          <Text style={{ marginLeft: 24 }}>Profile</Text>
+          <Text style={location.pathname.startsWith("/profile") ? activeStyle : {}}>Profile</Text>
         </Link>
       </Pane>
       <Pane>

@@ -1,10 +1,10 @@
 import axios from "axios";
 import {
-  Button,
   Heading,
   Pane,
   SearchInput,
   Text,
+  Textarea,
   TextInput,
   toaster,
 } from "evergreen-ui";
@@ -17,12 +17,13 @@ import {
   Marker,
   DirectionsRenderer,
 } from "@react-google-maps/api";
-import { Dropdown, Space } from "antd";
+import { Button, Dropdown, Space } from "antd";
 import {
   DownOutlined,
   ClockCircleOutlined,
   SwapOutlined,
 } from "@ant-design/icons";
+import { useFilePicker } from 'use-file-picker';
 import { secondsToHms, TRANSIT_TYPES } from "../../common";
 
 function Create() {
@@ -37,6 +38,18 @@ function Create() {
   const searchBox = useRef(null);
   const [chosenPoints, setChosenPoints] = useState([]);
   const [directions, setDirections] = useState({});
+  const [page, setPage] = useState(1);
+  const [description, setDescription] = useState("");
+  const [descriptionError, setDescriptionError] = useState("");
+  const [imageError, setImageError] = useState("");
+  const [openImageSelector, imageSelector] = useFilePicker({
+    readAs: 'DataURL',
+    accept: 'image/*',
+    multiple: false,
+    limitFilesConfig: { max: 1 },
+    // minFileSize: 0.1, // in megabytes
+    maxFileSize: 2,
+  });
 
   const onLoad = (ref) => (searchBox.current = ref);
   const onPlacesChanged = () => {
@@ -75,8 +88,12 @@ function Create() {
 
   const verify = () => {
     let flag = true;
+    if (page === 1){
     if (title.trim().length === 0) {
       setTitleError("Title is Required");
+      flag = false;
+    } else if (title.trim().length > 60) {
+      setTitleError("Title too long");
       flag = false;
     } else {
       setTitleError("");
@@ -91,7 +108,31 @@ function Create() {
       toaster.danger("Crawls cannot be longer than 6 hours");
       flag = false;
     }
-    return flag;
+  } else if (page === 2){
+    if (description.trim().length === 0){
+      setDescriptionError("Crawl Description is required")
+      flag = false
+    } else if (description.trim().length > 200){
+      setDescriptionError("Crawl Description too long")
+      flag = false
+    } else {
+      setDescriptionError("")
+    }
+    if (imageSelector?.filesContent?.length != 1){
+      setImageError("Please select a cover image")
+      flag = false
+    } else {
+      setImageError("")
+    }
+  }
+
+  return flag;
+  };
+  const next = async () => {
+    if (!hasSubmittedOnce) setHasSubmittedOnce(true);
+    if (!verify()) return;
+    setHasSubmittedOnce(false);
+    setPage(2);
   };
   const publish = async () => {
     if (!hasSubmittedOnce) setHasSubmittedOnce(true);
@@ -105,6 +146,8 @@ function Create() {
             points: chosenPoints,
             directions,
           },
+          picture: imageSelector.filesContent[0].content,
+          description
         }
       );
       toaster.success("Your crawl has been posted");
@@ -116,8 +159,8 @@ function Create() {
   };
 
   useEffect(() => {
-    // if (hasSubmittedOnce) verify();
-  }, [title, chosenPoints]);
+    if (hasSubmittedOnce) verify();
+  }, [title, chosenPoints, imageSelector?.filesContent, description]);
 
   const updateDirections = async (_points) => {
     const points = (_points || []).map((point) => {
@@ -195,14 +238,24 @@ function Create() {
     setChosenPoints(_points);
   };
 
+  useEffect(()=>{
+    if (imageSelector?.errors.length > 0 && imageSelector.errors[0]?.fileSizeToolarge){
+      toaster.danger("File too large")
+    } else if (imageSelector?.errors.length > 0){
+      toaster.danger("File cannot be read")
+    }
+  }, [imageSelector?.errors])
+
   if (!isMounted) return <div></div>;
   return (
     <Pane style={{ paddingTop: 32 }}>
       <Pane style={{ padding: "0 32px" }}>
-        <h1>Create a crawl</h1>
+        <h1>{page === 1 && "Create a crawl"}{page === 2 && `Publish ${title}`}</h1>
         <Pane style={{ display: "flex" }}>
           <Pane style={{ flex: 2 }}>
-            <TextInput
+            {page === 1 && (
+              <>
+              <TextInput
               style={{
                 fontWeight: "bold",
                 fontSize: 24,
@@ -216,15 +269,51 @@ function Create() {
             />
             <Text size={400} color="red600" style={{ fontWeight: "bold" }}>
               {titleError}
-            </Text>
+            </Text></>
+            )}
+            {page === 2 && (
+              <>
+              <Button style={{marginLeft: 250, width: 500, height: 500, marginBottom: 16}} type="dashed" danger={imageError !== ""} onClick={()=>{
+                imageSelector.clear();
+                openImageSelector();
+              }}>
+                {imageSelector?.filesContent?.length > 0 ? (
+                  <img src={imageSelector.filesContent[0].content} style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                  }}/>
+                ) : "Upload cover image"}
+              </Button>
+              <Textarea
+              style={{
+                fontWeight: "bold",
+                fontSize: 16,
+                height: 64,
+                maxWidth: 1000,
+                minWidth: 1000
+              }}
+              placeholder="Enter crawl description..."
+              onChange={(e) => setDescription(e.target.value)}
+              value={description}
+              isInvalid={descriptionError !== ""}
+            />
+            <Text size={400} color="red600" style={{ fontWeight: "bold" }}>
+              {descriptionError}
+            </Text></>
+            )}
+            
           </Pane>
           <Pane
             style={{ width: 500, display: "flex", justifyContent: "flex-end" }}
           >
-            <Button onClick={publish}>Publish</Button>
+            {page === 1 && (<Button onClick={next}>Next</Button>)}
+            {page === 2 && (<Button onClick={publish}>Publish</Button>)}
+
           </Pane>
         </Pane>
       </Pane>
+      {page === 1 && (
       <Pane style={{ display: "flex" }}>
         <Pane style={{ padding: 32, flex: 2 }}>
           <Pane
@@ -396,6 +485,7 @@ function Create() {
           )}
         </Pane>
       </Pane>
+      )}
     </Pane>
   );
 }

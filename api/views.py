@@ -7,6 +7,7 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from .models import User, OTP_Request, RecoverRequest, Follow
+from crawls.models import Crawl
 from .decorators import is_protected_route
 import jwt
 import json
@@ -120,7 +121,9 @@ def email_verify(request):
             user.verified = True
             user.save()
             encoded_jwt = jwt.encode(
-                {"username": user.username}, SECRET_KEY, algorithm="HS256"
+                {"username": user.username, "id": user.id},
+                SECRET_KEY,
+                algorithm="HS256",
             )
             return Response({"jwt": encoded_jwt}, status=status.HTTP_201_CREATED)
         return Response(
@@ -171,7 +174,7 @@ def user_login(request):
         )
     if check_password(request.data["password"], user.password):
         encoded_jwt = jwt.encode(
-            {"username": user.username}, SECRET_KEY, algorithm="HS256"
+            {"username": user.username, "id": user.id}, SECRET_KEY, algorithm="HS256"
         )
         if user.verified:
             return Response(
@@ -277,7 +280,9 @@ def google_verify(request, format=None):
                 verified=True,
             )
         encoded_jwt = jwt.encode(
-            {"username": user.username}, SECRET_KEY, algorithm="HS256"
+            {"username": user.username, "id": user.id},
+            SECRET_KEY,
+            algorithm="HS256",
         )
         return Response(
             {"success": True, "jwt": encoded_jwt, "verified": True},
@@ -303,31 +308,69 @@ def profile(request, format=None):
 @is_protected_route
 def full_profile(request, format=None):
     try:
-        target_user = User.objects.get(username=request.user.username)
-        # serializer for profile pic
-        serializer_profilepic = ImageSerializer(
-            target_user, context={"request": request}, many=False
-        )
-        # returns a query set which needs to be converted to a list
+        username = request.GET.get("username", request.user.username)
+        target_user = User.objects.get(username=username)
+        # returns a query set which needs to be converted to a list)
+        requester_follows = Follow.objects.filter(follows=request.user.id)
+        requester_follows_set = set()
+        for follow_entry in requester_follows:
+            requester_follows_set.add(follow_entry.followed.username)
+
         follows_set = Follow.objects.filter(follows=target_user)
         follows_list = []
         for follow_entry in follows_set:
-            follows_list.append(follow_entry.followed.username)
+            image = User.objects.get(
+                username=follow_entry.followed.username
+            ).profile_pic
+            follows_list.append(
+                {
+                    "username": follow_entry.followed.username,
+                    "is_following": follow_entry.followed.username
+                    in requester_follows_set,
+                    "is_self": follow_entry.followed.username == request.user.username,
+                    "profile_pic": image,
+                }
+            )
 
         followed_set = Follow.objects.filter(followed=target_user)
         followed_list = []
         for follow_entry in followed_set:
-            followed_list.append(follow_entry.follows.username)
+            image = User.objects.get(username=follow_entry.follows.username).profile_pic
+            followed_list.append(
+                {
+                    "username": follow_entry.follows.username,
+                    "is_following": follow_entry.follows.username
+                    in requester_follows_set,
+                    "is_self": follow_entry.follows.username == request.user.username,
+                    "profile_pic": image,
+                }
+            )
 
+        _crawls = Crawl.objects.filter(author=target_user)
+        crawls = []
+        for i in range(len(_crawls)):
+            crawls.append(
+                {
+                    "id": _crawls[i].id,
+                    "title": _crawls[i].title,
+                    "author": _crawls[i].author.username,
+                    "description": _crawls[i].description,
+                    "created_at": _crawls[i].created_at,
+                    "picture": _crawls[i].picture,
+                }
+            )
         data = {
-            "username": request.user.username,
+            "username": username,
             "email": request.user.email,
             "location": request.user.location,
             "short_bio": request.user.short_bio,
-            "following": " ".join(follows_list),
-            "followed_by": " ".join(followed_list),
+            "following": follows_list,
+            "followed_by": followed_list,
             # "date_of_birth": request.user.date_of_birth,
-            "profile_pic": serializer_profilepic.data["profile_pic"],
+            "profile_pic": target_user.profile_pic,
+            "is_self": target_user == request.user,
+            "is_following": target_user.username in requester_follows_set,
+            "crawls": crawls,
         }
         return Response(data)
     except Exception as e:
@@ -339,7 +382,6 @@ def full_profile(request, format=None):
 @is_protected_route
 def get_other_user_profile(request, other_username):
     try:
-        target_user = User.objects.get(username=other_username)
         target_user = User.objects.get(username=other_username)
 
         # serializer for profile pic
@@ -394,18 +436,24 @@ def profile_pic(request):
 
 
 @api_view(["POST"])
+@is_protected_route
 def update_user_info(request):
     try:
-        username = request.data["target_username"]
-
-        targetuser = User.objects.filter(username=username).exists()
-        if not targetuser:
+        profile_pic = request.data["profile_pic"]
+        username = request.data["username"]
+        if (
+            username != request.user.username
+            and User.objects.filter(username=username).exists()
+        ):
             return Response(
-                {"error": "user does not exists"}, status=status.HTTP_400_BAD_REQUEST
+                {"error": "Username already exists"}, status=status.HTTP_400_BAD_REQUEST
             )
-        target_user = User.objects.get(username=username)
-        target_user.short_bio = request.data["short_bio"]
-        target_user.save()
+        user = User.objects.get(username=request.user.username)
+        if profile_pic:
+            user.profile_pic = profile_pic
+        if username:
+            user.username = username
+        user.save()
         return Response(status=status.HTTP_200_OK)
     except Exception as e:
         print(e)
@@ -417,7 +465,7 @@ def update_user_info(request):
 def follow(request):
     try:
         target_username = request.data["target_address"]
-        self_username = request.data["self_address"]
+        self_username = request.user.username
         target_user = User.objects.get(username=target_username)
         self_user = User.objects.get(username=self_username)
 
@@ -438,7 +486,7 @@ def follow(request):
 def unfollow(request):
     try:
         target_username = request.data["target_address"]
-        self_username = request.data["self_address"]
+        self_username = request.user.username
         target_user = User.objects.get(username=target_username)
         self_user = User.objects.get(username=self_username)
 

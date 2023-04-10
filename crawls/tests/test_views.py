@@ -9,10 +9,14 @@ import json
 class TestCrawls(APITestCase):
     username = "test_u"
     email = "test@gmail.com"
-    pw = "test_pw"
+    password = "test_pw"
 
     def authenticate(self):
-        data = {"username": self.username, "email": self.email, "password": self.pw}
+        data = {
+            "username": self.username,
+            "email": self.email,
+            "password": self.password,
+        }
         self.client.post(reverse("register"), data)
 
         user = User.objects.get(username=data["username"])
@@ -26,18 +30,18 @@ class TestCrawls(APITestCase):
 
     def test_crawl_get_all(self):
         self.authenticate()
-
+        user = User.objects.get(username=self.username)
         crawl_data = {"google_place_id": "12335"}
         data = {
             "title": "sample_crawl",
-            "author": self.username,
+            "author": user,
             "data": json.dumps(crawl_data),
         }
         Crawl.objects.create(**data)
 
         data = {
             "title": "sample_crawl_2",
-            "author": self.username,
+            "author": user,
             "data": json.dumps(crawl_data),
         }
         Crawl.objects.create(**data)
@@ -55,11 +59,12 @@ class TestCrawls(APITestCase):
 
     def test_crawl_delete_success(self):
         self.authenticate()
+        user = User.objects.get(username=self.username)
 
         crawl_data = {"google_place_id": "12335"}
         data = {
             "title": "sample_crawl",
-            "author": self.username,
+            "author": user,
             "data": json.dumps(crawl_data),
         }
         Crawl.objects.create(**data)
@@ -81,6 +86,8 @@ class TestCrawls(APITestCase):
             "title": "sample_crawl",
             "author": self.username,
             "data": json.dumps(crawl_data),
+            "picture": "data:image/image/png;base64,iVBORw0KGg==",
+            "description": "some random description",
         }
 
         response = self.client.post(reverse("crawl_create"), data)
@@ -90,11 +97,12 @@ class TestCrawls(APITestCase):
 
     def test_crawl_create_fail(self):
         self.authenticate()
+        user = User.objects.get(username=self.username)
 
         crawl_data = {"google_place_id": "12335"}
         data = {
             "title": "sample_crawl",
-            "author": self.username,
+            "author": user,
             "data": json.dumps(crawl_data),
         }
 

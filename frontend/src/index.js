@@ -83,6 +83,11 @@ root.render(
               component={Profile}
             />
             <PrivateRoute
+              path="/profile/"
+              exact
+              component={Profile}
+            />
+            <PrivateRoute
               path="/crawl/:crawl_id"
               exact
               component={Crawl}

@@ -16,7 +16,7 @@ def is_protected_route(function):
         try:
             encoded_jwt = request.META["HTTP_AUTHORIZATION"]
             decoded_user = jwt.decode(encoded_jwt, SECRET_KEY, algorithms=["HS256"])
-            user = User.objects.get(username=decoded_user["username"])
+            user = User.objects.get(id=decoded_user["id"])
             request.user = user
             if user:
                 return function(request, *args, **kwargs)

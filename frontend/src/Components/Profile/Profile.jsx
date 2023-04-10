@@ -1,6 +1,15 @@
 import axios from "axios";
 
-import { Pane, toaster, Text, ChevronDownIcon, Heading } from "evergreen-ui";
+import {
+  Pane,
+  toaster,
+  Text,
+  ChevronDownIcon,
+  Heading,
+  TextInput,
+  CrossIcon,
+  TrashIcon,
+} from "evergreen-ui";
 import {
   Card,
   Space,
@@ -11,6 +20,8 @@ import {
   Dropdown,
   Avatar,
   List,
+  Tabs,
+  Typography,
 } from "antd";
 import { useEffect, useRef, useState } from "react";
 import { Link, useHistory, useParams } from "react-router-dom";
@@ -23,20 +34,26 @@ import {
   Marker,
   DirectionsRenderer,
 } from "@react-google-maps/api";
+import { useFilePicker } from 'use-file-picker';
 import PlaceholderProfileImage from "../../static/sample.jpg";
-
-const placeholder_image_urls = [
-  "https://cdn.pixabay.com/photo/2017/02/25/17/38/george-washington-bridge-2098351_1280.jpg",
-  "https://cdn.pixabay.com/photo/2016/11/23/15/32/pedestrians-1853552_1280.jpg",
-  "https://cdn.pixabay.com/photo/2016/08/10/15/15/coffee-1583562_1280.jpg",
-  "https://cdn.pixabay.com/photo/2019/07/21/07/12/new-york-4352072_1280.jpg",
-];
 
 function Profile(props) {
   const refreshParam = new URLSearchParams(props.location.search).get("r");
   const { other_username } = useParams();
   const history = useHistory();
   const [isMounted, setIsMounted] = useState(false);
+  const [currTab, setCurrTab] = useState("CRAWLS");
+  const [username, setUsername] = useState("");
+  const [usernameError, setUsernameError] = useState("");
+  const [openImageSelector, imageSelector] = useFilePicker({
+    readAs: 'DataURL',
+    accept: 'image/*',
+    multiple: false,
+    limitFilesConfig: { max: 1 },
+    // minFileSize: 0.1, // in megabytes
+    maxFileSize: 1,
+  });
+
   const [profile, setProfile] = useState({});
   const [otherUserProfile, setOtherUserProfile] = useState({});
 
@@ -142,64 +159,67 @@ function Profile(props) {
   const getProfile = async () => {
     try {
       const { data } = await axios.get(
-        `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/auth/full_profile/`
+        `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/auth/full_profile/${
+          other_username ? `?username=${other_username}` : ""
+        }`
       );
       setProfile(data);
+      setIsMounted(true);
 
-      if (data.username === other_username) {
-        history.replace("/profile/myprofile");
-      }
+      // if (data.username === other_username) {
+      //   // history.replace("/profile/myprofile");
+      // }
 
-      let numFollowers = 0;
-      let numFollowing = 0;
-      let listFollowers = [];
-      let listFollowing = [];
-      if (data.followed_by.length > 0) {
-        listFollowers = data.followed_by.split(" ");
-        numFollowers = listFollowers.length;
-      }
-      if (data.following.length > 0) {
-        listFollowing = data.following.split(" ");
-        numFollowing = listFollowing.length;
-      }
-      if (
-        other_username !== "myprofile" &&
-        listFollowing.includes(other_username)
-      ) {
-        setCurrUserFollowsOtherUser(true);
-      }
+      // let numFollowers = 0;
+      // let numFollowing = 0;
+      // let listFollowers = [];
+      // let listFollowing = [];
+      // if (data.followed_by.length > 0) {
+      //   listFollowers = data.followed_by.split(" ");
+      //   numFollowers = listFollowers.length;
+      // }
+      // if (data.following.length > 0) {
+      //   listFollowing = data.following.split(" ");
+      //   numFollowing = listFollowing.length;
+      // }
+      // if (
+      //   other_username !== "myprofile" &&
+      //   listFollowing.includes(other_username)
+      // ) {
+      //   setCurrUserFollowsOtherUser(true);
+      // }
 
-      setFormData({ short_bio: data.short_bio });
-      // fetch followers and following users profiles
-      let listFollowersData = [];
-      for (let i = 0; i < listFollowers.length; i++) {
-        let ans;
-        ans = await findUserInfoByUsername(listFollowers[i]);
-        listFollowersData.push(ans);
-      }
-      let listFollowingData = [];
-      for (let i = 0; i < listFollowing.length; i++) {
-        let ans;
-        ans = await findUserInfoByUsername(listFollowing[i]);
-        listFollowingData.push(ans);
-      }
+      // setFormData({ short_bio: data.short_bio });
+      // // fetch followers and following users profiles
+      // let listFollowersData = [];
+      // for (let i = 0; i < listFollowers.length; i++) {
+      //   let ans;
+      //   ans = await findUserInfoByUsername(listFollowers[i]);
+      //   listFollowersData.push(ans);
+      // }
+      // let listFollowingData = [];
+      // for (let i = 0; i < listFollowing.length; i++) {
+      //   let ans;
+      //   ans = await findUserInfoByUsername(listFollowing[i]);
+      //   listFollowingData.push(ans);
+      // }
 
-      setProfile((prevProfile) => ({
-        ...prevProfile,
-        numFollowers,
-        numFollowing,
-        listFollowers,
-        listFollowing,
-        listFollowersData,
-        listFollowingData,
-      }));
-      if (other_username === "myprofile") {
-        setIsMounted(true);
-      }
-      return data.username
+      // setProfile((prevProfile) => ({
+      //   ...prevProfile,
+      //   numFollowers,
+      //   numFollowing,
+      //   listFollowers,
+      //   listFollowing,
+      //   listFollowersData,
+      //   listFollowingData,
+      // }));
+      // if (other_username === "myprofile") {
+      //   setIsMounted(true);
+      // }
+      return data.username;
     } catch (e) {
-      console.log(e);
-      history.replace("/");
+      // console.log(e);
+      // history.replace("/");
     }
   };
   const checkIfUserIsFollowing = () => {
@@ -270,28 +290,10 @@ function Profile(props) {
         `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/auth/request-follow/`,
         {
           target_address: target_username,
-          self_address: profile.username,
         }
       );
       toaster.success("Changes saved!");
-
-      let oldListFollowing = profile.listFollowing;
-      oldListFollowing.push(other_username);
-      setProfile((prevProfile) => ({
-        ...prevProfile,
-        listFollowing: oldListFollowing,
-        numFollowing: prevProfile.numFollowing + 1,
-      }));
-
-      let oldListFollowers = otherUserProfile.listFollowers;
-      oldListFollowers.push(profile.username);
-      setOtherUserProfile((prevProfile) => ({
-        ...prevProfile,
-        listFollowers: oldListFollowers,
-        numFollowers: prevProfile.numFollowers + 1,
-      }));
-
-      setCurrUserFollowsOtherUser(true);
+      init(true);
     } catch (e) {
       console.log(e);
     }
@@ -303,40 +305,33 @@ function Profile(props) {
         `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/auth/request-unfollow/`,
         {
           target_address: target_username,
-          self_address: profile.username,
         }
       );
       toaster.success("Unfollow request successful.");
-
-      let oldListFollowing = profile.listFollowing;
-      const index = oldListFollowing.indexOf(other_username);
-      const x = oldListFollowing.splice(index, 1);
-      setProfile((prevProfile) => ({
-        ...prevProfile,
-        listFollowing: x,
-        numFollowing: prevProfile.numFollowing - 1,
-      }));
-
-      let oldListFollowers = otherUserProfile.listFollowers;
-      const index2 = oldListFollowers.indexOf(profile.username);
-      const y = oldListFollowers.splice(index2, 1);
-      setOtherUserProfile((prevProfile) => ({
-        ...prevProfile,
-        listFollowers: y,
-        numFollowers: prevProfile.numFollowers - 1,
-      }));
-      setCurrUserFollowsOtherUser(false);
+      init(true);
     } catch (e) {
       console.log(e);
     }
   };
-  const items = [
-    {
-      label: <a onClick={() => unfollowRequest(other_username)}>Unfollow</a>,
-      key: "0",
-    },
-  ];
 
+  const editProfile = async (target_username) => {
+    try {
+      await axios.post(
+        `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/auth/update-user-info/`,
+        {
+          profile_pic: (imageSelector?.filesContent || [])[0]?.content || null,
+          username
+        }
+      );
+      toaster.success("Changes saved!");
+      setIsEditMode(false)
+      init(true);
+    } catch (e) {
+      console.log(e)
+      if (e?.response?.data?.error) toaster.danger(e.response.data.error);
+      else toaster.danger("Something went wrong 🙁");
+    }
+  };
 
   const getAllCrawls = async (currUsername) => {
     try {
@@ -346,7 +341,7 @@ function Profile(props) {
       let arr = [];
       if (data.length > 0) {
         for (let i = 0; i < data.length; i++) {
-          console.log(data[i])
+          console.log(data[i]);
           if (other_username === "myprofile") {
             if (data[i].author === currUsername) {
               arr.push(data[i]);
@@ -358,61 +353,121 @@ function Profile(props) {
           }
         }
       }
-      
+
       setAllCrawls(arr);
+      
     } catch (e) {
       console.log(e);
     }
   };
   const { Meta } = Card;
 
+  const init = (keepTab = false) => {
+    if (!keepTab) {
+      setIsMounted(false);
+      setProfile({});
+      setCurrTab("CRAWLS");
+      setIsEditMode(false);
+      imageSelector.clear();
+    }
+    getProfile();
+  };
 
-  // const getData = async () => {
-  //   getProfile().then((currUserProfile)=>{
-  //       get_crawl_by_id().then((currCrawl)=>{
-  //           console.log(currCrawl)
-  //           if (currUserProfile.username == currCrawl.author){
-                
-  //               setIsCurrUserAuthor(true)
-  //           }
-  //           setIsMounted(true);
-  //       })
-  //   })
-  // }
+  const verifyUsername = () => {
+    if (username.trim().length === 0) {
+      setUsernameError("Username is required");
+    } else if (username.length < 8 || username.length > 20) {
+      setUsernameError("Username has to be 8-20 characters long");
+    } else if (!/[a-zA-Z0-9._]+/.test(username)) {
+      setUsernameError("Username can only contain letters and numbers");
+    } else {
+      setUsernameError("");
+    }
+  };
+
   useEffect(() => {
-    getProfile().then((currUsername) => {
-      getAllCrawls(currUsername).then((crawl) => {
-        if (other_username !== "myprofile") {
-          getOtherUserProfile();
-        }
-      });
-    });
-  }, [refreshParam]);
+    verifyUsername();
+  }, [username]);
+
+  useEffect(() => {
+    init();
+  }, [other_username]);
+
+  useEffect(()=>{
+    if (imageSelector?.errors.length > 0 && imageSelector.errors[0]?.fileSizeToolarge){
+      toaster.danger("File too large")
+    } else if (imageSelector?.errors.length > 0){
+      toaster.danger("File cannot be read")
+    }
+  }, [imageSelector?.errors])
 
   if (!isMounted) return <div></div>;
+  if (!profile?.username) {
+    return <div>User not found</div>;
+  }
   return (
     <div>
-      {other_username === "myprofile" ? (
-        // current user's profile version
+      <div key={1} style={{ padding: "32px" }}>
+        <Row style={{ justifyContent: "center" }}>
+        <div style={{position: "relative"}}>
+          <div className="profile-circle">
+            <img
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+              }}
+              src={(imageSelector?.filesContent || [])[0]?.content || profile.profile_pic || PlaceholderProfileImage}
+              alt="Profile Image"
+            />
+            
+          </div>
+          {isEditMode && (
+            <>
+          {imageSelector?.filesContent?.length > 0 && (
+          <Button danger style={{position:"absolute", top: 0, left: 0}} shape="circle" icon={<TrashIcon style={{marginTop: 2}} />} onClick={()=>imageSelector.clear()}/>)}
+          <Button style={{position:"absolute", top: 0, right: 0}} shape="circle" icon={<EditIcon style={{marginTop: 2}} />} onClick={()=>openImageSelector()}/>
+          </>
+          )}
+          </div>
+        </Row>
+        <Row style={{ justifyContent: "center" }}>
+          {isEditMode ? (
+            <>
+              <Row style={{ width: "100%", justifyContent: "center" }}>
+                <TextInput
+                  style={{
+                    fontWeight: "bold",
+                    fontSize: 20,
+                    height: 36,
+                    width: "280px",
+                    marginTop: 12,
+                    marginBottom: 4,
+                    textAlign: "center",
+                  }}
+                  name="username"
+                  placeholder={profile.username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  value={username}
+                  isInvalid={usernameError !== ""}
+                />
+              </Row>
+              <Row style={{ width: "100%", justifyContent: "center" }}>
+                <Text
+                  size={300}
+                  style={{
+                    marginBottom: 12,
+                  }}
+                >
+                  {usernameError}
+                </Text>
+              </Row>
+            </>
+          ) : (
+            <h2>{profile.username}</h2>
+          )}
 
-        <div key={1} style={{ padding: "32px" }}>
-          <Card size="small" style={{ margin: "0.5rem", border: "none" }}>
-            <Row>
-              <Col span={24}>
-                <Row>
-                  <Col span={4}>
-                    <div className="profile-circle">
-                      <img
-                        style={{
-                          width: "100%",
-                          height: "100%",
-                          objectFit: "cover",
-                        }}
-                        src={profile.profile_pic || PlaceholderProfileImage}
-                        alt="Profile Image"
-                      />
-                    </div>
-                    <div>
+          {/* <div>
                       <input
                         accept="image/*"
                         id="post-image"
@@ -429,362 +484,244 @@ function Profile(props) {
                       >
                         Upload
                       </Button>
-                    </div>
-                  </Col>
-                  <Col span={20} style={{ padding: "1rem" }}>
-                    <Row>
-                      <Col span={4}>
-                        <h2>{profile.username}</h2>
-                      </Col>
-                      <Col span={12}>
-                        <div>
-                          <div
-                            style={{ maxWidth: "150px", cursor: "pointer" }}
-                            className=""
-                          >
-                            {!isEditMode ? (
-                              <Button
-                                type="primary"
-                                onClick={handleClickEditButton}
-                              >
-                                Edit Profile
-                                <span
-                                  style={{
-                                    paddingLeft: "4px",
-                                    verticalAlign: "text-top",
-                                  }}
-                                >
-                                  <EditIcon />
-                                </span>
-                              </Button>
-                            ) : (
-                              <Button
-                                type="primary"
-                                onClick={handleSubmitUpdate}
-                              >
-                                Save changes
-                              </Button>
-                            )}
-                          </div>
-                        </div>
-                        <div className="smaller-badges-div">
-                          <div className="smaller-badges">
-                            Posts <span>0</span>
-                          </div>
-                          <div className="smaller-badges">
-                            Followers <span>{profile.numFollowers}</span>
-                          </div>
-                          <div className="smaller-badges">
-                            Following <span>{profile.numFollowing}</span>
-                          </div>
-                        </div>
-                        <div className="bio">
-                          <div>
-                            <div>
-                              {profile.short_bio ? profile.short_bio : ""}
-                            </div>
-                          </div>
-                        </div>
-                      </Col>
-                    </Row>
-                  </Col>
-                </Row>
-              </Col>
-            </Row>
-          </Card>
-
-          <Row style={{ paddingTop: "1rem" }}>
-            <Col span={24} style={{ padding: "0.5rem" }}>
-              {!isEditMode ? (
-                <Button type="primary" onClick={handleClickEditButton}>
-                  Edit Profile
-                  <span
-                    style={{ paddingLeft: "4px", verticalAlign: "text-top" }}
-                  >
-                    <EditIcon />
-                  </span>
+                    </div> */}
+        </Row>
+        <Row style={{ justifyContent: "center" }}>
+          {profile.is_self ? (
+            <Button
+              style={{ width: 280 }}
+              size="small"
+              type={isEditMode ? "primary" : undefined}
+              onClick={() => {if(isEditMode){
+                editProfile()
+                // openImageSelector();
+              } else{
+                setUsername(profile.username);
+                setUsernameError("");
+                setIsEditMode(!isEditMode);
+              }}}
+              disabled={isEditMode && usernameError}
+            >
+              {isEditMode ? "Save changes" : "Edit Profile"}
+            </Button>
+          ) : (
+            <>
+              {profile.is_following ? (
+                <Button
+                  style={{ width: 280 }}
+                  type="primary"
+                  size="small"
+                  onClick={() => unfollowRequest(profile.username)}
+                >
+                  Following
                 </Button>
               ) : (
-                <Button type="primary" onClick={handleSubmitUpdate}>
-                  Save changes
+                <Button
+                  style={{ width: 280 }}
+                  size="small"
+                  onClick={() => followRequest(profile.username)}
+                >
+                  Follow
                 </Button>
               )}
-            </Col>
-
-            <Col span={8} style={{ padding: "0.5rem" }}>
-              <Space
-                direction="vertical"
-                size="middle"
-                style={{
-                  display: "flex",
-                }}
-              >
-                <Card title="Email" size="small">
-                  <p>{profile.email}</p>
-                </Card>
-                <Card title="Current Location" size="small">
-                  {center && (
-                    <GoogleMap
-                      mapContainerStyle={mapContainerStyle}
-                      center={center}
-                      onClick={handleMapClick}
-                      zoom={14}
-                      onLoad={handleLoad}
-                    ></GoogleMap>
-                  )}
-
-                  {!center && (
-                    <Button disabled={isDisabled} onClick={handleGetLocation}>
-                      {isLoading ? "Loading..." : "Get My Location"}
-                    </Button>
-                  )}
-                </Card>
-
-                {!isEditMode ? (
-                  <Card title="Short Bio" size="small">
-                    <div>
-                      <p>
-                        {profile.short_bio ? profile.short_bio : "No data yet"}
-                      </p>
-                    </div>
-                  </Card>
-                ) : (
-                  <Card title="Short Bio" size="small">
-                    <textarea
-                      placeholder="Enter a short bio about yourself"
-                      type="text"
-                      id="short_bio"
-                      name="Short Bio"
-                      value={formData.short_bio}
-                      onChange={(e) =>
-                        setFormData({ ...formData, short_bio: e.target.value })
+            </>
+          )}
+        </Row>
+        <Row style={{ justifyContent: "center" }}>
+          <Tabs
+            defaultActiveKey={currTab}
+            centered
+            items={[
+              {
+                label: `${profile?.crawls.length} Crawl${
+                  profile?.crawls.length === 1 ? "" : "s"
+                }`,
+                key: "CRAWLS",
+                // children: `Content of Tab Pane 1`,
+              },
+              {
+                label: `${profile.followed_by.length} Follower${
+                  profile.numFollowers === 1 ? "" : "s"
+                }`,
+                key: "FOLLOWERS",
+                // children: `Content of Tab Pane 2`,
+              },
+              {
+                label: `${profile.following.length} Following`,
+                key: "FOLLOWING",
+                // children: `Content of Tab Pane 3`,
+              },
+            ]}
+            onChange={setCurrTab}
+          />
+        </Row>
+        <Row style={{ justifyContent: "center" }}>
+          {currTab === "CRAWLS" && (
+            <Row style={{ justifyContent: "center", maxWidth: "1000px" }}>
+              {profile?.crawls?.length > 0 ? (
+                profile?.crawls.map((x, index) => (
+                  <Col>
+                    <Card
+                      className="profile-img-container user-own-profile"
+                      style={{
+                        display: "inline-block",
+                        margin: "1rem",
+                      }}
+                      cover={x.picture && 
+                        <img
+                          className="profile-img my-profile-img"
+                          alt="example"
+                          src={x.picture}
+                        />
                       }
-                    />
-                  </Card>
-                )}
-              </Space>
-            </Col>
-
-            <Col span={16} style={{ padding: "0.5rem" }}>
-              <Space
-                direction="vertical"
-                size="middle"
-                style={{
-                  display: "flex",
-                }}
-              >
-                <Card
-                  title="My Followers"
-                  size="small"
-                  style={{ height: "100%" }}
-                >
-                  {profile &&
-                  profile.listFollowersData &&
-                  profile.listFollowersData.length > 0 ? (
-                    <List
-                      itemLayout="vertical"
-                      dataSource={profile.listFollowersData}
-                      renderItem={(item, index) => (
-                        <List.Item>
-                          <List.Item.Meta
-                            avatar={
-                              <Avatar
-                                src={`https://www.seekpng.com/png/detail/110-1100707_person-avatar-placeholder.png`}
-                              />
-                            }
-                            title={
-                              <Link to={`/profile/${item.username}`}>
-                                {item.username}
-                              </Link>
-                            }
-                            description={item.short_bio}
-                          />
-                        </List.Item>
-                      )}
-                    />
-                  ) : (
-                    <span>No followers yet</span>
-                  )}
-                </Card>
-                <Card title="Following" size="small" style={{ height: "100%" }}>
-                  {profile &&
-                  profile.listFollowingData &&
-                  profile.listFollowingData.length > 0 ? (
-                    <List
-                      itemLayout="vertical"
-                      dataSource={profile.listFollowingData}
-                      renderItem={(item, index) => (
-                        <List.Item>
-                          <List.Item.Meta
-                            avatar={<Avatar src={PlaceholderProfileImage} />}
-                            title={
-                              <Link to={`/profile/${item.username}`}>
-                                {item.username}
-                              </Link>
-                            }
-                            description={item.short_bio}
-                          />
-                        </List.Item>
-                      )}
-                    />
-                  ) : (
-                    <span>You are not following anyone yet</span>
-                  )}
-                </Card>
-                <Card
-                  title="My Crawls"
-                  size="small"
-                  style={{ height: "100%" }}
-                >
-                {allCrawls ?
-                allCrawls.map((x, index) => (
-                  <div>
-                     <Card
-                    className="profile-img-container user-own-profile"
-                    style={{
-                      display: "inline-block",
-                      margin: "1rem",
-                    }}
-                    cover={
-                      <img
-                        className="profile-img my-profile-img"
-                        alt="example"
-                        src={placeholder_image_urls[index]}
+                      // actions={[<HeartIcon />, <CommentIcon />]}
+                    >
+                      <Meta
+                        title={<Link to={`/crawl/${x.id}`}>{x.title}</Link>}
+                        description={x.description}
                       />
-                    }
-                    actions={[<HeartIcon />, <CommentIcon />]}
-                  >
-                    <Meta
-                      avatar={<Avatar src={PlaceholderProfileImage} />}
-                      title={<a href={`/crawl/${x.id}`}>x.title</a>}
-                      description={x.description}
-                    />
-                  </Card> 
-                  </div>
-                )): <div>No Saved crawls yet <Link to="/">Explore</Link></div>
-                }
-
-                  
-                </Card>
-              </Space>
-            </Col>
-          </Row>
-        </div>
-      ) : (
-        //  Exploring other user's profile version
-
-        <div key={2} style={{ padding: "32px" }}>
-          <Card size="small" style={{ margin: "0.5rem", border: "none" }}>
-            <Row>
-              <Col span={24}>
-                <Row>
-                  <Col span={3}>
-                    <div className="profile-circle">
-                      <img
-                        style={{
-                          width: "100%",
-                          height: "100%",
-                          objectFit: "cover",
-                        }}
-                        src={otherUserProfile.profile_pic || PlaceholderProfileImage}
-                        alt="Profile Image"
-                      />
-                    </div>
+                    </Card>
                   </Col>
-                  <Col span={20} style={{ padding: "1rem" }}>
-                    <Row>
-                      <Col span={4}>
-                        <h2>{other_username}</h2>
-                      </Col>
-                      <Col span={12}>
-                        <div>
-                          <div
-                            style={{ maxWidth: "150px", cursor: "pointer" }}
-                            className="profile-follow-badge"
-                          >
-                            {isCurrUserFollowsOtherUser ? (
-                              <Text className="profile-follow">
-                                <Dropdown menu={{ items }} trigger={["click"]}>
-                                  <a onClick={(e) => e.preventDefault()}>
-                                    Following <ChevronDownIcon />
-                                  </a>
-                                </Dropdown>
-                              </Text>
-                            ) : (
-                                <Text className="profile-follow">
-                                <Dropdown menu={{ items }} trigger={["click"]}>
-                                  <a onClick={() => followRequest(other_username)}>
-                                    Follow
-                                  </a>
-                                </Dropdown>
-                              </Text>
-                            )}
-                          </div>
-                        </div>
-                        <div className="smaller-badges-div">
-                          <div className="smaller-badges">
-                            Posts <span>0</span>
-                          </div>
-                          <div className="smaller-badges">
-                            Followers{" "}
-                            <span>{otherUserProfile.numFollowers}</span>
-                          </div>
-                          <div className="smaller-badges">
-                            Following{" "}
-                            <span>{otherUserProfile.numFollowing}</span>
-                          </div>
-                        </div>
-                        <div className="bio">
-                          <div>
-                            <div>
-                              {otherUserProfile.short_bio
-                                ? otherUserProfile.short_bio
-                                : "No data yet"}
-                            </div>
-                          </div>
-                        </div>
-                      </Col>
-                    </Row>
-                  </Col>
-                </Row>
-              </Col>
+                ))
+              ) : (
+                <Row style={{ margin: "1rem" }}>No Crawls yet</Row>
+              )}
             </Row>
-          </Card>
-
-          <Row style={{ paddingTop: "1rem", padding: "12px" }}>
-            <div style={{ width: "100%" }}>
-              <h3>Crawls</h3>
-            </div>
-
-            <div>
-              {allCrawls &&
-                allCrawls.map((x, index) => (
-                  <Card
-                    className="profile-img-container"
-                    style={{
-                      display: "inline-block",
-                      margin: "1rem",
-                    }}
-                    cover={
-                      <img
-                        className="profile-img"
-                        alt="example"
-                        src={placeholder_image_urls[index]}
-                      />
-                    }
-                    actions={[<HeartIcon />, <CommentIcon />]}
-                  >
-                    <Meta
-                      avatar={<Avatar src={PlaceholderProfileImage} />}
-                      title={x.title}
-                      description="TODO: Add description field for each crawl and show here?"
-                    />
-                  </Card>
-                ))}
-            </div>
-          </Row>
-        </div>
-      )}
+          )}
+          {currTab === "FOLLOWERS" && (
+            <Row style={{ justifyContent: "center", maxWidth: "1000px" }}>
+              {profile?.followed_by?.length > 0 ? (
+                <List
+                  itemLayout="vertical"
+                  dataSource={profile.followed_by}
+                  renderItem={(item, index) => (
+                    <>
+                      <Row
+                        style={{
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          paddingBottom: 12,
+                          paddingTop: 12,
+                          borderBottom: "1px solid #eee",
+                        }}
+                      >
+                        <Avatar
+                          src={item.profile_pic || PlaceholderProfileImage}
+                          style={{ marginRight: 16 }}
+                        />
+                        <div>
+                          <Typography.Text
+                            style={{ width: 200, marginRight: 16 }}
+                            ellipsis
+                          >
+                            <Link to={`/profile/${item.username}`}>
+                              {item.username}
+                            </Link>
+                          </Typography.Text>
+                        </div>
+                        {item.is_self ? (
+                          <div style={{ width: 77 }} />
+                        ) : (
+                          <>
+                            {item.is_following ? (
+                              <Button
+                                type="primary"
+                                size="small"
+                                style={{ width: 80 }}
+                                onClick={() => unfollowRequest(item.username)}
+                              >
+                                Following
+                              </Button>
+                            ) : (
+                              <Button
+                                style={{ width: 80 }}
+                                size="small"
+                                onClick={() => followRequest(item.username)}
+                              >
+                                Follow
+                              </Button>
+                            )}
+                          </>
+                        )}
+                      </Row>
+                    </>
+                  )}
+                />
+              ) : (
+                <Row style={{ margin: "1rem" }}>No followers yet</Row>
+              )}
+            </Row>
+          )}
+          {currTab === "FOLLOWING" && (
+            <Row style={{ justifyContent: "center", maxWidth: "1000px" }}>
+              {profile?.following?.length > 0 ? (
+                <List
+                  itemLayout="vertical"
+                  dataSource={profile.following}
+                  renderItem={(item, index) => (
+                    <>
+                      <Row
+                        style={{
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          paddingBottom: 12,
+                          paddingTop: 12,
+                          borderBottom: "1px solid #eee",
+                        }}
+                      >
+                        <Avatar
+                          src={item.profile_pic || PlaceholderProfileImage}
+                          style={{ marginRight: 16 }}
+                        />
+                        <div>
+                          <Typography.Text
+                            style={{ width: 200, marginRight: 16 }}
+                            ellipsis
+                          >
+                            <Link to={`/profile/${item.username}`}>
+                              {item.username}
+                            </Link>
+                          </Typography.Text>
+                        </div>
+                        {item.is_self ? (
+                          <div style={{ width: 77 }} />
+                        ) : (
+                          <>
+                            {item.is_following ? (
+                              <Button
+                                type="primary"
+                                size="small"
+                                style={{ width: 80 }}
+                                onClick={() => unfollowRequest(item.username)}
+                              >
+                                Following
+                              </Button>
+                            ) : (
+                              <Button
+                                style={{ width: 80 }}
+                                size="small"
+                                onClick={() => followRequest(item.username)}
+                              >
+                                Follow
+                              </Button>
+                            )}
+                          </>
+                        )}
+                      </Row>
+                    </>
+                  )}
+                />
+              ) : (
+                <Row style={{ margin: "1rem" }}>
+                  You are not following anyone yet
+                </Row>
+              )}
+            </Row>
+          )}
+        </Row>
+      </div>
     </div>
   );
 }
