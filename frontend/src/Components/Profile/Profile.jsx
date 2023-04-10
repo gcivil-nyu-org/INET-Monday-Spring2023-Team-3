@@ -164,7 +164,6 @@ function Profile(props) {
         }`
       );
       setProfile(data);
-      setIsMounted(true);
 
       // if (data.username === other_username) {
       //   // history.replace("/profile/myprofile");
@@ -216,11 +215,11 @@ function Profile(props) {
       // if (other_username === "myprofile") {
       //   setIsMounted(true);
       // }
-      return data.username;
     } catch (e) {
       // console.log(e);
       // history.replace("/");
     }
+    setIsMounted(true)
   };
   const checkIfUserIsFollowing = () => {
     if (otherUserProfile.listFollowers.includes(profile.username)) {
@@ -403,7 +402,11 @@ function Profile(props) {
 
   if (!isMounted) return <div></div>;
   if (!profile?.username) {
-    return <div>User not found</div>;
+    return (
+      <Row style={{ justifyContent: "center", margin: "1rem" }}>
+        <div>User not found</div>
+        </Row>
+    );
   }
   return (
     <div>
@@ -577,7 +580,7 @@ function Profile(props) {
                       // actions={[<HeartIcon />, <CommentIcon />]}
                     >
                       <Meta
-                        title={<Link to={`/crawl/${x.id}`}>{x.title}</Link>}
+                        title={<Link to={`/crawl/${x.id}`} style={{color: "#333"}}>{x.title}</Link>}
                         description={x.description}
                       />
                     </Card>
