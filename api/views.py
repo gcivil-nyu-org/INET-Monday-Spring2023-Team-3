@@ -121,7 +121,9 @@ def email_verify(request):
             user.verified = True
             user.save()
             encoded_jwt = jwt.encode(
-                {"username": user.username, "id": user.id}, SECRET_KEY, algorithm="HS256"
+                {"username": user.username, "id": user.id},
+                SECRET_KEY,
+                algorithm="HS256",
             )
             return Response({"jwt": encoded_jwt}, status=status.HTTP_201_CREATED)
         return Response(
@@ -278,7 +280,9 @@ def google_verify(request, format=None):
                 verified=True,
             )
         encoded_jwt = jwt.encode(
-            {"username": user.username, "id": user.username}, SECRET_KEY, algorithm="HS256"
+            {"username": user.username, "id": user.username},
+            SECRET_KEY,
+            algorithm="HS256",
         )
         return Response(
             {"success": True, "jwt": encoded_jwt, "verified": True},
@@ -315,26 +319,46 @@ def full_profile(request, format=None):
         follows_set = Follow.objects.filter(follows=target_user)
         follows_list = []
         for follow_entry in follows_set:
-            image = User.objects.get(username=follow_entry.followed.username).profile_pic
-            follows_list.append({"username": follow_entry.followed.username, "is_following": follow_entry.followed.username in requester_follows_set, "is_self": follow_entry.followed.username == request.user.username, "profile_pic": image })
+            image = User.objects.get(
+                username=follow_entry.followed.username
+            ).profile_pic
+            follows_list.append(
+                {
+                    "username": follow_entry.followed.username,
+                    "is_following": follow_entry.followed.username
+                    in requester_follows_set,
+                    "is_self": follow_entry.followed.username == request.user.username,
+                    "profile_pic": image,
+                }
+            )
 
         followed_set = Follow.objects.filter(followed=target_user)
         followed_list = []
         for follow_entry in followed_set:
             image = User.objects.get(username=follow_entry.follows.username).profile_pic
-            followed_list.append({"username": follow_entry.follows.username, "is_following": follow_entry.follows.username in requester_follows_set, "is_self": follow_entry.follows.username == request.user.username, "profile_pic": image })
+            followed_list.append(
+                {
+                    "username": follow_entry.follows.username,
+                    "is_following": follow_entry.follows.username
+                    in requester_follows_set,
+                    "is_self": follow_entry.follows.username == request.user.username,
+                    "profile_pic": image,
+                }
+            )
 
         _crawls = Crawl.objects.filter(author=target_user)
         crawls = []
         for i in range(len(_crawls)):
-            crawls.append({
-                "id": _crawls[i].id,
-                "title": _crawls[i].title,
-                "author": _crawls[i].author,
-                "description": _crawls[i].description,
-                "created_at": _crawls[i].created_at,
-                "picture": _crawls[i].picture,
-            })
+            crawls.append(
+                {
+                    "id": _crawls[i].id,
+                    "title": _crawls[i].title,
+                    "author": _crawls[i].author,
+                    "description": _crawls[i].description,
+                    "created_at": _crawls[i].created_at,
+                    "picture": _crawls[i].picture,
+                }
+            )
         data = {
             "username": username,
             "email": request.user.email,
@@ -346,7 +370,7 @@ def full_profile(request, format=None):
             "profile_pic": target_user.profile_pic,
             "is_self": target_user == request.user,
             "is_following": target_user.username in requester_follows_set,
-            "crawls": crawls
+            "crawls": crawls,
         }
         return Response(data)
     except Exception as e:
@@ -417,7 +441,10 @@ def update_user_info(request):
     try:
         profile_pic = request.data["profile_pic"]
         username = request.data["username"]
-        if username != request.user.username and User.objects.filter(username=username).exists():
+        if (
+            username != request.user.username
+            and User.objects.filter(username=username).exists()
+        ):
             return Response(
                 {"error": "Username already exists"}, status=status.HTTP_400_BAD_REQUEST
             )

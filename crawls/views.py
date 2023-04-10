@@ -25,7 +25,6 @@ def crawl_create(request):
         "data": json.dumps(request.data["data"]),
         "picture": request.data["picture"],
         "description": request.data["description"],
-
     }
     crawl = Crawl.objects.create(**data)
 
@@ -52,7 +51,7 @@ def crawl_get_all(request):
                 "description": crawls[i].description,
                 "created_at": crawls[i].created_at,
                 "picture": crawls[i].picture,
-                "author_profile_pic": image
+                "author_profile_pic": image,
             }
         )
     return Response(out)
