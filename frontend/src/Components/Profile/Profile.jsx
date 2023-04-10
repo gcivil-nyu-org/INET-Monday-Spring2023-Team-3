@@ -37,13 +37,6 @@ import {
 import { useFilePicker } from 'use-file-picker';
 import PlaceholderProfileImage from "../../static/sample.jpg";
 
-const placeholder_image_urls = [
-  "https://cdn.pixabay.com/photo/2017/02/25/17/38/george-washington-bridge-2098351_1280.jpg",
-  "https://cdn.pixabay.com/photo/2016/11/23/15/32/pedestrians-1853552_1280.jpg",
-  "https://cdn.pixabay.com/photo/2016/08/10/15/15/coffee-1583562_1280.jpg",
-  "https://cdn.pixabay.com/photo/2019/07/21/07/12/new-york-4352072_1280.jpg",
-];
-
 function Profile(props) {
   const refreshParam = new URLSearchParams(props.location.search).get("r");
   const { other_username } = useParams();
@@ -399,6 +392,14 @@ function Profile(props) {
   useEffect(() => {
     init();
   }, [other_username]);
+
+  useEffect(()=>{
+    if (imageSelector?.errors.length > 0 && imageSelector.errors[0]?.fileSizeToolarge){
+      toaster.danger("File too large")
+    } else if (imageSelector?.errors.length > 0){
+      toaster.danger("File cannot be read")
+    }
+  }, [imageSelector?.errors])
 
   if (!isMounted) return <div></div>;
   if (!profile?.username) {

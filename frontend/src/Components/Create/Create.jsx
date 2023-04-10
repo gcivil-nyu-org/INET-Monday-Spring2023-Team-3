@@ -238,6 +238,14 @@ function Create() {
     setChosenPoints(_points);
   };
 
+  useEffect(()=>{
+    if (imageSelector?.errors.length > 0 && imageSelector.errors[0]?.fileSizeToolarge){
+      toaster.danger("File too large")
+    } else if (imageSelector?.errors.length > 0){
+      toaster.danger("File cannot be read")
+    }
+  }, [imageSelector?.errors])
+
   if (!isMounted) return <div></div>;
   return (
     <Pane style={{ paddingTop: 32 }}>
