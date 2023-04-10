@@ -59,7 +59,7 @@ function Home() {
   return (
     <Row style={{ justifyContent: "center" }}>
       <Row style={{ justifyContent: "center", maxWidth: "1000px" }}>
-        {(!allCrawls || allCrawls.length === 0) && (
+        {(allCrawls?.length === 0) && (
           <div style={{margin: "1rem"}}>No crawls posted yet</div>
         )}
         {allCrawls
