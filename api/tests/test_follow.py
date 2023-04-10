@@ -96,7 +96,10 @@ class FollowTest(APITestCase):
 
         response = self.client.get(reverse("full_profile"))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(" ".join([x['username'] for x in response.data["following"]]), "to_follow to_follow2")
+        self.assertEqual(
+            " ".join([x["username"] for x in response.data["following"]]),
+            "to_follow to_follow2",
+        )
 
     def test_full_profile_fail_bad_auth(self):
         response = self.client.get(reverse("full_profile"))
