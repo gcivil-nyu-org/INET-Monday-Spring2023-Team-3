@@ -7,8 +7,16 @@ import json
 
 
 class TestCrawls(APITestCase):
+    username = "test_u"
+    email = "test@gmail.com"
+    password = "test_pw"
+
     def authenticate(self):
-        data = {"username": "test_u", "email": "test@gmail.com", "password": "test_pw"}
+        data = {
+            "username": self.username,
+            "email": self.email,
+            "password": self.password,
+        }
         self.client.post(reverse("register"), data)
 
         user = User.objects.get(username=data["username"])
@@ -22,18 +30,18 @@ class TestCrawls(APITestCase):
 
     def test_crawl_get_all(self):
         self.authenticate()
-
+        user = User.objects.get(username=self.username)
         crawl_data = {"google_place_id": "12335"}
         data = {
             "title": "sample_crawl",
-            "author": "test_u",
+            "author": user,
             "data": json.dumps(crawl_data),
         }
         Crawl.objects.create(**data)
 
         data = {
             "title": "sample_crawl_2",
-            "author": "test_u",
+            "author": user,
             "data": json.dumps(crawl_data),
         }
         Crawl.objects.create(**data)
@@ -51,11 +59,12 @@ class TestCrawls(APITestCase):
 
     def test_crawl_delete_success(self):
         self.authenticate()
+        user = User.objects.get(username=self.username)
 
         crawl_data = {"google_place_id": "12335"}
         data = {
             "title": "sample_crawl",
-            "author": "test_u",
+            "author": user,
             "data": json.dumps(crawl_data),
         }
         Crawl.objects.create(**data)
@@ -88,11 +97,12 @@ class TestCrawls(APITestCase):
 
     def test_crawl_create_fail(self):
         self.authenticate()
+        user = User.objects.get(username=self.username)
 
         crawl_data = {"google_place_id": "12335"}
         data = {
             "title": "sample_crawl",
-            "author": "test_u",
+            "author": user,
             "data": json.dumps(crawl_data),
         }
 

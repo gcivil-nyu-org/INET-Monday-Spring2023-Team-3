@@ -353,7 +353,7 @@ def full_profile(request, format=None):
                 {
                     "id": _crawls[i].id,
                     "title": _crawls[i].title,
-                    "author": _crawls[i].author,
+                    "author": _crawls[i].author.username,
                     "description": _crawls[i].description,
                     "created_at": _crawls[i].created_at,
                     "picture": _crawls[i].picture,

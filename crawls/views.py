@@ -2,7 +2,6 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from crawls.models import Crawl
-from api.models import User
 from api.decorators import is_protected_route
 import json
 
@@ -21,7 +20,7 @@ def crawl_create(request):
         )
     data = {
         "title": request.data["title"],
-        "author": request.user.username,
+        "author": request.user,
         "data": json.dumps(request.data["data"]),
         "picture": request.data["picture"],
         "description": request.data["description"],
@@ -42,16 +41,15 @@ def crawl_get_all(request):
     out = []
 
     for i in range(len(crawls)):
-        image = User.objects.get(username=crawls[i].author).profile_pic
         out.append(
             {
                 "id": crawls[i].id,
                 "title": crawls[i].title,
-                "author": crawls[i].author,
+                "author": crawls[i].author.username,
                 "description": crawls[i].description,
                 "created_at": crawls[i].created_at,
                 "picture": crawls[i].picture,
-                "author_profile_pic": image,
+                "author_profile_pic": crawls[i].author.profile_pic,
             }
         )
     return Response(out)
@@ -82,7 +80,7 @@ def get_crawl_by_id(request, crawl_id):
             "id": target_crawl.id,
             "title": target_crawl.title,
             "data": json.loads(target_crawl.data),
-            "author": target_crawl.author,
+            "author": target_crawl.author.username,
             "description": target_crawl.description,
             "created_at": target_crawl.created_at,
         }
@@ -127,7 +125,7 @@ def get_crawls_by_author(request, username):
                     "id": target_crawls[i].id,
                     "title": target_crawls[i].title,
                     "data": json.loads(target_crawls[i].data),
-                    "author": target_crawls[i].author,
+                    "author": target_crawls[i].author.username,
                 }
             )
         return Response(out)
