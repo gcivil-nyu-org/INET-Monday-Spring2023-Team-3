@@ -77,6 +77,8 @@ class TestCrawls(APITestCase):
             "title": "sample_crawl",
             "author": "test_u",
             "data": json.dumps(crawl_data),
+            "picture": "data:image/image/png;base64,iVBORw0KGg==",
+            "description": "some random description"
         }
 
         response = self.client.post(reverse("crawl_create"), data)
