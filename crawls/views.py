@@ -2,6 +2,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from crawls.models import Crawl
+from api.models import User
 from api.decorators import is_protected_route
 import json
 
@@ -22,6 +23,8 @@ def crawl_create(request):
         "title": request.data["title"],
         "author": request.user.username,
         "data": json.dumps(request.data["data"]),
+        "picture": request.data["picture"],
+        "description": request.data["description"],
     }
     crawl = Crawl.objects.create(**data)
 
@@ -39,14 +42,16 @@ def crawl_get_all(request):
     out = []
 
     for i in range(len(crawls)):
+        image = User.objects.get(username=crawls[i].author).profile_pic
         out.append(
             {
                 "id": crawls[i].id,
                 "title": crawls[i].title,
-                "data": json.loads(crawls[i].data),
                 "author": crawls[i].author,
                 "description": crawls[i].description,
                 "created_at": crawls[i].created_at,
+                "picture": crawls[i].picture,
+                "author_profile_pic": image,
             }
         )
     return Response(out)
@@ -101,6 +106,8 @@ def update_crawl_by_id(request, crawl_id):
         target_crawl = Crawl.objects.get(id=crawl_id)
         target_crawl.title = request.data["title"]
         target_crawl.description = request.data["description"]
+        target_crawl.data = json.dumps(request.data["data"])
+
         target_crawl.save()
         return Response(status=status.HTTP_200_OK)
     except Exception as e:
@@ -129,3 +136,19 @@ def get_crawls_by_author(request, username):
         return Response(
             {"error": "No such crawl exist"}, status=status.HTTP_400_BAD_REQUEST
         )
+
+
+@api_view(["POST"])
+@is_protected_route
+def crawl_delete_by_id(request):
+    """
+    delete crawl by crawl id
+    """
+    try:
+        crawl = Crawl.objects.get(id=request.data["id"])
+    except Crawl.DoesNotExist:
+        return Response(
+            {"error": "crawl does not exist"}, status=status.HTTP_400_BAD_REQUEST
+        )
+    crawl.delete()
+    return Response(status=status.HTTP_202_ACCEPTED)

@@ -25,9 +25,7 @@ class User(models.Model):
     verified = models.BooleanField(default=False)
     location = models.CharField(max_length=200, null=True, blank=True)
     short_bio = models.TextField(blank=True, default="")
-    profile_pic = models.ImageField(
-        null=True, blank=True, upload_to=upload_to, default="profiles/sample.jpg"
-    )
+    profile_pic = models.TextField(blank=True, default="")
 
     def __str__(self):
         return self.username

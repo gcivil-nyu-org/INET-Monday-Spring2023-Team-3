@@ -12,6 +12,12 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  border: 1px solid #eee;
+}
+.crawl .profile-circle {
+  width: 75px;
+  height: 75px;
+  margin-right: 1rem;
 }
 
 #short_bio {
