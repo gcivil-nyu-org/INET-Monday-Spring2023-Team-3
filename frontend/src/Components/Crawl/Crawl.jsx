@@ -651,7 +651,7 @@ function Crawl(props) {
                           height: "100%",
                           objectFit: "cover",
                         }}
-                        src={profile.profile_pic || PlaceholderProfileImage}
+                        src={crawlDetail.author_profile_pic || PlaceholderProfileImage}
                         alt="Profile Image"
                       />
                     </div>
