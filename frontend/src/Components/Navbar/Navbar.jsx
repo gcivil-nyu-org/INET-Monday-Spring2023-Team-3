@@ -51,7 +51,7 @@ function Navbar() {
         </Link>
         <Link
           style={{ textDecoration: "none" }}
-          to={`/profile/myprofile?r=${uniqueParam}`}
+          to={`/profile/`}
         >
           <Text style={{ marginLeft: 24 }}>Profile</Text>
         </Link>

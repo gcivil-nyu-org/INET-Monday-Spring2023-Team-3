@@ -12,6 +12,7 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  border: 1px solid #eee;
 }
 .crawl .profile-circle {
   width: 75px;
