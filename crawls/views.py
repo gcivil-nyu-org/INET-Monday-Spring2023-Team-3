@@ -2,6 +2,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from crawls.models import Crawl
+from api.models import User
 from api.decorators import is_protected_route
 import json
 
@@ -22,6 +23,9 @@ def crawl_create(request):
         "title": request.data["title"],
         "author": request.user.username,
         "data": json.dumps(request.data["data"]),
+        "picture": request.data["picture"],
+        "description": request.data["description"],
+
     }
     crawl = Crawl.objects.create(**data)
 
@@ -39,14 +43,16 @@ def crawl_get_all(request):
     out = []
 
     for i in range(len(crawls)):
+        image = User.objects.get(username=crawls[i].author).profile_pic
         out.append(
             {
                 "id": crawls[i].id,
                 "title": crawls[i].title,
-                "data": json.loads(crawls[i].data),
                 "author": crawls[i].author,
                 "description": crawls[i].description,
                 "created_at": crawls[i].created_at,
+                "picture": crawls[i].picture,
+                "author_profile_pic": image
             }
         )
     return Response(out)

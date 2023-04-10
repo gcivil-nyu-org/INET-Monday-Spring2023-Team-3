@@ -315,12 +315,14 @@ def full_profile(request, format=None):
         follows_set = Follow.objects.filter(follows=target_user)
         follows_list = []
         for follow_entry in follows_set:
-            follows_list.append({"username": follow_entry.followed.username, "is_following": follow_entry.followed.username in requester_follows_set, "is_self": follow_entry.followed.username == request.user.username })
+            image = User.objects.get(username=follow_entry.followed.username).profile_pic
+            follows_list.append({"username": follow_entry.followed.username, "is_following": follow_entry.followed.username in requester_follows_set, "is_self": follow_entry.followed.username == request.user.username, "profile_pic": image })
 
         followed_set = Follow.objects.filter(followed=target_user)
         followed_list = []
         for follow_entry in followed_set:
-            followed_list.append({"username": follow_entry.follows.username, "is_following": follow_entry.follows.username in requester_follows_set, "is_self": follow_entry.follows.username == request.user.username })
+            image = User.objects.get(username=follow_entry.follows.username).profile_pic
+            followed_list.append({"username": follow_entry.follows.username, "is_following": follow_entry.follows.username in requester_follows_set, "is_self": follow_entry.follows.username == request.user.username, "profile_pic": image })
 
         _crawls = Crawl.objects.filter(author=target_user)
         crawls = []
@@ -328,10 +330,10 @@ def full_profile(request, format=None):
             crawls.append({
                 "id": _crawls[i].id,
                 "title": _crawls[i].title,
-                "data": json.loads(_crawls[i].data),
                 "author": _crawls[i].author,
                 "description": _crawls[i].description,
                 "created_at": _crawls[i].created_at,
+                "picture": _crawls[i].picture,
             })
         data = {
             "username": username,

@@ -566,18 +566,17 @@ function Profile(props) {
                         display: "inline-block",
                         margin: "1rem",
                       }}
-                      cover={
+                      cover={x.picture && 
                         <img
                           className="profile-img my-profile-img"
                           alt="example"
-                          src={placeholder_image_urls[index]}
+                          src={x.picture}
                         />
                       }
-                      actions={[<HeartIcon />, <CommentIcon />]}
+                      // actions={[<HeartIcon />, <CommentIcon />]}
                     >
                       <Meta
-                        avatar={<Avatar src={PlaceholderProfileImage} />}
-                        title={<a href={`/crawl/${x.id}`}>{x.title}</a>}
+                        title={<Link to={`/crawl/${x.id}`}>{x.title}</Link>}
                         description={x.description}
                       />
                     </Card>
@@ -607,7 +606,7 @@ function Profile(props) {
                         }}
                       >
                         <Avatar
-                          src={PlaceholderProfileImage}
+                          src={item.profile_pic || PlaceholderProfileImage}
                           style={{ marginRight: 16 }}
                         />
                         <div>
@@ -672,7 +671,7 @@ function Profile(props) {
                         }}
                       >
                         <Avatar
-                          src={PlaceholderProfileImage}
+                          src={item.profile_pic || PlaceholderProfileImage}
                           style={{ marginRight: 16 }}
                         />
                         <div>
