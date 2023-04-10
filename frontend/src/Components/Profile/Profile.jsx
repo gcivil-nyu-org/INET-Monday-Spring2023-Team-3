@@ -259,8 +259,12 @@ function Profile(props) {
       `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/auth/profile_pic/`,
       // `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/auth/profile_pic/ismael_nyu/`,
       formData
-    );
-    window.location.reload(false);
+    )
+    .then((res) => { setTimeout(() => {
+                            window.location.reload(false);
+                        }, 100)
+          })
+    // window.location.reload(false);
   };
 
   const followRequest = async (target_username) => {
@@ -405,9 +409,8 @@ function Profile(props) {
                       />
                       <Button
                         type="submit"
-                        fullWidth
-                        variant="contained"
-                        color="primary"
+                        variant="outline-secondary"
+                        // color="primary"
                         onClick={handleUpload}
                       >
                         Upload
