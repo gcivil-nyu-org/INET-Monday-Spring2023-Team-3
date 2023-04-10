@@ -280,7 +280,7 @@ def google_verify(request, format=None):
                 verified=True,
             )
         encoded_jwt = jwt.encode(
-            {"username": user.username, "id": user.username},
+            {"username": user.username, "id": user.id},
             SECRET_KEY,
             algorithm="HS256",
         )
