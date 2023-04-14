@@ -153,3 +153,53 @@ def crawl_delete_by_id(request):
         )
     crawl.delete()
     return Response(status=status.HTTP_202_ACCEPTED)
+
+
+@api_view(["GET"])
+@is_protected_route
+def search_crawls_by_author(request, username):
+    try:
+        # returns an empty dataset if if user has no crawls
+        # but will throw exception if user does not exist
+        user = User.objects.get(username=username)
+        target_crawls = Crawl.objects.filter(author=user)
+        out = []
+        for i in range(len(target_crawls)):
+            out.append(
+                {
+                    "id": target_crawls[i].id,
+                    "title": target_crawls[i].title,
+                    "data": json.loads(target_crawls[i].data),
+                    "author": target_crawls[i].author.username,
+                }
+            )
+        return Response(out)
+    except Exception as e:
+        print(e)
+        return Response(
+            {"error": "No crawls by this author"}, status=status.HTTP_400_BAD_REQUEST
+        )
+
+
+@api_view(["GET"])
+@is_protected_route
+def search_crawls_by_title(request, title):
+    # returns an empty dataset if no crawls with specified title
+    try:
+        target_crawls = Crawl.objects.filter(title=title)
+        out = []
+        for i in range(len(target_crawls)):
+            out.append(
+                {
+                    "id": target_crawls[i].id,
+                    "title": target_crawls[i].title,
+                    "data": json.loads(target_crawls[i].data),
+                    "author": target_crawls[i].author.username,
+                }
+            )
+        return Response(out)
+    except Exception as e:
+        print(e)
+        return Response(
+            {"error": "No crawls by this author"}, status=status.HTTP_400_BAD_REQUEST
+        )

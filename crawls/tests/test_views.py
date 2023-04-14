@@ -91,9 +91,9 @@ class TestCrawls(APITestCase):
         }
 
         response = self.client.post(reverse("crawl_create"), data)
-        crawl = Crawl.objects.all()
+        crawls = Crawl.objects.all()
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(crawl[0].title, "sample_crawl")
+        self.assertEqual(crawls[0].title, "sample_crawl")
 
     def test_crawl_create_fail(self):
         self.authenticate()
@@ -192,3 +192,24 @@ class TestCrawls(APITestCase):
 
         response = self.client.post(reverse("crawl_delete_by_id"), data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_search_crawls_by_author_success(self):
+        self.test_crawl_create_success()
+        response = self.client.get(
+            reverse("search_crawls_by_author", kwargs={"username": self.username})
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_search_crawls_by_author_fail(self):
+        self.authenticate()
+        response = self.client.get(
+            reverse("search_crawls_by_author", kwargs={"username": "wrong username"})
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_search_crawls_by_title_success(self):
+        self.test_crawl_create_success()
+        response = self.client.get(
+            reverse("search_crawls_by_title", kwargs={"title": "sample_crawl"})
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)

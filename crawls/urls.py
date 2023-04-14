@@ -20,6 +20,16 @@ urlpatterns = [
         name="get_crawls_by_author",
     ),
     path("crawl_delete_by_id/", views.crawl_delete_by_id, name="crawl_delete_by_id"),
+    path(
+        "search_crawls_by_author/<str:username>/",
+        views.search_crawls_by_author,
+        name="search_crawls_by_author",
+    ),
+    path(
+        "search_crawls_by_title/<str:title>/",
+        views.search_crawls_by_title,
+        name="search_crawls_by_title",
+    ),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
