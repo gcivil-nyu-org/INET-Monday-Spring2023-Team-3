@@ -177,3 +177,18 @@ class TestCrawls(APITestCase):
         )
 
         self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def test_crawl_delete_by_id_success(self):
+        self.test_crawls_by_author_success()
+        data = {"id": "1"}
+
+        response = self.client.post(reverse("crawl_delete_by_id"), data)
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
+        self.assertEqual(len(Crawl.objects.all()), 0)
+
+    def test_crawl_delete_by_id_fail(self):
+        self.authenticate()
+        data = {"id": "1"}
+
+        response = self.client.post(reverse("crawl_delete_by_id"), data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
