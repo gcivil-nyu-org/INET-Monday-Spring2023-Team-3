@@ -120,6 +120,15 @@ class TestCrawls(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data[0]["title"], "sample_crawl")
 
+    def test_crawls_by_author_fail(self):
+        self.authenticate()
+
+        response = self.client.get(
+            reverse("get_crawls_by_author", kwargs={"username": "wrong username"})
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
     def test_crawls_by_author_fail_bad_auth(self):
         response = self.client.get(
             reverse("get_crawls_by_author", kwargs={"username": self.username})

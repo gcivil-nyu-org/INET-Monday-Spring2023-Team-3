@@ -135,7 +135,7 @@ def get_crawls_by_author(request, username):
     except Exception as e:
         print(e)
         return Response(
-            {"error": "No such crawl exist"}, status=status.HTTP_400_BAD_REQUEST
+            {"error": "Username has no crawls"}, status=status.HTTP_400_BAD_REQUEST
         )
 
 
@@ -177,7 +177,7 @@ def search_crawls_by_author(request, username):
     except Exception as e:
         print(e)
         return Response(
-            {"error": "No crawls by this author"}, status=status.HTTP_400_BAD_REQUEST
+            {"error": "Username does not exist"}, status=status.HTTP_400_BAD_REQUEST
         )
 
 
@@ -200,6 +200,4 @@ def search_crawls_by_title(request, title):
         return Response(out)
     except Exception as e:
         print(e)
-        return Response(
-            {"error": "No crawls by this author"}, status=status.HTTP_400_BAD_REQUEST
-        )
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
