@@ -388,7 +388,6 @@ def get_other_user_profile(request, other_username):
         serializer_profilepic = ImageSerializer(
             target_user, context={"request": request}, many=False
         )
-
         # returns a query set which needs to be converted to a list
         follows_set = Follow.objects.filter(follows=target_user)
         follows_list = []
@@ -399,7 +398,6 @@ def get_other_user_profile(request, other_username):
         followed_list = []
         for follow_entry in followed_set:
             followed_list.append(follow_entry.follows.username)
-
         data = {
             "username": target_user.username,
             "email": target_user.email,
@@ -441,6 +439,7 @@ def update_user_info(request):
     try:
         profile_pic = request.data["profile_pic"]
         username = request.data["username"]
+
         if (
             username != request.user.username
             and User.objects.filter(username=username).exists()
