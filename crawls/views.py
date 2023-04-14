@@ -2,6 +2,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from crawls.models import Crawl
+from api.models import User
 from api.decorators import is_protected_route
 import json
 
@@ -118,7 +119,8 @@ def update_crawl_by_id(request, crawl_id):
 @is_protected_route
 def get_crawls_by_author(request, username):
     try:
-        target_crawls = Crawl.objects.filter(author=username)
+        user = User.objects.get(username=username)
+        target_crawls = Crawl.objects.filter(author=user)
         out = []
         for i in range(len(target_crawls)):
             out.append(

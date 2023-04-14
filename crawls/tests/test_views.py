@@ -152,7 +152,7 @@ class TestCrawls(APITestCase):
 
         response = self.client.post(
             reverse("update_crawl_by_id", kwargs={"crawl_id": 1}),
-            {"title": "new_title", "description": "new description"},
+            {"title": "new_title", "description": "new description", "data": ""},
         )
 
         updated_crawl = Crawl.objects.get(id=1)
