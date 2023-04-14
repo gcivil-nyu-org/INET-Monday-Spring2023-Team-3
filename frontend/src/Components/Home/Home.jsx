@@ -21,7 +21,7 @@ function Home() {
   const history = useHistory();
   const [isMounted, setIsMounted] = useState(false);
   const [profile, setProfile] = useState({});
-  const [allCrawls, setAllCrawls] = useState([]);
+  const [allCrawls, setAllCrawls] = useState(null);
 
   const getProfile = async () => {
     try {
@@ -59,11 +59,11 @@ function Home() {
   return (
     <Row style={{ justifyContent: "center" }}>
       <Row style={{ justifyContent: "center", maxWidth: "1000px" }}>
-        {allCrawls.length === 0 && (
+        {(allCrawls?.length === 0) && (
           <div style={{margin: "1rem"}}>No crawls posted yet</div>
         )}
         {allCrawls
-          .slice(0)
+          ?.slice(0)
           .reverse()
           .map((x, index) => (
             <Link to={`/crawl/${x.id}`}>

@@ -530,6 +530,42 @@ function Crawl(props) {
     });
   };
 
+  const followRequest = async (target_username) => {
+    try {
+      await axios.post(
+        `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/auth/request-follow/`,
+        {
+          target_address: target_username,
+        }
+      );
+      toaster.success("Changes saved!");
+      setProfile((profile) => ({
+        ...profile,
+        is_following: true,
+      }));
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const unfollowRequest = async (target_username) => {
+    try {
+      await axios.post(
+        `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/auth/request-unfollow/`,
+        {
+          target_address: target_username,
+        }
+      );
+      toaster.success("Unfollow request successful.");
+      setProfile((profile) => ({
+        ...profile,
+        is_following: false,
+      }));
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
   useEffect(() => {
     getData();
   }, []);
@@ -537,8 +573,7 @@ function Crawl(props) {
   if (!isMounted) return <div></div>;
   return (
     <div className="crawl">
-      {isCurrUserAuthor ? (
-        <div>
+      <div>
           {!isEditMode ? (
             <div key={1} style={{ padding: "32px", paddingTop: "1rem" }}>
               <Pane>
@@ -577,6 +612,7 @@ function Crawl(props) {
                   display: "flex",
                   alignItems: "center",
                   flexWrap: "wrap",
+                  height: 60,
                 }}
               >
                 <h1
@@ -588,37 +624,65 @@ function Crawl(props) {
                 >
                   {crawlDetail.title}
                 </h1>
-                <Button
+                {isCurrUserAuthor && (
+                  <Button
                   style={{ marginLeft: 10 }}
                   danger
                   onClick={handleClickDeleteButton}
                 >
                   Delete
                 </Button>
+                )}
+                
+              </div>
+              <div>
+                <p>{crawlDetail.formattedDate}</p>
               </div>
               <div className="author-block">
-                <Row>
-                  <Col>
-                    <div className="profile-circle">
+                <Row style={{ alignItems: "center" }}>
+                  <Link to={`/profile/${crawlDetail.author}`}>
+                    <div
+                      className="profile-circle"
+                      style={{ height: 36, width: 36 }}
+                    >
                       <img
                         style={{
                           width: "100%",
                           height: "100%",
                           objectFit: "cover",
                         }}
-                        src={profile.profile_pic || PlaceholderProfileImage}
+                        src={crawlDetail.author_profile_pic || PlaceholderProfileImage}
                         alt="Profile Image"
                       />
                     </div>
-                  </Col>
-                  <Col>
-                    <div>
-                      <h3>{crawlDetail.author}</h3>
-                    </div>
-                    <div>
-                      <p>{crawlDetail.formattedDate}</p>
-                    </div>
-                  </Col>
+                  </Link>
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    <Link to={`/profile/${crawlDetail.author}`}>
+                      <h3 style={{ marginRight: 12, color: "#333" }}>
+                        {crawlDetail.author}
+                      </h3>
+                    </Link>
+                    {!isCurrUserAuthor && (
+                    <>
+                      {profile.is_following ? (
+                        <Button
+                          type="primary"
+                          size="small"
+                          onClick={() => unfollowRequest(profile.username)}
+                        >
+                          Following
+                        </Button>
+                      ) : (
+                        <Button
+                          size="small"
+                          onClick={() => followRequest(profile.username)}
+                        >
+                          Follow
+                        </Button>
+                      )}
+                    </>
+                    )}
+                  </div>
                 </Row>
               </div>
               <div>
@@ -685,56 +749,6 @@ function Crawl(props) {
             </div>
           )}
         </div>
-      ) : (
-        <div>
-          <div>
-            <div
-              style={{ maxWidth: "150px", cursor: "pointer" }}
-              className=""
-            ></div>
-          </div>
-          <div key={1} style={{ padding: "32px", paddingTop: "1rem" }}>
-            <div className="title-block">
-              <h1>{crawlDetail.title}</h1>
-            </div>
-            <div className="author-block">
-              <div style={{ display: "flex" }}>
-                <div>
-                  <div className="profile-circle" style={{}}>
-                    <img
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "cover",
-                      }}
-                      src={
-                        otherUserProfile.profile_pic || PlaceholderProfileImage
-                      }
-                      alt="Profile Image"
-                    />
-                  </div>
-                </div>
-                <div style={{ display: "inline-block" }}>
-                  <div>
-                    <h3 style={{ fontSize: "16px" }}>{crawlDetail.author}</h3>
-                  </div>
-                  <div>
-                    <p style={{ fontSize: "14px" }}>
-                      {crawlDetail.formattedDate}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div>
-              <p style={{ width: "80%", marginBottom: "2rem" }}>
-                {crawlDetail.description}
-              </p>
-            </div>
-            <Pane style={{ marginTop: 4, width: "60%" }}>{viewModeGmap}</Pane>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

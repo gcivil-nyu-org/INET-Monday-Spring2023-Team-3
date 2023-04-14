@@ -81,6 +81,7 @@ def get_crawl_by_id(request, crawl_id):
             "title": target_crawl.title,
             "data": json.loads(target_crawl.data),
             "author": target_crawl.author.username,
+            "author_profile_pic": target_crawl.author.profile_pic,
             "description": target_crawl.description,
             "created_at": target_crawl.created_at,
         }
