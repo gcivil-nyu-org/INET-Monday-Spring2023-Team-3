@@ -7,6 +7,26 @@ from api.decorators import is_protected_route
 import json
 
 
+def process_crawl_query_set(crawls):
+    """
+    takes in query set of crawls, returns list of crawl data dicts
+    """
+    out = []
+    for i in range(len(crawls)):
+        out.append(
+            {
+                "id": crawls[i].id,
+                "title": crawls[i].title,
+                "author": crawls[i].author.username,
+                "description": crawls[i].description,
+                "created_at": crawls[i].created_at,
+                "picture": crawls[i].picture,
+                "author_profile_pic": crawls[i].author.profile_pic,
+            }
+        )
+    return out
+
+
 @api_view(["POST"])
 @is_protected_route
 def crawl_create(request):
@@ -39,20 +59,7 @@ def crawl_get_all(request):
 
     """
     crawls = Crawl.objects.all()
-    out = []
-
-    for i in range(len(crawls)):
-        out.append(
-            {
-                "id": crawls[i].id,
-                "title": crawls[i].title,
-                "author": crawls[i].author.username,
-                "description": crawls[i].description,
-                "created_at": crawls[i].created_at,
-                "picture": crawls[i].picture,
-                "author_profile_pic": crawls[i].author.profile_pic,
-            }
-        )
+    out = process_crawl_query_set(crawls)
     return Response(out)
 
 
@@ -121,16 +128,7 @@ def get_crawls_by_author(request, username):
     try:
         user = User.objects.get(username=username)
         target_crawls = Crawl.objects.filter(author=user)
-        out = []
-        for i in range(len(target_crawls)):
-            out.append(
-                {
-                    "id": target_crawls[i].id,
-                    "title": target_crawls[i].title,
-                    "data": json.loads(target_crawls[i].data),
-                    "author": target_crawls[i].author.username,
-                }
-            )
+        out = process_crawl_query_set(target_crawls)
         return Response(out)
     except Exception as e:
         print(e)
@@ -163,16 +161,8 @@ def search_crawls_by_author(request, username):
         # but will throw exception if user does not exist
         user = User.objects.get(username=username)
         target_crawls = Crawl.objects.filter(author=user)
-        out = []
-        for i in range(len(target_crawls)):
-            out.append(
-                {
-                    "id": target_crawls[i].id,
-                    "title": target_crawls[i].title,
-                    "data": json.loads(target_crawls[i].data),
-                    "author": target_crawls[i].author.username,
-                }
-            )
+        out = process_crawl_query_set(target_crawls)
+
         return Response(out)
     except Exception as e:
         print(e)
@@ -187,16 +177,7 @@ def search_crawls_by_title(request, title):
     # returns an empty dataset if no crawls with specified title
     try:
         target_crawls = Crawl.objects.filter(title=title)
-        out = []
-        for i in range(len(target_crawls)):
-            out.append(
-                {
-                    "id": target_crawls[i].id,
-                    "title": target_crawls[i].title,
-                    "data": json.loads(target_crawls[i].data),
-                    "author": target_crawls[i].author.username,
-                }
-            )
+        out = process_crawl_query_set(target_crawls)
         return Response(out)
     except Exception as e:
         print(e)
