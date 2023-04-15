@@ -30,6 +30,7 @@ urlpatterns = [
         views.search_crawls_by_title,
         name="search_crawls_by_title",
     ),
+    path("add_tags_to_crawl/", views.add_tags_to_crawl, name="add_tags_to_crawl"),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

@@ -1,7 +1,7 @@
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from crawls.models import Crawl
+from crawls.models import Crawl, Tag
 from api.models import User
 from api.decorators import is_protected_route
 import json
@@ -179,6 +179,28 @@ def search_crawls_by_title(request, title):
         target_crawls = Crawl.objects.filter(title=title)
         out = process_crawl_query_set(target_crawls)
         return Response(out)
+    except Exception as e:
+        print(e)
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(["POST"])
+@is_protected_route
+def add_tags_to_crawl(request):
+    """request should include the _crawl_title_
+    and a string of _tags_ separated by commas
+    """
+    try:
+        crawl = Crawl.objects.get(title=request.data["crawl_title"])
+        tag_list = request.data["tags"].split(",")
+        for tag in tag_list:
+            tag_obj = Tag.objects.create(title=tag.lower())
+            crawl.tags.add(tag_obj)
+        return Response(status=status.HTTP_200_OK)
+    except Crawl.DoesNotExist:
+        return Response(
+            {"error": "crawl does not exist"}, status=status.HTTP_400_BAD_REQUEST
+        )
     except Exception as e:
         print(e)
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
