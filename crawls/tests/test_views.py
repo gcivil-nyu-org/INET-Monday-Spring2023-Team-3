@@ -245,3 +245,20 @@ class TestCrawls(APITestCase):
 
         response = self.client.post(reverse("add_tags_to_crawl"), data)
         self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def test_search_crawls_by_tag_success(self):
+        self.test_add_tags_to_crawl_success()
+        response = self.client.get(
+            reverse("search_crawls_by_tag", kwargs={"tag_title": "t1"})
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data[0]["title"], "sample_crawl")
+
+    def test_search_crawls_by_tag_fail_tag_DNE(self):
+        self.authenticate()
+        response = self.client.get(
+            reverse("search_crawls_by_tag", kwargs={"tag_title": "t1"})
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

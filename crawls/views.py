@@ -184,6 +184,23 @@ def search_crawls_by_title(request, title):
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+@api_view(["GET"])
+@is_protected_route
+def search_crawls_by_tag(request, tag_title):
+    try:
+        tag = Tag.objects.get(title=tag_title)
+        crawls = tag.crawls.all()
+        out = process_crawl_query_set(crawls)
+        return Response(out)
+    except Tag.DoesNotExist:
+        return Response(
+            {"error": "tag does not exist"}, status=status.HTTP_400_BAD_REQUEST
+        )
+    except Exception as e:
+        print(e)
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 @api_view(["POST"])
 @is_protected_route
 def add_tags_to_crawl(request):
