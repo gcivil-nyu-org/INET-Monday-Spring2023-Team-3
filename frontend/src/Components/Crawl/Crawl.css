@@ -1,0 +1,7 @@
+.editPicture{
+    cursor: pointer;
+
+}
+.editPicture:hover {
+    border: 2px dotted black;
+}

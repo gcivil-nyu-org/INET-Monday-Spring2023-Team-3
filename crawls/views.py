@@ -84,6 +84,7 @@ def get_crawl_by_id(request, crawl_id):
             "author_profile_pic": target_crawl.author.profile_pic,
             "description": target_crawl.description,
             "created_at": target_crawl.created_at,
+            "picture":target_crawl.picture,
         }
         return Response(res)
     except Exception as e:
@@ -106,6 +107,7 @@ def update_crawl_by_id(request, crawl_id):
         target_crawl.title = request.data["title"]
         target_crawl.description = request.data["description"]
         target_crawl.data = json.dumps(request.data["data"])
+        target_crawl.picture = request.data["picture"]
 
         target_crawl.save()
         return Response(status=status.HTTP_200_OK)

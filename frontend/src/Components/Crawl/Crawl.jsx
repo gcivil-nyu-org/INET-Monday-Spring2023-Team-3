@@ -1,5 +1,6 @@
 import axios from "axios";
-
+import { useFilePicker } from 'use-file-picker';
+import "./Crawl.css"
 import {
   Pane,
   Dialog,
@@ -63,6 +64,19 @@ function Crawl(props) {
   const [center, setCenter] = useState(null);
   const [locationsError, setLocationsError] = useState("");
   const [isShown, setIsShown] = useState(false);
+  const [titleError, setTitleError] = useState("");
+  const [descriptionError, setDescriptionError] = useState("");
+  const [imageError, setImageError] = useState("");
+  const [openImageSelector, imageSelector] = useFilePicker({
+    readAs: 'DataURL',
+    accept: 'image/*',
+    multiple: false,
+    limitFilesConfig: { max: 1 },
+    // minFileSize: 0.1, // in megabytes
+    maxFileSize: 2,
+  });
+
+  const [fileContent, setFileContent] = useState([])
 
   const onLoad = (ref) => (searchBox.current = ref);
   const onPlacesChanged = () => {
@@ -132,12 +146,12 @@ function Crawl(props) {
         out.geocoded_waypoints.push(...res.geocoded_waypoints);
         out.routes[0].legs.push(...res.routes[0].legs);
         out.routes[0].bounds.extend({
-          lng: res.routes[0].bounds.Ga.hi,
-          lat: res.routes[0].bounds.Wa.hi,
+          lng: res.routes[0].bounds.Ha.hi,
+          lat: res.routes[0].bounds.Va.hi,
         });
         out.routes[0].bounds.extend({
-          lng: res.routes[0].bounds.Ga.lo,
-          lat: res.routes[0].bounds.Wa.lo,
+          lng: res.routes[0].bounds.Ha.lo,
+          lat: res.routes[0].bounds.Va.lo,
         });
         out.time += res.routes[0].legs
           .map((x) => x.duration.value)
@@ -186,14 +200,59 @@ function Crawl(props) {
     setIsEditMode(true);
   };
 
+
+  const verify = (userinput) => {
+    let flag = true;
+    if (userinput.title.trim().length === 0) {
+      setTitleError("Title is Required");
+      flag = false;
+    } else if (userinput.title.trim().length > 60) {
+      setTitleError("Title too long");
+      flag = false;
+    } else {
+      setTitleError("");
+    }
+    if (chosenPoints.length < 2) {
+      setLocationsError("Must pick at least 2 locations");
+      flag = false;
+    } else {
+      setLocationsError("");
+    }
+    if (directions && directions.time > 6 * 60 * 60) {
+      toaster.danger("Crawls cannot be longer than 6 hours");
+      flag = false;
+    }
+    if (userinput.description.trim().length === 0){
+      setDescriptionError("Crawl Description is required")
+      flag = false
+    } else if (userinput.description.trim().length > 200){
+      setDescriptionError("Crawl Description too long")
+      flag = false
+    } else {
+      setDescriptionError("")
+    }
+    console.log(fileContent)
+    if (imageSelector?.filesContent?.length != 1 && fileContent.length == 0){
+      console.log(imageSelector)
+      setImageError("Please select a cover image")
+      flag = false
+    } else {
+      setImageError("")
+    }
+  return flag;
+  };
+
   const handleSubmitUpdate = async (e) => {
     e.preventDefault();
+    console.log(imageSelector)
     let userinput = formData;
-    if (userinput.description === null || userinput.description === "") {
-      toaster.danger("Error: Please enter valid information! 🙁");
-      return;
-    }
+    if (!verify(userinput)) return;
+    
     try {
+      let imageChanged = true;
+      if (imageSelector?.filesContent?.length != 1){
+        imageChanged = false;
+      }
       await axios.post(
         `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/update_crawl_by_id/${crawl_id}/`,
         {
@@ -203,6 +262,7 @@ function Crawl(props) {
             points: chosenPoints,
             directions,
           },
+          picture: imageChanged? imageSelector.filesContent[0].content : fileContent,
         }
       );
 
@@ -517,6 +577,7 @@ function Crawl(props) {
   const getData = async () => {
     getProfile().then((currUserProfile) => {
       get_crawl_by_id().then((currCrawl) => {
+        setFileContent(currCrawl.picture);
         if (currUserProfile.username == currCrawl.author) {
           setIsCurrUserAuthor(true);
           setIsMounted(true);
@@ -595,7 +656,7 @@ function Crawl(props) {
                 }}
                 className=""
               >
-                {/* <Button type="primary" onClick={handleClickEditButton}>Edit
+                <Button type="primary" onClick={handleClickEditButton}>Edit
                       <span
                           style={{
                           paddingLeft: "4px",
@@ -604,7 +665,7 @@ function Crawl(props) {
                       >
                           <EditIcon />
                       </span>
-                  </Button> */}
+                  </Button>
               </div>
               <div
                 className="title-block"
@@ -709,7 +770,7 @@ function Crawl(props) {
               </div>
               <div>
                 <Row>
-                  <h1 style={{ marginBottom: 0 }}>
+                  <h1 style={{ marginBottom: 0}}>
                     Title
                     <div>
                       <Input
@@ -723,13 +784,40 @@ function Crawl(props) {
                           setFormData({ ...formData, title: e.target.value })
                         }
                       />
+                      <div><Text size={400} color="red600" style={{ fontWeight: "bold" }}>
+                        {titleError}
+                      </Text>
+                      </div>
+                      
                     </div>
                   </h1>
                 </Row>
               </div>
-              <div style={{ marginBottom: "1rem" }}>
+              <div>
+              <h2 style={{ marginBottom: 0, fontSize:"24px" }}>
+                Cover Image
+              </h2>
+              
+              <div style={{marginLeft: 250, marginBottom: 16, maxWidth:"400px", maxHeight:"400px"}}danger={imageError !== ""} onClick={()=>{
+                imageSelector.clear();
+                openImageSelector();
+              }}>
+                {imageError !== "" && imageError}
+                {imageSelector?.filesContent?.length > 0 ? (
+                  <img 
+                  className="editPicture" 
+                  src={imageSelector.filesContent[0].content} style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                  }}/>
+                ) : <img className="editPicture"  src={fileContent}></img>}
+              </div>
+
+              </div>
+              <div style={{ marginBottom: "0.5rem" }}>
                 <div>
-                  <h3 style={{ marginBottom: 0 }}>Description</h3>
+                  <h2 style={{ marginBottom: 0 }}>Description</h2>
                   <TextArea
                     placeholder="Edit description."
                     type="text"
@@ -743,6 +831,9 @@ function Crawl(props) {
                   />
                 </div>
               </div>
+              <Text size={400} color="red600" style={{ fontWeight: "bold" }}>
+              {descriptionError}
+            </Text>
               <Pane style={{ display: "flex" }}>
                 {chosenPoints && directions && editModeGmap}
               </Pane>
