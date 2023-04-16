@@ -231,9 +231,9 @@ function Crawl(props) {
     } else {
       setDescriptionError("")
     }
-    console.log(fileContent)
+    
     if (imageSelector?.filesContent?.length != 1 && fileContent.length == 0){
-      console.log(imageSelector)
+      
       setImageError("Please select a cover image")
       flag = false
     } else {
@@ -244,10 +244,8 @@ function Crawl(props) {
 
   const handleSubmitUpdate = async (e) => {
     e.preventDefault();
-    console.log(imageSelector)
     let userinput = formData;
     if (!verify(userinput)) return;
-    
     try {
       let imageChanged = true;
       if (imageSelector?.filesContent?.length != 1){
@@ -637,6 +635,7 @@ function Crawl(props) {
       <div>
           {!isEditMode ? (
             <div key={1} style={{ padding: "32px", paddingTop: "1rem" }}>
+              
               <Pane>
                 <Dialog
                   isShown={isShown}
@@ -648,7 +647,12 @@ function Crawl(props) {
                   This crawl will be permanently deleted.
                 </Dialog>
               </Pane>
-              <div
+              <div className="crawl-info-container">
+                <div className="crawl-info-img">
+                  <img src = {fileContent}/>
+                </div>
+                <div>
+                <div
                 style={{
                   display: "flex",
                   maxWidth: "150px",
@@ -656,7 +660,8 @@ function Crawl(props) {
                 }}
                 className=""
               >
-                <Button type="primary" onClick={handleClickEditButton}>Edit
+                {isCurrUserAuthor && (
+                  <Button type="primary" onClick={handleClickEditButton}>Edit
                       <span
                           style={{
                           paddingLeft: "4px",
@@ -665,8 +670,9 @@ function Crawl(props) {
                       >
                           <EditIcon />
                       </span>
-                  </Button>
+                  </Button>)}
               </div>
+
               <div
                 className="title-block"
                 style={{
@@ -676,26 +682,25 @@ function Crawl(props) {
                   height: 60,
                 }}
               >
-                <h1
-                  style={{
-                    maxWidth: "80%",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                  }}
-                >
-                  {crawlDetail.title}
-                </h1>
-                {isCurrUserAuthor && (
-                  <Button
-                  style={{ marginLeft: 10 }}
-                  danger
-                  onClick={handleClickDeleteButton}
-                >
-                  Delete
-                </Button>
-                )}
-                
-              </div>
+                  <h1
+                    style={{
+                      maxWidth: "80%",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    {crawlDetail.title}
+                  </h1>
+                  {isCurrUserAuthor && (
+                    <Button
+                    style={{ marginLeft: 10 }}
+                    danger
+                    onClick={handleClickDeleteButton}
+                  >
+                    Delete
+                  </Button>
+                  )}
+                </div>
               <div>
                 <p>{crawlDetail.formattedDate}</p>
               </div>
@@ -750,6 +755,10 @@ function Crawl(props) {
                 <p style={{ width: "80%", marginBottom: "2rem" }}>
                   {crawlDetail.description}
                 </p>
+              </div>
+
+                </div>
+              
               </div>
 
               <Pane style={{ marginTop: 4, width: "60%" }}>{viewModeGmap}</Pane>
