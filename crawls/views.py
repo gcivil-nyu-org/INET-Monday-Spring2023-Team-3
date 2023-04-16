@@ -84,7 +84,7 @@ def get_crawl_by_id(request, crawl_id):
             "author_profile_pic": target_crawl.author.profile_pic,
             "description": target_crawl.description,
             "created_at": target_crawl.created_at,
-            "picture":target_crawl.picture,
+            "picture": target_crawl.picture,
         }
         return Response(res)
     except Exception as e:
