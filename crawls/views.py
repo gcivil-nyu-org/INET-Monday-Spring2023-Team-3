@@ -1,6 +1,7 @@
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from django.db import IntegrityError
 from crawls.models import Crawl, Tag
 from api.models import User
 from api.decorators import is_protected_route
@@ -211,7 +212,12 @@ def add_tags_to_crawl(request):
         crawl = Crawl.objects.get(title=request.data["crawl_title"])
         tag_list = request.data["tags"].split(",")
         for tag in tag_list:
-            tag_obj = Tag.objects.create(title=tag.lower())
+            tag = tag.strip().lower()
+            # weird concurrency bug wouldn't let me just use get_or_create
+            try:
+                tag_obj = Tag.objects.create(title=tag)
+            except IntegrityError:
+                tag_obj = Tag.objects.get(title=tag)
             crawl.tags.add(tag_obj)
         return Response(status=status.HTTP_200_OK)
     except Crawl.DoesNotExist:

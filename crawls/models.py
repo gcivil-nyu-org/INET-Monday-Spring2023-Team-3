@@ -6,7 +6,7 @@ from api.models import User
 
 class Crawl(models.Model):
     id = models.AutoField(primary_key=True)
-    title = models.CharField(max_length=200)
+    title = models.CharField(max_length=200, unique=True)
     description = models.TextField(max_length=500, null=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="author")
     created_at = models.DateTimeField(auto_now_add=True)
@@ -40,7 +40,7 @@ class Point(models.Model):
 
 
 class Tag(models.Model):
-    title = models.CharField(max_length=200)
+    title = models.CharField(max_length=200, unique=True)
     crawls = models.ManyToManyField("Crawl", through="CrawlTag", blank=True)
 
     def __str__(self):
