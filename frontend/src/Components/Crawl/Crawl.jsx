@@ -3,7 +3,6 @@ import axios from "axios";
 import {
   Pane,
   Dialog,
-  toaster,
   Text,
   ChevronDownIcon,
   Heading,
@@ -11,6 +10,7 @@ import {
   TimeIcon,
   SwapHorizontalIcon,
 } from "evergreen-ui";
+import { toaster } from "../../common";
 import {
   Card,
   Space,
@@ -574,28 +574,28 @@ function Crawl(props) {
   return (
     <div className="crawl">
       <div>
-          {!isEditMode ? (
-            <div key={1} style={{ padding: "32px", paddingTop: "1rem" }}>
-              <Pane>
-                <Dialog
-                  isShown={isShown}
-                  title="Are you sure you want to delete this crawl?"
-                  onCloseComplete={() => setIsShown(false)}
-                  onConfirm={() => deleteCrawl()}
-                  confirmLabel="Yes, delete it"
-                >
-                  This crawl will be permanently deleted.
-                </Dialog>
-              </Pane>
-              <div
-                style={{
-                  display: "flex",
-                  maxWidth: "150px",
-                  cursor: "pointer",
-                }}
-                className=""
+        {!isEditMode ? (
+          <div key={1} style={{ padding: "32px", paddingTop: "1rem" }}>
+            <Pane>
+              <Dialog
+                isShown={isShown}
+                title="Are you sure you want to delete this crawl?"
+                onCloseComplete={() => setIsShown(false)}
+                onConfirm={() => deleteCrawl()}
+                confirmLabel="Yes, delete it"
               >
-                {/* <Button type="primary" onClick={handleClickEditButton}>Edit
+                This crawl will be permanently deleted.
+              </Dialog>
+            </Pane>
+            <div
+              style={{
+                display: "flex",
+                maxWidth: "150px",
+                cursor: "pointer",
+              }}
+              className=""
+            >
+              {/* <Button type="primary" onClick={handleClickEditButton}>Edit
                       <span
                           style={{
                           paddingLeft: "4px",
@@ -605,64 +605,66 @@ function Crawl(props) {
                           <EditIcon />
                       </span>
                   </Button> */}
-              </div>
-              <div
-                className="title-block"
+            </div>
+            <div
+              className="title-block"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                flexWrap: "wrap",
+                height: 60,
+              }}
+            >
+              <h1
                 style={{
-                  display: "flex",
-                  alignItems: "center",
-                  flexWrap: "wrap",
-                  height: 60,
+                  maxWidth: "80%",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
                 }}
               >
-                <h1
-                  style={{
-                    maxWidth: "80%",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                  }}
-                >
-                  {crawlDetail.title}
-                </h1>
-                {isCurrUserAuthor && (
-                  <Button
+                {crawlDetail.title}
+              </h1>
+              {isCurrUserAuthor && (
+                <Button
                   style={{ marginLeft: 10 }}
                   danger
                   onClick={handleClickDeleteButton}
                 >
                   Delete
                 </Button>
-                )}
-                
-              </div>
-              <div>
-                <p>{crawlDetail.formattedDate}</p>
-              </div>
-              <div className="author-block">
-                <Row style={{ alignItems: "center" }}>
+              )}
+            </div>
+            <div>
+              <p>{crawlDetail.formattedDate}</p>
+            </div>
+            <div className="author-block">
+              <Row style={{ alignItems: "center" }}>
+                <Link to={`/profile/${crawlDetail.author}`}>
+                  <div
+                    className="profile-circle"
+                    style={{ height: 36, width: 36 }}
+                  >
+                    <img
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                      }}
+                      src={
+                        crawlDetail.author_profile_pic ||
+                        PlaceholderProfileImage
+                      }
+                      alt="Profile Image"
+                    />
+                  </div>
+                </Link>
+                <div style={{ display: "flex", alignItems: "center" }}>
                   <Link to={`/profile/${crawlDetail.author}`}>
-                    <div
-                      className="profile-circle"
-                      style={{ height: 36, width: 36 }}
-                    >
-                      <img
-                        style={{
-                          width: "100%",
-                          height: "100%",
-                          objectFit: "cover",
-                        }}
-                        src={crawlDetail.author_profile_pic || PlaceholderProfileImage}
-                        alt="Profile Image"
-                      />
-                    </div>
+                    <h3 style={{ marginRight: 12, color: "#333" }}>
+                      {crawlDetail.author}
+                    </h3>
                   </Link>
-                  <div style={{ display: "flex", alignItems: "center" }}>
-                    <Link to={`/profile/${crawlDetail.author}`}>
-                      <h3 style={{ marginRight: 12, color: "#333" }}>
-                        {crawlDetail.author}
-                      </h3>
-                    </Link>
-                    {!isCurrUserAuthor && (
+                  {!isCurrUserAuthor && (
                     <>
                       {profile.is_following ? (
                         <Button
@@ -681,74 +683,71 @@ function Crawl(props) {
                         </Button>
                       )}
                     </>
-                    )}
-                  </div>
-                </Row>
-              </div>
-              <div>
-                <p style={{ width: "80%", marginBottom: "2rem" }}>
-                  {crawlDetail.description}
-                </p>
-              </div>
-
-              <Pane style={{ marginTop: 4, width: "60%" }}>{viewModeGmap}</Pane>
-            </div>
-          ) : (
-            // Current user is the author and is in Edit mode
-            <div
-              key={1}
-              style={{ padding: "32px", paddingTop: "1rem", width: "100%" }}
-            >
-              <div
-                style={{ maxWidth: "150px", cursor: "pointer" }}
-                className=""
-              >
-                <Button type="primary" onClick={handleSubmitUpdate}>
-                  Save changes
-                </Button>
-              </div>
-              <div>
-                <Row>
-                  <h1 style={{ marginBottom: 0 }}>
-                    Title
-                    <div>
-                      <Input
-                        placeholder="Edit the title."
-                        style={{ width: "800px" }}
-                        type="text"
-                        id="title"
-                        name="title"
-                        value={formData.title}
-                        onChange={(e) =>
-                          setFormData({ ...formData, title: e.target.value })
-                        }
-                      />
-                    </div>
-                  </h1>
-                </Row>
-              </div>
-              <div style={{ marginBottom: "1rem" }}>
-                <div>
-                  <h3 style={{ marginBottom: 0 }}>Description</h3>
-                  <TextArea
-                    placeholder="Edit description."
-                    type="text"
-                    id="description"
-                    name="description"
-                    style={{ width: "800px", height: "60px" }}
-                    value={formData.description}
-                    onChange={(e) =>
-                      setFormData({ ...formData, description: e.target.value })
-                    }
-                  />
+                  )}
                 </div>
-              </div>
-              <Pane style={{ display: "flex" }}>
-                {chosenPoints && directions && editModeGmap}
-              </Pane>
+              </Row>
             </div>
-          )}
-        </div>
+            <div>
+              <p style={{ width: "80%", marginBottom: "2rem" }}>
+                {crawlDetail.description}
+              </p>
+            </div>
+
+            <Pane style={{ marginTop: 4, width: "60%" }}>{viewModeGmap}</Pane>
+          </div>
+        ) : (
+          // Current user is the author and is in Edit mode
+          <div
+            key={1}
+            style={{ padding: "32px", paddingTop: "1rem", width: "100%" }}
+          >
+            <div style={{ maxWidth: "150px", cursor: "pointer" }} className="">
+              <Button type="primary" onClick={handleSubmitUpdate}>
+                Save changes
+              </Button>
+            </div>
+            <div>
+              <Row>
+                <h1 style={{ marginBottom: 0 }}>
+                  Title
+                  <div>
+                    <Input
+                      placeholder="Edit the title."
+                      style={{ width: "800px" }}
+                      type="text"
+                      id="title"
+                      name="title"
+                      value={formData.title}
+                      onChange={(e) =>
+                        setFormData({ ...formData, title: e.target.value })
+                      }
+                    />
+                  </div>
+                </h1>
+              </Row>
+            </div>
+            <div style={{ marginBottom: "1rem" }}>
+              <div>
+                <h3 style={{ marginBottom: 0 }}>Description</h3>
+                <TextArea
+                  placeholder="Edit description."
+                  type="text"
+                  id="description"
+                  name="description"
+                  style={{ width: "800px", height: "60px" }}
+                  value={formData.description}
+                  onChange={(e) =>
+                    setFormData({ ...formData, description: e.target.value })
+                  }
+                />
+              </div>
+            </div>
+            <Pane style={{ display: "flex" }}>
+              {chosenPoints && directions && editModeGmap}
+            </Pane>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

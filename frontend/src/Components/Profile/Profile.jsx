@@ -2,7 +2,6 @@ import axios from "axios";
 
 import {
   Pane,
-  toaster,
   Text,
   ChevronDownIcon,
   Heading,
@@ -10,6 +9,7 @@ import {
   CrossIcon,
   TrashIcon,
 } from "evergreen-ui";
+import {toaster} from '../../common';
 import {
   Card,
   Space,

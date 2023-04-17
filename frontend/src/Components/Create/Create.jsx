@@ -6,8 +6,8 @@ import {
   Text,
   Textarea,
   TextInput,
-  toaster,
 } from "evergreen-ui";
+import { toaster } from "../../common";
 import { useEffect, useRef, useState } from "react";
 import { useHistory } from "react-router-dom";
 import Map from "../Map/Map";
@@ -23,7 +23,7 @@ import {
   ClockCircleOutlined,
   SwapOutlined,
 } from "@ant-design/icons";
-import { useFilePicker } from 'use-file-picker';
+import { useFilePicker } from "use-file-picker";
 import { secondsToHms, TRANSIT_TYPES } from "../../common";
 
 function Create() {
@@ -43,8 +43,8 @@ function Create() {
   const [descriptionError, setDescriptionError] = useState("");
   const [imageError, setImageError] = useState("");
   const [openImageSelector, imageSelector] = useFilePicker({
-    readAs: 'DataURL',
-    accept: 'image/*',
+    readAs: "DataURL",
+    accept: "image/*",
     multiple: false,
     limitFilesConfig: { max: 1 },
     // minFileSize: 0.1, // in megabytes
@@ -88,45 +88,45 @@ function Create() {
 
   const verify = () => {
     let flag = true;
-    if (page === 1){
-    if (title.trim().length === 0) {
-      setTitleError("Title is Required");
-      flag = false;
-    } else if (title.trim().length > 60) {
-      setTitleError("Title too long");
-      flag = false;
-    } else {
-      setTitleError("");
+    if (page === 1) {
+      if (title.trim().length === 0) {
+        setTitleError("Title is Required");
+        flag = false;
+      } else if (title.trim().length > 60) {
+        setTitleError("Title too long");
+        flag = false;
+      } else {
+        setTitleError("");
+      }
+      if (chosenPoints.length < 2) {
+        setLocationsError("Must pick at least 2 locations");
+        flag = false;
+      } else {
+        setLocationsError("");
+      }
+      if (directions && directions.time > 6 * 60 * 60) {
+        toaster.danger("Crawls cannot be longer than 6 hours");
+        flag = false;
+      }
+    } else if (page === 2) {
+      if (description.trim().length === 0) {
+        setDescriptionError("Crawl Description is required");
+        flag = false;
+      } else if (description.trim().length > 200) {
+        setDescriptionError("Crawl Description too long");
+        flag = false;
+      } else {
+        setDescriptionError("");
+      }
+      if (imageSelector?.filesContent?.length != 1) {
+        setImageError("Please select a cover image");
+        flag = false;
+      } else {
+        setImageError("");
+      }
     }
-    if (chosenPoints.length < 2) {
-      setLocationsError("Must pick at least 2 locations");
-      flag = false;
-    } else {
-      setLocationsError("");
-    }
-    if (directions && directions.time > 6 * 60 * 60) {
-      toaster.danger("Crawls cannot be longer than 6 hours");
-      flag = false;
-    }
-  } else if (page === 2){
-    if (description.trim().length === 0){
-      setDescriptionError("Crawl Description is required")
-      flag = false
-    } else if (description.trim().length > 200){
-      setDescriptionError("Crawl Description too long")
-      flag = false
-    } else {
-      setDescriptionError("")
-    }
-    if (imageSelector?.filesContent?.length != 1){
-      setImageError("Please select a cover image")
-      flag = false
-    } else {
-      setImageError("")
-    }
-  }
 
-  return flag;
+    return flag;
   };
   const next = async () => {
     if (!hasSubmittedOnce) setHasSubmittedOnce(true);
@@ -147,7 +147,7 @@ function Create() {
             directions,
           },
           picture: imageSelector.filesContent[0].content,
-          description
+          description,
         }
       );
       toaster.success("Your crawl has been posted");
@@ -238,253 +238,279 @@ function Create() {
     setChosenPoints(_points);
   };
 
-  useEffect(()=>{
-    if (imageSelector?.errors.length > 0 && imageSelector.errors[0]?.fileSizeToolarge){
-      toaster.danger("File too large")
-    } else if (imageSelector?.errors.length > 0){
-      toaster.danger("File cannot be read")
+  useEffect(() => {
+    if (
+      imageSelector?.errors.length > 0 &&
+      imageSelector.errors[0]?.fileSizeToolarge
+    ) {
+      toaster.danger("File too large");
+    } else if (imageSelector?.errors.length > 0) {
+      toaster.danger("File cannot be read");
     }
-  }, [imageSelector?.errors])
+  }, [imageSelector?.errors]);
 
   if (!isMounted) return <div></div>;
   return (
     <Pane style={{ paddingTop: 32 }}>
       <Pane style={{ padding: "0 32px" }}>
-        <h1>{page === 1 && "Create a crawl"}{page === 2 && `Publish ${title}`}</h1>
+        <h1>
+          {page === 1 && "Create a crawl"}
+          {page === 2 && `Publish ${title}`}
+        </h1>
         <Pane style={{ display: "flex" }}>
           <Pane style={{ flex: 2 }}>
             {page === 1 && (
               <>
-              <TextInput
-              style={{
-                fontWeight: "bold",
-                fontSize: 24,
-                height: 64,
-                width: "100%",
-              }}
-              placeholder="Enter a Title..."
-              onChange={(e) => setTitle(e.target.value)}
-              value={title}
-              isInvalid={titleError !== ""}
-            />
-            <Text size={400} color="red600" style={{ fontWeight: "bold" }}>
-              {titleError}
-            </Text></>
+                <TextInput
+                  style={{
+                    fontWeight: "bold",
+                    fontSize: 24,
+                    height: 64,
+                    width: "100%",
+                  }}
+                  placeholder="Enter a Title..."
+                  onChange={(e) => setTitle(e.target.value)}
+                  value={title}
+                  isInvalid={titleError !== ""}
+                />
+                <Text size={400} color="red600" style={{ fontWeight: "bold" }}>
+                  {titleError}
+                </Text>
+              </>
             )}
             {page === 2 && (
               <>
-              <Button style={{marginLeft: 250, width: 500, height: 500, marginBottom: 16}} type="dashed" danger={imageError !== ""} onClick={()=>{
-                imageSelector.clear();
-                openImageSelector();
-              }}>
-                {imageSelector?.filesContent?.length > 0 ? (
-                  <img src={imageSelector.filesContent[0].content} style={{
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "cover",
-                  }}/>
-                ) : "Upload cover image"}
-              </Button>
-              <Textarea
-              style={{
-                fontWeight: "bold",
-                fontSize: 16,
-                height: 64,
-                maxWidth: 1000,
-                minWidth: 1000
-              }}
-              placeholder="Enter crawl description..."
-              onChange={(e) => setDescription(e.target.value)}
-              value={description}
-              isInvalid={descriptionError !== ""}
-            />
-            <Text size={400} color="red600" style={{ fontWeight: "bold" }}>
-              {descriptionError}
-            </Text></>
+                <Button
+                  style={{
+                    marginLeft: 250,
+                    width: 500,
+                    height: 500,
+                    marginBottom: 16,
+                  }}
+                  type="dashed"
+                  danger={imageError !== ""}
+                  onClick={() => {
+                    imageSelector.clear();
+                    openImageSelector();
+                  }}
+                >
+                  {imageSelector?.filesContent?.length > 0 ? (
+                    <img
+                      src={imageSelector.filesContent[0].content}
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                      }}
+                    />
+                  ) : (
+                    "Upload cover image"
+                  )}
+                </Button>
+                <Textarea
+                  style={{
+                    fontWeight: "bold",
+                    fontSize: 16,
+                    height: 64,
+                    maxWidth: 1000,
+                    minWidth: 1000,
+                  }}
+                  placeholder="Enter crawl description..."
+                  onChange={(e) => setDescription(e.target.value)}
+                  value={description}
+                  isInvalid={descriptionError !== ""}
+                />
+                <Text size={400} color="red600" style={{ fontWeight: "bold" }}>
+                  {descriptionError}
+                </Text>
+              </>
             )}
-            
           </Pane>
           <Pane
             style={{ width: 500, display: "flex", justifyContent: "flex-end" }}
           >
-            {page === 1 && (<Button onClick={next}>Next</Button>)}
-            {page === 2 && (<Button onClick={publish}>Publish</Button>)}
-
+            {page === 1 && <Button onClick={next}>Next</Button>}
+            {page === 2 && <Button onClick={publish}>Publish</Button>}
           </Pane>
         </Pane>
       </Pane>
       {page === 1 && (
-      <Pane style={{ display: "flex" }}>
-        <Pane style={{ padding: 32, flex: 2 }}>
-          <Pane
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-            }}
-          >
-            <div style={{ position: "relative", zIndex: 2 }}>
-              <StandaloneSearchBox
-                onLoad={onLoad}
-                onPlacesChanged={onPlacesChanged}
-              >
-                <SearchInput
-                  style={{ width: 400 }}
-                  placeholder="Search for a place"
-                />
-              </StandaloneSearchBox>
-            </div>
-            <div
+        <Pane style={{ display: "flex" }}>
+          <Pane style={{ padding: 32, flex: 2 }}>
+            <Pane
               style={{
-                position: "relative",
-                zIndex: 1,
-                width: "100%",
-                marginTop: -50,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
               }}
             >
-              {chosenPoints?.length === 1 ? (
-                <GoogleMap
-                  mapContainerStyle={{ width: "100%", height: 600 }}
-                  zoom={10}
-                  center={chosenPoints[0].location}
+              <div style={{ position: "relative", zIndex: 2 }}>
+                <StandaloneSearchBox
+                  onLoad={onLoad}
+                  onPlacesChanged={onPlacesChanged}
                 >
-                  <Marker position={chosenPoints[0].location} label="A" />
-                </GoogleMap>
-              ) : (
-                <GoogleMap
-                  mapContainerStyle={{ width: "100%", height: 600 }}
-                  zoom={10}
-                  center={
-                    chosenPoints.length === 0 && {
-                      lat: 40.723301,
-                      lng: -74.002988,
-                    }
-                  }
-                >
-                  <DirectionsRenderer
-                    options={{
-                      directions,
-                    }}
+                  <SearchInput
+                    style={{ width: 400 }}
+                    placeholder="Search for a place"
                   />
-                </GoogleMap>
-              )}
-            </div>
-          </Pane>
-        </Pane>
-        <Pane
-          style={{ width: 500, height: 600, overflow: "scroll", marginTop: 14 }}
-        >
-          {chosenPoints.length > 1 && (
-            <Pane
-              style={{
-                borderBottom: "1px solid #DDD",
-                padding: "16px",
-              }}
-            >
-              <Heading size={700} style={{ marginBottom: 8 }}>
-                Crawl Stats
-              </Heading>
-              <div>Time: {secondsToHms(directions.time)}</div>
-              <div>Distance: {(directions.distance / 1000).toFixed(1)}km</div>
-            </Pane>
-          )}
-          {chosenPoints.map((point, idx) => (
-            <Pane
-              style={{
-                borderBottom: "1px solid #DDD",
-                padding: "16px",
-              }}
-            >
-              <Pane
+                </StandaloneSearchBox>
+              </div>
+              <div
                 style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
+                  position: "relative",
+                  zIndex: 1,
+                  width: "100%",
+                  marginTop: -50,
                 }}
               >
-                <Heading>
-                  {String.fromCharCode("A".charCodeAt(0) + idx)}. {point.name}
+                {chosenPoints?.length === 1 ? (
+                  <GoogleMap
+                    mapContainerStyle={{ width: "100%", height: 600 }}
+                    zoom={10}
+                    center={chosenPoints[0].location}
+                  >
+                    <Marker position={chosenPoints[0].location} label="A" />
+                  </GoogleMap>
+                ) : (
+                  <GoogleMap
+                    mapContainerStyle={{ width: "100%", height: 600 }}
+                    zoom={10}
+                    center={
+                      chosenPoints.length === 0 && {
+                        lat: 40.723301,
+                        lng: -74.002988,
+                      }
+                    }
+                  >
+                    <DirectionsRenderer
+                      options={{
+                        directions,
+                      }}
+                    />
+                  </GoogleMap>
+                )}
+              </div>
+            </Pane>
+          </Pane>
+          <Pane
+            style={{
+              width: 500,
+              height: 600,
+              overflow: "scroll",
+              marginTop: 14,
+            }}
+          >
+            {chosenPoints.length > 1 && (
+              <Pane
+                style={{
+                  borderBottom: "1px solid #DDD",
+                  padding: "16px",
+                }}
+              >
+                <Heading size={700} style={{ marginBottom: 8 }}>
+                  Crawl Stats
                 </Heading>
-                <Button
-                  intent="danger"
-                  onClick={() => {
-                    const newChosenPoints = JSON.parse(
-                      JSON.stringify(chosenPoints)
-                    );
-                    newChosenPoints.splice(idx, 1);
-                    updateDirections(newChosenPoints);
-                  }}
-                >
-                  Remove
-                </Button>
+                <div>Time: {secondsToHms(directions.time)}</div>
+                <div>Distance: {(directions.distance / 1000).toFixed(1)}km</div>
               </Pane>
-              {idx > 0 && (
+            )}
+            {chosenPoints.map((point, idx) => (
+              <Pane
+                style={{
+                  borderBottom: "1px solid #DDD",
+                  padding: "16px",
+                }}
+              >
                 <Pane
                   style={{
-                    marginTop: 16,
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "center",
                   }}
                 >
-                  <div style={{ fontWeight: "bolder", fontSize: 12 }}>
-                    <ClockCircleOutlined />{" "}
-                    {directions.routes[0].legs[idx - 1].duration.text}
-                    <div style={{ height: 4 }} />
-                    <SwapOutlined /> Distance:{" "}
-                    {(
-                      directions.routes[0].legs[idx - 1].distance.value / 1000
-                    ).toFixed(1)}
-                    km
-                  </div>
-                  <Dropdown
-                    menu={{
-                      items: [
-                        {
-                          label: "Walk",
-                          key: "WALKING",
-                        },
-                        {
-                          label: "Drive",
-                          key: "DRIVING",
-                        },
-                        {
-                          label: "Bicycle",
-                          key: "BICYCLING",
-                        },
-                        {
-                          label: "Transit",
-                          key: "TRANSIT",
-                        },
-                      ],
-                      onClick: ({ key }) => {
-                        const newChosenPoints = JSON.parse(
-                          JSON.stringify(chosenPoints)
-                        );
-                        newChosenPoints[idx].transit = key;
-                        updateDirections(newChosenPoints);
-                      },
+                  <Heading>
+                    {String.fromCharCode("A".charCodeAt(0) + idx)}. {point.name}
+                  </Heading>
+                  <Button
+                    intent="danger"
+                    onClick={() => {
+                      const newChosenPoints = JSON.parse(
+                        JSON.stringify(chosenPoints)
+                      );
+                      newChosenPoints.splice(idx, 1);
+                      updateDirections(newChosenPoints);
                     }}
-                    onClick={() => {}}
                   >
-                    <Button>
-                      <Space>
-                        {TRANSIT_TYPES[point.transit]}
-                        <DownOutlined />
-                      </Space>
-                    </Button>
-                  </Dropdown>
+                    Remove
+                  </Button>
                 </Pane>
-              )}
-            </Pane>
-          ))}
-          {locationsError && (
-            <Text size={400} color="red600" style={{ fontWeight: "bold" }}>
-              {locationsError}
-            </Text>
-          )}
+                {idx > 0 && (
+                  <Pane
+                    style={{
+                      marginTop: 16,
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                    }}
+                  >
+                    <div style={{ fontWeight: "bolder", fontSize: 12 }}>
+                      <ClockCircleOutlined />{" "}
+                      {directions.routes[0].legs[idx - 1].duration.text}
+                      <div style={{ height: 4 }} />
+                      <SwapOutlined /> Distance:{" "}
+                      {(
+                        directions.routes[0].legs[idx - 1].distance.value / 1000
+                      ).toFixed(1)}
+                      km
+                    </div>
+                    <Dropdown
+                      menu={{
+                        items: [
+                          {
+                            label: "Walk",
+                            key: "WALKING",
+                          },
+                          {
+                            label: "Drive",
+                            key: "DRIVING",
+                          },
+                          {
+                            label: "Bicycle",
+                            key: "BICYCLING",
+                          },
+                          {
+                            label: "Transit",
+                            key: "TRANSIT",
+                          },
+                        ],
+                        onClick: ({ key }) => {
+                          const newChosenPoints = JSON.parse(
+                            JSON.stringify(chosenPoints)
+                          );
+                          newChosenPoints[idx].transit = key;
+                          updateDirections(newChosenPoints);
+                        },
+                      }}
+                      onClick={() => {}}
+                    >
+                      <Button>
+                        <Space>
+                          {TRANSIT_TYPES[point.transit]}
+                          <DownOutlined />
+                        </Space>
+                      </Button>
+                    </Dropdown>
+                  </Pane>
+                )}
+              </Pane>
+            ))}
+            {locationsError && (
+              <Text size={400} color="red600" style={{ fontWeight: "bold" }}>
+                {locationsError}
+              </Text>
+            )}
+          </Pane>
         </Pane>
-      </Pane>
       )}
     </Pane>
   );
