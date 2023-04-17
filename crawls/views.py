@@ -177,7 +177,7 @@ def search_crawls_by_author(request, username):
 def search_crawls_by_title(request, title):
     # returns an empty dataset if no crawls with specified title
     try:
-        target_crawls = Crawl.objects.filter(title=title)
+        target_crawls = Crawl.objects.filter(title__icontains=title)
         out = process_crawl_query_set(target_crawls)
         return Response(out)
     except Exception as e:
