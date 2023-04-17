@@ -668,14 +668,14 @@ function Crawl(props) {
                         <Button
                           type="primary"
                           size="small"
-                          onClick={() => unfollowRequest(profile.username)}
+                          onClick={() => unfollowRequest(crawlDetail.author)}
                         >
                           Following
                         </Button>
                       ) : (
                         <Button
                           size="small"
-                          onClick={() => followRequest(profile.username)}
+                          onClick={() => followRequest(crawlDetail.author)}
                         >
                           Follow
                         </Button>
