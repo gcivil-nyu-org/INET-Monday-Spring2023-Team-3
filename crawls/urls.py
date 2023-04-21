@@ -36,6 +36,11 @@ urlpatterns = [
         views.search_crawls_by_tag,
         name="search_crawls_by_tag",
     ),
+    path(
+        "search_crawls_by_title_author_tag/<str:query>",
+        views.search_crawls_by_title_author_tag,
+        name="search_crawls_by_title_author_tag",
+    ),
 ]
 
 

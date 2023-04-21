@@ -262,3 +262,13 @@ class TestCrawls(APITestCase):
         )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_search_crawls_by_title_author_tag_success(self):
+        self.test_crawl_create_success()
+        response = self.client.get(
+            reverse(
+                "search_crawls_by_title_author_tag", kwargs={"query": self.username}
+            )
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)

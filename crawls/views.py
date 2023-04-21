@@ -14,6 +14,11 @@ def process_crawl_query_set(crawls):
     """
     out = []
     for i in range(len(crawls)):
+        tag_set = crawls[i].tags.all()
+        tag_list = []
+        for tag in tag_set:
+            tag_list.append(tag.title)
+
         out.append(
             {
                 "id": crawls[i].id,
@@ -23,6 +28,7 @@ def process_crawl_query_set(crawls):
                 "created_at": crawls[i].created_at,
                 "picture": crawls[i].picture,
                 "author_profile_pic": crawls[i].author.profile_pic,
+                "tags": tag_list,
             }
         )
     return out
@@ -160,7 +166,7 @@ def search_crawls_by_author(request, username):
     try:
         # returns an empty dataset if if user has no crawls
         # but will throw exception if user does not exist
-        user = User.objects.get(username=username)
+        user = User.objects.get(username__icontains=username)
         target_crawls = Crawl.objects.filter(author=user)
         out = process_crawl_query_set(target_crawls)
 
@@ -189,7 +195,7 @@ def search_crawls_by_title(request, title):
 @is_protected_route
 def search_crawls_by_tag(request, tag_title):
     try:
-        tag = Tag.objects.get(title=tag_title)
+        tag = Tag.objects.get(title__icontains=tag_title)
         crawls = tag.crawls.all()
         out = process_crawl_query_set(crawls)
         return Response(out)
@@ -224,6 +230,30 @@ def add_tags_to_crawl(request):
         return Response(
             {"error": "crawl does not exist"}, status=status.HTTP_400_BAD_REQUEST
         )
+    except Exception as e:
+        print(e)
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(["GET"])
+@is_protected_route
+def search_crawls_by_title_author_tag(request, query):
+    try:
+        title_crawls = Crawl.objects.filter(title__icontains=query)
+
+        users = User.objects.filter(username__icontains=query)
+        username_crawls = Crawl.objects.none()
+        for user in users:
+            username_crawls = username_crawls | Crawl.objects.filter(author=user)
+
+        tags = Tag.objects.filter(title__icontains=query)
+        tag_crawls = Crawl.objects.none()
+        for tag in tags:
+            tag_crawls = tag_crawls | tag.crawls.all()
+
+        all_crawls = title_crawls | username_crawls | tag_crawls
+        out = process_crawl_query_set(all_crawls)
+        return Response(out)
     except Exception as e:
         print(e)
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
