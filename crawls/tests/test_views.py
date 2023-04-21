@@ -2,7 +2,7 @@ from rest_framework.test import APITestCase
 from rest_framework import status
 from django.urls import reverse
 from api.models import User
-from crawls.models import Crawl
+from crawls.models import Crawl, Tag
 import json
 
 
@@ -265,10 +265,22 @@ class TestCrawls(APITestCase):
 
     def test_search_crawls_by_title_author_tag_success(self):
         self.test_crawl_create_success()
+
         response = self.client.get(
             reverse(
                 "search_crawls_by_title_author_tag", kwargs={"query": self.username}
             )
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_search_crawls_by_title_author_tag_success_with_tag(self):
+        self.test_crawl_create_success()
+        crawl = Crawl.objects.get(title="sample_crawl")
+        tag = Tag.objects.create(title="test")
+        crawl.tags.add(tag)
+        response = self.client.get(
+            reverse("search_crawls_by_title_author_tag", kwargs={"query": "test"})
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
