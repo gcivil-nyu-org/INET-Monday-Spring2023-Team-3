@@ -124,11 +124,11 @@ function Home() {
             margin: "1rem",
           }}
           cover={
-            x.picture && (
+            x.id && (
               <img
                 className="profile-img my-profile-img"
                 alt="example"
-                src={x.picture}
+                src={`${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/crawl_picture/${x.id}/`}
                 style={{}}
               />
             )

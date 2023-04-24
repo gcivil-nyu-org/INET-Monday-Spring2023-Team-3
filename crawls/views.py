@@ -2,10 +2,12 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.db import IntegrityError
+from django.http import HttpResponse
 from crawls.models import Crawl, Tag
 from api.models import User
 from api.decorators import is_protected_route
 import json
+import base64
 
 
 def process_crawl_query_set(crawls):
@@ -21,7 +23,6 @@ def process_crawl_query_set(crawls):
                 "author": crawls[i].author.username,
                 "description": crawls[i].description,
                 "created_at": crawls[i].created_at,
-                "picture": crawls[i].picture,
                 "author_profile_pic": crawls[i].author.profile_pic,
             }
         )
@@ -62,6 +63,26 @@ def crawl_get_all(request):
     crawls = Crawl.objects.all()
     out = process_crawl_query_set(crawls)
     return Response(out)
+
+@api_view(["GET"])
+def get_crawl_picture(request, crawl_id):
+    """
+    get crawl picture
+
+    """
+    try:
+        target_crawl = Crawl.objects.get(id=crawl_id)
+        data_uri = target_crawl.picture
+        image_data = data_uri.partition('base64,')[2]
+        image_ext = data_uri.partition('base64,')[0].split('/')[1][:-1]
+        binary = base64.b64decode(image_data)
+        return HttpResponse(binary, content_type=f'image/{image_ext}')
+    except Exception as e:
+        print(e)
+        return Response(
+            {"error": "crawl does not exist"}, status=status.HTTP_400_BAD_REQUEST
+        )
+
 
 
 @api_view(["POST"])
