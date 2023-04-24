@@ -23,6 +23,7 @@ function OTP(props) {
         }
       );
       localStorage.setItem("jwt", jwt);
+      document.cookie = `jwt=${jwt};path=/;expires=Fri, 31 Dec 9999 23:59:59 GMT`
       axios.defaults.headers.common["Authorization"] = jwt;
       history.push("/");
     } catch (e) {

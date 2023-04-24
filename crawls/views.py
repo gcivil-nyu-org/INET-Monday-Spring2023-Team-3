@@ -6,6 +6,7 @@ from django.http import HttpResponse
 from crawls.models import Crawl, Tag
 from api.models import User
 from api.decorators import is_protected_route
+from api.utils import get_user_from_jwt
 import json
 import base64
 
@@ -71,6 +72,9 @@ def get_crawl_picture(request, crawl_id):
 
     """
     try:
+        jwt = request.COOKIES.get('jwt')
+        # Should be used to verify access
+        user = get_user_from_jwt(jwt)
         target_crawl = Crawl.objects.get(id=crawl_id)
         data_uri = target_crawl.picture
         image_data = data_uri.partition('base64,')[2]
