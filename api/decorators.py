@@ -1,11 +1,9 @@
 from rest_framework import status
 from rest_framework.response import Response
 from functools import wraps
-from .models import User
 from .utils import get_user_from_jwt
 
 # from django.http import HttpResponseRedirect
-import jwt
 import os
 
 SECRET_KEY = os.environ.get("SECRET_KEY")

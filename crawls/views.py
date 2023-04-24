@@ -65,6 +65,7 @@ def crawl_get_all(request):
     out = process_crawl_query_set(crawls)
     return Response(out)
 
+
 @api_view(["GET"])
 def get_crawl_picture(request, crawl_id):
     """
@@ -72,21 +73,21 @@ def get_crawl_picture(request, crawl_id):
 
     """
     try:
-        jwt = request.COOKIES.get('jwt')
+        jwt = request.COOKIES.get("jwt")
         # Should be used to verify access
         user = get_user_from_jwt(jwt)
+        request.user = user
         target_crawl = Crawl.objects.get(id=crawl_id)
         data_uri = target_crawl.picture
-        image_data = data_uri.partition('base64,')[2]
-        image_ext = data_uri.partition('base64,')[0].split('/')[1][:-1]
+        image_data = data_uri.partition("base64,")[2]
+        image_ext = data_uri.partition("base64,")[0].split("/")[1][:-1]
         binary = base64.b64decode(image_data)
-        return HttpResponse(binary, content_type=f'image/{image_ext}')
+        return HttpResponse(binary, content_type=f"image/{image_ext}")
     except Exception as e:
         print(e)
         return Response(
             {"error": "crawl does not exist"}, status=status.HTTP_400_BAD_REQUEST
         )
-
 
 
 @api_view(["POST"])
