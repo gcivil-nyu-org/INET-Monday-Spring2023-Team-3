@@ -55,6 +55,7 @@ function Home() {
       setIsMounted(true);
     } catch (e) {
       localStorage.removeItem("jwt");
+      document.cookie = 'jwt=; Max-Age=-99999999;';  
       history.replace("/login");
     }
   };
@@ -77,6 +78,7 @@ function Home() {
       handlePaging(data);
     } catch (e) {
       localStorage.removeItem("jwt");
+      document.cookie = 'jwt=; Max-Age=-99999999;';  
       history.replace("/login");
     }
   };
@@ -124,11 +126,11 @@ function Home() {
             margin: "1rem",
           }}
           cover={
-            x.picture && (
+            x.id && (
               <img
                 className="profile-img my-profile-img"
                 alt="example"
-                src={x.picture}
+                src={`${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/crawl_picture/${x.id}/`}
                 style={{}}
               />
             )

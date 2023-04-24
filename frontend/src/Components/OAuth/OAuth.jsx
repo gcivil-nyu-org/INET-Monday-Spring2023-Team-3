@@ -19,6 +19,7 @@ function OAuth() {
       );
       if (data.jwt) {
         localStorage.setItem("jwt", data.jwt);
+        document.cookie = `jwt=${data.jwt};path=/;expires=Fri, 31 Dec 9999 23:59:59 GMT`
         axios.defaults.headers.common["Authorization"] = data.jwt;
         history.push("/");
       } else {

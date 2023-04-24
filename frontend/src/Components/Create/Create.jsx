@@ -78,6 +78,7 @@ function Create() {
       setIsMounted(true);
     } catch (e) {
       localStorage.removeItem("jwt");
+      document.cookie = 'jwt=; Max-Age=-99999999;';  
       history.replace("/login");
     }
   };

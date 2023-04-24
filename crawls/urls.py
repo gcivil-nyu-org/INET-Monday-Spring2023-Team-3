@@ -5,6 +5,11 @@ from . import views
 urlpatterns = [
     path("", views.crawl_create, name="crawl_create"),
     path("all/", views.crawl_get_all, name="crawl_get_all"),
+    path(
+        "crawl_picture/<str:crawl_id>/",
+        views.get_crawl_picture,
+        name="get_crawl_picture",
+    ),
     path("delete/", views.crawl_delete, name="crawl_delete"),
     path(
         "get_crawl_by_id/<str:crawl_id>/", views.get_crawl_by_id, name="get_crawl_by_id"
