@@ -96,9 +96,7 @@ function Home() {
     setPageCountSearchResult(search_res_pageCount);
   }
 
-  const onChangeSearchbar = (event) => {
-    console.log(event.target)
-  }
+  
   const onSearch = async (value) => {
     if (value === "") {
       setTitleSearchRes(null);
@@ -192,7 +190,6 @@ function Home() {
           placeholder="Search crawls"
           allowClear
           onSearch={onSearch}
-          onChange = {onChangeSearchbar}
           style={{ width: 500, marginTop: 32, marginBottom: 32 }}
         />
       </Row>
