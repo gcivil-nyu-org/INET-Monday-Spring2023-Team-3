@@ -53,6 +53,15 @@ def crawl_create(request):
 
     return Response(status=status.HTTP_201_CREATED)
 
+@api_view(["GET"])
+@is_protected_route
+def get_crawl_count(request):
+    """
+    get the number of crawls in DB.
+
+    """
+    total_count = Crawl.objects.count()
+    return Response(total_count)
 
 @api_view(["GET"])
 @is_protected_route
@@ -61,7 +70,15 @@ def crawl_get_all(request):
     get all crawls
 
     """
-    crawls = Crawl.objects.all()
+    
+    print("-------------------------")
+    start_id = int(request.GET["start_id"])
+    end_id = int(request.GET["end_id"])
+    print(start_id)
+    print(end_id)
+    
+    crawls = Crawl.objects.filter(id__range=(start_id, end_id-1))
+   
     out = process_crawl_query_set(crawls)
     return Response(out)
 
