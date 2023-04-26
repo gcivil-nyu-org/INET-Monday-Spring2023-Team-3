@@ -70,15 +70,9 @@ def crawl_get_all(request):
     get all crawls
 
     """
-    
-    print("-------------------------")
     start_id = int(request.GET["start_id"])
     end_id = int(request.GET["end_id"])
-    print(start_id)
-    print(end_id)
-    
     crawls = Crawl.objects.filter(id__range=(start_id, end_id-1))
-   
     out = process_crawl_query_set(crawls)
     return Response(out)
 
@@ -220,9 +214,24 @@ def search_crawls_by_author(request, username):
 def search_crawls_by_title(request, title):
     # returns an empty dataset if no crawls with specified title
     try:
+        start_id = int(request.GET["start_id"]) - 1
+        end_id = int(request.GET["end_id"]) - 1
         target_crawls = Crawl.objects.filter(title__icontains=title)
-        out = process_crawl_query_set(target_crawls)
+        sliced_crawls = target_crawls[start_id:end_id]
+        out = process_crawl_query_set(sliced_crawls)
         return Response(out)
+    except Exception as e:
+        print(e)
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(["GET"])
+@is_protected_route
+def get_crawl_search_res_count(request, title):
+    # returns an empty dataset if no crawls with specified title
+    try:
+        target_crawls = Crawl.objects.filter(title__icontains=title)
+        return Response(len(target_crawls))
     except Exception as e:
         print(e)
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
