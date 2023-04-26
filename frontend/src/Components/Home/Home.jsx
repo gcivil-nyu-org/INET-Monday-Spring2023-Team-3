@@ -78,7 +78,6 @@ function Home() {
         `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/get_crawl_count/`
       )
       setAllCrawls(data);
-      console.log(data)
       setLengthAllCralws(total_count.data);
       handlePaging(data, total_count.data);
     } catch (e) {
@@ -89,7 +88,6 @@ function Home() {
   };
   const handlePaging = async(data, length) => {
     const pageCount = Math.ceil(length / itemsPerPage);
-    console.log(data)
     setCurrentItems(data);
     setPageCount(pageCount);
   }
@@ -98,14 +96,6 @@ function Home() {
     setCurrentItemsSearchResult(data);
     setPageCountSearchResult(pageCount);
 
-
-
-    // let new_itemOffsetSearchResult = 1;
-    // const search_res_slicedItems = data.slice(new_itemOffsetSearchResult, new_itemOffsetSearchResult + itemsPerPage);
-    // const search_res_pageCount = Math.ceil(data.length / itemsPerPage);
-    // setItemOffsetSearchResult(new_itemOffsetSearchResult)
-    // setCurrentItemsSearchResult(search_res_slicedItems);
-    // setPageCountSearchResult(search_res_pageCount);
   }
 
   
@@ -123,7 +113,6 @@ function Home() {
       let search_count = await axios.get(
         `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/get_crawl_search_res_count/${value}/`
       );
-      console.log(titleData)
       setTitleSearchRes(titleData);
       handlePagingWithSearch(titleData, search_count.data);
       console.log(search_count.data)
