@@ -115,7 +115,7 @@ function Home() {
       );
       setTitleSearchRes(titleData);
       handlePagingWithSearch(titleData, search_count.data);
-      console.log(search_count.data)
+      
       setLengthAllCralwsSearchResult(search_count.data);
     } catch (e) {
       setTitleSearchRes([]);
