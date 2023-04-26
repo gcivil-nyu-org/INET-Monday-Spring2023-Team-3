@@ -72,8 +72,13 @@ def crawl_get_all(request):
     get all crawls
 
     """
-    start_id = int(request.GET["start_id"])
-    end_id = int(request.GET["end_id"])
+    start_id = 1
+    end_id = 4
+    if request.GET["start_id"]:
+        start_id = int(request.GET["start_id"])
+    if request.GET["end_id"]:
+        end_id = int(request.GET["end_id"])
+        
     crawls = Crawl.objects.filter(id__range=(start_id, end_id - 1))
     out = process_crawl_query_set(crawls)
     return Response(out)
