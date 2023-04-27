@@ -11,6 +11,7 @@ function Navbar() {
 
   const logout = () => {
     localStorage.removeItem("jwt");
+    document.cookie = 'jwt=; Max-Age=-99999999;';  
     history.replace("/login");
   };
 

@@ -39,6 +39,7 @@ const isAuthenticated = () => {
     return true;
   } catch (error) {
     localStorage.removeItem("jwt");
+    document.cookie = 'jwt=; Max-Age=-99999999;';  
     return false;
   }
 };

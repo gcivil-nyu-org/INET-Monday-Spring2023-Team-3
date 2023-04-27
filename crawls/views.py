@@ -28,7 +28,7 @@ def process_crawl_query_set(crawls):
                 "created_at": crawls[i].created_at,
                 "picture": crawls[i].picture,
                 "author_profile_pic": crawls[i].author.profile_pic,
-                "tags": tag_list,
+                "tags": tag_list
             }
         )
     return out
