@@ -41,6 +41,12 @@ urlpatterns = [
         views.search_crawls_by_tag,
         name="search_crawls_by_tag",
     ),
+    path("get_crawl_count/", views.get_crawl_count, name="get_crawl_count"),
+    path(
+        "get_crawl_search_res_count/<str:title>/",
+        views.get_crawl_search_res_count,
+        name="get_crawl_search_res_count",
+    ),
 ]
 
 
