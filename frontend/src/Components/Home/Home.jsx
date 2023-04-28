@@ -46,9 +46,23 @@ function Home() {
   const [crawlIdListSearchResult, setCrawlIdListSearchResult] = useState([]);
   /* 
   NOTE:
-    titleSearchRes = NULL means the search w/ filter query has NOT been run yet. 
+    titleSearchRes = NULL means the search filter hasn't been used yet.
     titleSearchRes = [] means search w/ filter returned data length 0. (No crawls found.)
   */
+  const calculateStartAndEndId = (crawl_id_list, item_offset, total_count) => {
+    let startId = crawl_id_list[item_offset];
+    let endIndex;
+    let endId;
+    if (item_offset + itemsPerPage >= total_count){
+      endIndex = total_count;
+      endId = crawl_id_list[endIndex-1]
+      endId += 1;
+    } else {
+      endIndex = item_offset + itemsPerPage;
+      endId = crawl_id_list[endIndex]
+    }
+    return [startId, endId]
+  }
   const getProfile = async () => {
     try {
       const { data } = await axios.get(
@@ -68,13 +82,12 @@ function Home() {
 
   
   useEffect(() => {
-    console.log("titleSearchRes: ",titleSearchRes)
+    
     if (titleSearchRes === null || titleSearchRes.length === 0){
       setItemOffset(0);
       setItemOffsetSearchResult(0);
       setCrawlIdListSearchResult([]);
       setLengthAllCralwsSearchResult(0);
-      console.log(currentItems)
     }
   }, [titleSearchRes]);
   
@@ -87,16 +100,10 @@ function Home() {
       const crawl_id_list = await axios.get(
         `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/crawl_ids/`
       )
-      
-      let startId = crawl_id_list.data[offset]
-      let endIndex = offset+itemsPerPage >=total_count ? total_count-1:offset+itemsPerPage
-      let endId = crawl_id_list.data[endIndex]
-      
-
+      let calculatedIndex = calculateStartAndEndId(crawl_id_list.data, offset, total_count);
       const { data } = await axios.get(
-        `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/all/?start_id=${startId}&end_id=${endId}`,
+        `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/all/?start_id=${calculatedIndex[0]}&end_id=${calculatedIndex[1]}`,
       );
-      console.log(data)
       
       setCrawlIdList(crawl_id_list.data);
       setLengthAllCralws(total_count.data);
@@ -119,14 +126,12 @@ function Home() {
 
   
   const onSearch = async (value) => {
-    console.log(value)
     if (value === "") {
       setItemOffset(0);
       setTitleSearchRes(null);
       setCrawlIdListSearchResult([]);
       setLengthAllCralwsSearchResult(0);
       setItemOffsetSearchResult(0);
-      console.log(currentItems)
       await getAllCrawls(0);
       return;
     }
@@ -138,21 +143,11 @@ function Home() {
       
       if (search_res.data && search_res.data.search_count > 0){
         let crawl_id_list = search_res.data.crawl_ids;
-        let endIndex;
-        let endId;
-        let total_count = search_res.data.search_count
-        let startId = crawl_id_list[itemOffsetSearchResult]
-        if (itemOffsetSearchResult+itemsPerPage >= total_count){
-          endIndex = total_count;
-          endId = crawl_id_list[endIndex-1]
-          endId += 1;
-        } else {
-          endIndex = itemOffsetSearchResult + itemsPerPage;
-          endId = crawl_id_list[endIndex];
-        }
-  
+        let total_count = search_res.data.search_count;
+        let calculatedIndex = calculateStartAndEndId(crawl_id_list, itemOffsetSearchResult, total_count);
+        
         let { data: titleData } = await axios.get(
-          `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/search_crawls_by_title/${value}/?start_id=${startId}&end_id=${endId}`
+          `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/search_crawls_by_title/${value}/?start_id=${calculatedIndex[0]}&end_id=${calculatedIndex[1]}`
         );
         setCrawlIdListSearchResult(search_res.data.crawl_ids);
         setTitleSearchRes(titleData);
@@ -224,23 +219,11 @@ function Home() {
     if (event.selected * itemsPerPage >= 0 && event.selected * itemsPerPage <= lengthAllCrawls ){
       newOffset = (event.selected * itemsPerPage);
     }
-    
-    let startId = crawlIdList[newOffset]
-    let endIndex;
-    let endId;
-    if (newOffset + itemsPerPage >= lengthAllCrawls){
-      endIndex = lengthAllCrawls;
-      endId = crawlIdList[endIndex-1]
-      endId += 1;
-    } else {
-      endIndex = newOffset + itemsPerPage;
-      endId = crawlIdList[endIndex]
-    }
 
+    let calculatedIndex = calculateStartAndEndId(crawlIdList, newOffset, lengthAllCrawls);
     const { data } = await axios.get(
-      `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/all/?start_id=${startId}&end_id=${endId}`,
+      `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/all/?start_id=${calculatedIndex[0]}&end_id=${calculatedIndex[1]}`,
     );
-    
     setCurrentItems(data);
     setItemOffset(newOffset);
   };
@@ -252,27 +235,10 @@ function Home() {
     if (event.selected * itemsPerPage >= 0 && event.selected * itemsPerPage <= lengthAllCrawlsSearchResult ){
       newOffset = (event.selected * itemsPerPage);
     }
-    let startId = crawlIdListSearchResult[newOffset]
-    let endIndex;
-    let endId;
-    if (newOffset + itemsPerPage >= lengthAllCrawlsSearchResult){
-      endIndex = lengthAllCrawlsSearchResult;
-      endId = crawlIdListSearchResult[endIndex-1]
-      endId += 1;
-    } else {
-      endIndex = newOffset + itemsPerPage;
-      endId = crawlIdListSearchResult[endIndex]
-    }
-    console.log("endIndex: ", endIndex)
-    console.log("startId: ", startId)
-    console.log("endid: ", endId)
 
-    // if (event.selected * itemsPerPage >= 0 && event.selected * itemsPerPage <= lengthAllCrawlsSearchResult ){
-    //   newOffset = (event.selected * itemsPerPage) + 1;
-    // }
-    
+    let calculatedIndex = calculateStartAndEndId(crawlIdListSearchResult, newOffset, lengthAllCrawlsSearchResult);
     const { data } = await axios.get(
-      `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/search_crawls_by_title/${searchValue}/?start_id=${startId}&end_id=${endId}`
+      `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/search_crawls_by_title/${searchValue}/?start_id=${calculatedIndex[0]}&end_id=${calculatedIndex[1]}`
       );
     
     setTitleSearchRes(data)
