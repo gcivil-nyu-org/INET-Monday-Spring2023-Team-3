@@ -20,7 +20,6 @@ import { Avatar, Col, List, Row, Card, Input, Pagination, Button } from "antd";
 import ReactPaginate from "react-paginate";
 import "./Home.css";
 const { Search } = Input;
-
 import { UserOutlined } from "@ant-design/icons";
 import Meta from "antd/es/card/Meta";
 import PlaceholderProfileImage from "../../static/sample.jpg";
@@ -39,16 +38,65 @@ function Home() {
   const [searchPage, setSearchPage] = useState(1);
   const [searchHasNext, setSearchHasNext] = useState(false);
 
-  const [isSearch, setIsSearch] = useState(false);
+  const [itemOffsetSearchResult, setItemOffsetSearchResult] = useState(0);
+  const [currentItemsSearchResult, setCurrentItemsSearchResult] = useState([]);
+  const [pageCountSearchResult, setPageCountSearchResult] = useState(0);
+  const [lengthAllCrawlsSearchResult, setLengthAllCralwsSearchResult] = useState(0);
+  const [crawlIdListSearchResult, setCrawlIdListSearchResult] = useState([]);
 
-  const getAllCrawls = async () => {
+  const getProfile = async () => {
     try {
+      const { data } = await axios.get(
+        `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/auth/profile/`
+      );
+      setProfile(data);
+      setIsMounted(true);
+    } catch (e) {
+      localStorage.removeItem("jwt");
+      document.cookie = 'jwt=; Max-Age=-99999999;';  
+      history.replace("/login");
+    }
+  };
+  const handleLoad = (map) => {
+    console.log("Map loaded:", map);
+  };
+  useEffect(() => {
+    console.log("titleSearchRes: ",titleSearchRes)
+    if (titleSearchRes === null || titleSearchRes.length === 0){
+      setItemOffset(0);
+      setItemOffsetSearchResult(0);
+      
+      setCurrentItemsSearchResult([]);
+      setCrawlIdListSearchResult([]);
+      setLengthAllCralwsSearchResult(0);
+      console.log(currentItems)
+    }
+  }, [titleSearchRes]);
+  
+
+  const getAllCrawls = async (offset) => {
+    try {
+      const total_count = await axios.get(
+        `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/get_crawl_count/`
+      )
+      const crawl_id_list = await axios.get(
+        `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/crawl_ids/`
+      )
+      console.log(offset)
+      let startId = crawl_id_list.data[offset]
+      let endIndex = offset+3 >=total_count ? total_count-1:offset+3
+      let endId = crawl_id_list.data[endIndex]
+      
+
       const { data } = await axios.get(
         `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/all/?perPage=${itemsPerPage}&page=${page}`
       );
-      setAllCrawls(data?.crawls || []);
-      setHasNext(data.hasNext);
-      setIsMounted(true);
+      console.log(data)
+      
+      setCrawlIdList(crawl_id_list.data);
+      setAllCrawls(data);
+      setLengthAllCralws(total_count.data);
+      handlePaging(data, total_count.data);
     } catch (e) {
       localStorage.removeItem("jwt");
       document.cookie = "jwt=; Max-Age=-99999999;";
@@ -57,25 +105,66 @@ function Home() {
   };
 
   const onSearch = async (value) => {
+    console.log(value)
+
     if (value === "") {
+      setItemOffset(0);
       setTitleSearchRes(null);
-      setIsSearch(false);
+      setCrawlIdListSearchResult([]);
+      setLengthAllCralwsSearchResult(0);
+      setItemOffsetSearchResult(0);
+      console.log("returni??")
+      console.log(titleSearchRes)
+      console.log(currentItems)
+      await getAllCrawls(0);
       return;
     }
     try {
-      if (isSearch === false) return;
-      let { data } = await axios.get(
-        `${
-          process.env.REACT_APP_SERVER_URL_PREFIX
-        }/api/crawls/search_crawls_by_title/${
-          value || searchTerm
-        }/?perPage=${itemsPerPage}&page=${searchPage}`
+      setSearchValue(value);
+      console.log(value)
+      let search_res = await axios.get(
+        `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/get_crawl_search_res_count/${value}/`
       );
-      if (value && searchTerm !== value) setSearchTerm(value);
-      setTitleSearchRes(data?.crawls || []);
-      setSearchHasNext(data.hasNext);
+      console.log(search_res)
+      console.log("itemOffsetSearchResult: ", itemOffsetSearchResult)
+      if (search_res.data && search_res.data.search_count > 0){
+
+        let crawl_id_list = search_res.data.crawl_ids;
+        let endIndex;
+        let endId;
+        let total_count = search_res.data.search_count
+        let startId = crawl_id_list[itemOffsetSearchResult]
+        if (itemOffsetSearchResult+3 >= total_count){
+          endIndex = total_count;
+          endId = crawl_id_list[endIndex-1]
+          endId += 1;
+        } else {
+          endIndex = itemOffsetSearchResult+3;
+          endId = crawl_id_list[endIndex];
+        }
+  
+        let { data: titleData } = await axios.get(
+          `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/search_crawls_by_title/${value}/?start_id=${startId}&end_id=${endId}`
+        );
+        setCrawlIdListSearchResult(search_res.data.crawl_ids);
+        setTitleSearchRes(titleData);
+        handlePagingWithSearch(titleData, search_res.data.search_count);
+        setLengthAllCralwsSearchResult(search_res.data.search_count);
+        console.log("are you running?")
+  
+      } else {
+        setTitleSearchRes([]);
+        setCrawlIdListSearchResult([]);
+        setLengthAllCralwsSearchResult(0);
+        setItemOffsetSearchResult(0);
+      }
+      
+      
     } catch (e) {
       setTitleSearchRes([]);
+      setCrawlIdListSearchResult([]);
+      setLengthAllCralwsSearchResult(0);
+      setItemOffsetSearchResult(0);
     }
   };
 
@@ -132,6 +221,82 @@ function Home() {
       </Link>
     </Col>
   );
+  
+   // Invoke when user click to request another page.
+   const handleNextClick = async (event) => {
+
+    console.log("----------------------------------")
+    let newOffset = itemOffset;
+    if (event.selected * itemsPerPage >= 0 && event.selected * itemsPerPage <= lengthAllCrawls ){
+      newOffset = (event.selected * itemsPerPage);
+    }
+    console.log("newOffset: ", newOffset)
+    console.log("lengthAllCrawls: ", lengthAllCrawls)
+    
+    let startId = crawlIdList[newOffset]
+    let endIndex;
+    let endId;
+    if (newOffset+3 >= lengthAllCrawls){
+      endIndex = lengthAllCrawls;
+      endId = crawlIdList[endIndex-1]
+      endId += 1;
+    } else {
+      endIndex = newOffset+3;
+      endId = crawlIdList[endIndex]
+    }
+    console.log("endIndex: ", endIndex)
+    console.log("startId: ", startId)
+    console.log("endid: ", endId)
+
+    const { data } = await axios.get(
+      `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/all/?start_id=${startId}&end_id=${endId}`,
+    );
+    
+    setCurrentItems(data);
+    setItemOffset(newOffset);
+  };
+   const handleNextClickSearchResult = async (event) => {
+    let newOffset = itemOffsetSearchResult;
+    
+    console.log("----------------------------------")
+    if (event.selected * itemsPerPage >= 0 && event.selected * itemsPerPage <= lengthAllCrawlsSearchResult ){
+      newOffset = (event.selected * itemsPerPage);
+    }
+    console.log(crawlIdListSearchResult)
+    console.log("newOffset: ", newOffset)
+    console.log("lengthAllCrawlsSearchResult: ", lengthAllCrawlsSearchResult)
+    let startId = crawlIdListSearchResult[newOffset]
+    let endIndex;
+    let endId;
+    if (newOffset+3 >= lengthAllCrawlsSearchResult){
+      endIndex = lengthAllCrawlsSearchResult;
+      endId = crawlIdListSearchResult[endIndex-1]
+      endId += 1;
+    } else {
+      endIndex = newOffset+3;
+      endId = crawlIdListSearchResult[endIndex]
+    }
+    console.log("endIndex: ", endIndex)
+    console.log("startId: ", startId)
+    console.log("endid: ", endId)
+
+    // if (event.selected * itemsPerPage >= 0 && event.selected * itemsPerPage <= lengthAllCrawlsSearchResult ){
+    //   newOffset = (event.selected * itemsPerPage) + 1;
+    // }
+    
+    const { data } = await axios.get(
+      `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/search_crawls_by_title/${searchValue}/?start_id=${startId}&end_id=${endId}`
+      );
+    console.log(data)
+    setCurrentItemsSearchResult(data);
+    setItemOffsetSearchResult(newOffset);
+  };
+
+
+  useEffect(() => {
+    getProfile();
+    getAllCrawls(0);
+  }, []);
   if (!isMounted) return <div></div>;
   return (
     <>
@@ -147,93 +312,66 @@ function Home() {
           style={{ width: 500, marginTop: 32, marginBottom: 32 }}
         />
       </Row>
-      {isSearch ? (
-        <>
-          <Row style={{ justifyContent: "center" }}>
-            <Row style={{ justifyContent: "center", maxWidth: "1000px" }}>
-              <h2 style={{ width: "100%", flex: 2, display: "flex" }}>
-                {searchTerm && "Search Results:"}
-              </h2>
-            </Row>
-          </Row>
-          <Row style={{ justifyContent: "center", marginBottom: 64 }}>
-            <Row style={{ justifyContent: "center", maxWidth: "1000px" }}>
-              {!titleSearchRes || titleSearchRes?.length === 0 ? (
-                <>
-                  {titleSearchRes?.length === 0 && (
-                    <div style={{ margin: "1rem" }}>No crawls found</div>
-                  )}
-                </>
-              ) : (
-                <>
-                  {titleSearchRes?.map(renderCrawlCard)}
-                  <div style={{ width: "100%" }}>
-                    <div className="pagination-strip">
-                      <Button
-                        onClick={() => setSearchPage(searchPage - 1)}
-                        disabled={searchPage === 1}
-                      >
-                        Prev
-                      </Button>
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          width: "40px",
-                        }}
-                      >
-                        {searchPage}
-                      </div>
-                      <Button
-                        onClick={() => setSearchPage(searchPage + 1)}
-                        disabled={!searchHasNext}
-                      >
-                        Next
-                      </Button>
-                    </div>
-                  </div>
-                </>
-              )}
-            </Row>
-          </Row>
-        </>
-      ) : (
-        <Row style={{ justifyContent: "center", marginBottom: 64 }}>
+      <Row style={{ justifyContent: "center" }}>
+        <Row style={{ justifyContent: "center", maxWidth: "1000px" }}>
+          {titleSearchRes?.length === 0 &&  (
+            <div style={{ marginBottom: "1rem" }}>
+              No crawls found. Explore crawls below.
+            </div>
+          )}
+          {/* {titleSearchRes?.map(renderCrawlCard)} */}
+          
+         
+          {/* { titleSearchRes?.length !== 0 && currentItemsSearchResult?.slice(0).map(renderCrawlCard)}
+          { currentItemsSearchResult?.slice(0).map(renderCrawlCard)} */}
+
+          {titleSearchRes !== null && titleSearchRes.length > 0 && 
+             currentItemsSearchResult?.slice(0).map(renderCrawlCard)
+           }
+          {titleSearchRes !== null && titleSearchRes.length > 0 && 
+            <div style={{width: "100%"}}>
+            <div className="pagination-strip" >
+              <h1>titleSearchRes</h1>
+                <ReactPaginate
+                  className="page-bar"
+                  breakLabel="..."
+                  nextLabel="next >"
+                  pageCount={pageCountSearchResult}
+                  previousLabel="< previous"
+                  renderOnZeroPageCount={null}
+                  onPageChange={handleNextClickSearchResult}
+                  pageRangeDisplayed={5}
+                  activeClassName="active"
+                  />
+              </div>
+              </div>
+            }
+        </Row>
+      </Row>
+      {(titleSearchRes === null || titleSearchRes.length === 0) && (
+        <Row style={{ justifyContent: "center" }}>
           <Row style={{ justifyContent: "center", maxWidth: "1000px" }}>
             {allCrawls?.length === 0 ? (
               <div style={{ margin: "1rem" }}>No crawls posted yet</div>
-            ) : (
-              <>
-                {allCrawls?.map(renderCrawlCard)}
-                <div style={{ width: "100%" }}>
-                  <div className="pagination-strip">
-                    <Button
-                      onClick={() => setPage(page - 1)}
-                      disabled={page === 1}
-                    >
-                      Prev
-                    </Button>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        width: "40px",
-                      }}
-                    >
-                      {page}
-                    </div>
-                    <Button
-                      onClick={() => setPage(page + 1)}
-                      disabled={!hasNext}
-                    >
-                      Next
-                    </Button>
-                  </div>
-                </div>
-              </>
             )}
+            {/* {titleSearchRes?.map(renderCrawlCard)} */}
+            {currentItems?.slice(0).map(renderCrawlCard)}
+            <div style={{width: "100%"}}>
+            <div className="pagination-strip">
+              <h1>currItems</h1>
+              <ReactPaginate
+                className="page-bar"
+                breakLabel="..."
+                nextLabel="next >"
+                pageCount={pageCount}
+                previousLabel="< previous"
+                renderOnZeroPageCount={null}
+                onPageChange={handleNextClick}
+                pageRangeDisplayed={5}
+                activeClassName="active"
+                />
+            </div>
+            </div>
           </Row>
         </Row>
       )}
