@@ -286,3 +286,13 @@ def add_tags_to_crawl(request):
     except Exception as e:
         print(e)
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(["GET"])
+@is_protected_route
+def get_crawl_ids(request):
+    try:
+        crawl_ids = sorted(list(Crawl.objects.values_list('id', flat=True)))
+        return Response(crawl_ids)
+    except Exception as e:
+        print(e)
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)

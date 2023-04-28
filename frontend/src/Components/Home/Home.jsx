@@ -30,9 +30,10 @@ function Home() {
   const [isMounted, setIsMounted] = useState(false);
   const [profile, setProfile] = useState({});
   const [allCrawls, setAllCrawls] = useState(null);
+  const [crawlIdList, setCrawlIdList] = useState([]);
 
   const [titleSearchRes, setTitleSearchRes] = useState(null);
-  const [itemOffset, setItemOffset] = useState(1);
+  const [itemOffset, setItemOffset] = useState(0);
   const itemsPerPage = 3;
   const [searchValue, setSearchValue] = useState("");
 
@@ -40,7 +41,7 @@ function Home() {
   const [pageCount, setPageCount] = useState(0);
   const [lengthAllCrawls, setLengthAllCralws] = useState(0);
 
-  const [itemOffsetSearchResult, setItemOffsetSearchResult] = useState(1);
+  const [itemOffsetSearchResult, setItemOffsetSearchResult] = useState(0);
   const [currentItemsSearchResult, setCurrentItemsSearchResult] = useState([]);
   const [pageCountSearchResult, setPageCountSearchResult] = useState(0);
   const [lengthAllCrawlsSearchResult, setLengthAllCralwsSearchResult] = useState(0);
@@ -64,19 +65,35 @@ function Home() {
   };
   useEffect(() => {
     if (titleSearchRes === null){
-      setItemOffset(1);
-      setItemOffsetSearchResult(1);
+      setItemOffset(0);
+      setItemOffsetSearchResult(0);
     }
   }, [titleSearchRes]);
 
   const getAllCrawls = async () => {
     try {
-      const { data } = await axios.get(
-        `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/all/?start_id=${itemOffset}&end_id=${itemOffset+3}`,
-      );
       const total_count = await axios.get(
         `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/get_crawl_count/`
       )
+      const crawl_id_list = await axios.get(
+        `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/crawl_ids/`
+      )
+      
+      console.log(crawl_id_list.data)
+      let startId = crawl_id_list.data[itemOffset]
+      let endIndex = itemOffset+3 >=total_count ? total_count-1:itemOffset+3
+      let endId = crawl_id_list.data[endIndex]
+      console.log("startId: ", startId)
+      console.log("endIndex: ", endIndex)
+      console.log("endId: ", endId)
+
+
+      const { data } = await axios.get(
+        `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/all/?start_id=${startId}&end_id=${endId}`,
+      );
+      console.log(data)
+      
+      setCrawlIdList(crawl_id_list);
       setAllCrawls(data);
       setLengthAllCralws(total_count.data);
       handlePaging(data, total_count.data);
@@ -95,7 +112,6 @@ function Home() {
     const pageCount = Math.ceil(length / itemsPerPage);
     setCurrentItemsSearchResult(data);
     setPageCountSearchResult(pageCount);
-
   }
 
   
@@ -167,12 +183,31 @@ function Home() {
   
    // Invoke when user click to request another page.
    const handleNextClick = async (event) => {
+
+    console.log("----------------------------------")
     let newOffset = itemOffset;
     if (event.selected * itemsPerPage >= 0 && event.selected * itemsPerPage <= lengthAllCrawls ){
-      newOffset = (event.selected * itemsPerPage) + 1;
+      newOffset = (event.selected * itemsPerPage);
     }
+    console.log("newOffset: ", newOffset)
+    console.log("lengthAllCrawls: ", lengthAllCrawls)
+    let startId = crawlIdList.data[newOffset]
+    let endIndex;
+    let endId;
+    if (newOffset+3 >= lengthAllCrawls){
+      endIndex = lengthAllCrawls;
+      endId = crawlIdList.data[endIndex-1]
+      endId += 1;
+    } else {
+      endIndex = newOffset+3;
+      endId = crawlIdList.data[endIndex]
+    }
+    console.log("endIndex: ", endIndex)
+    console.log("startId: ", startId)
+    console.log("endid: ", endId)
+
     const { data } = await axios.get(
-      `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/all/?start_id=${newOffset}&end_id=${newOffset+3}`,
+      `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/all/?start_id=${startId}&end_id=${endId}`,
     );
     
     setCurrentItems(data);
@@ -195,7 +230,7 @@ function Home() {
   useEffect(() => {
     getProfile();
     getAllCrawls();
-  }, [itemOffset]);
+  }, []);
   if (!isMounted) return <div></div>;
   return (
     <>
