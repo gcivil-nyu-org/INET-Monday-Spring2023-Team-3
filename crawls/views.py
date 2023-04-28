@@ -237,7 +237,7 @@ def get_crawl_search_res_count(request, title):
     # returns an empty dataset if no crawls with specified title
     try:
         target_crawls = Crawl.objects.filter(title__icontains=title)
-        target_crawls_length = len(target_crawls)
+        # target_crawls_length = len(target_crawls)
         out = [x.id for x in target_crawls]
         data = {"search_count": len(target_crawls), "crawl_ids": out}
         return Response(data)
