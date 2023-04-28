@@ -325,7 +325,7 @@ def get_random_crawl(request):
     try:
         crawls = Crawl.objects.all()
         crawl_count = Crawl.objects.count()
-        index = random.randint(0, crawl_count)
+        index = random.randint(0, crawl_count - 1)
         crawl = crawls[index]
         tag_set = crawl.tags.all()
         tag_list = []
