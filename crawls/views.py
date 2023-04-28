@@ -344,6 +344,4 @@ def get_random_crawl(request):
         return Response(out)
     except Exception as e:
         print(e)
-        return Response(
-            {"error": "crawl does not exist"}, status=status.HTTP_400_BAD_REQUEST
-        )
+        return Response(status=status.HTTP_400_BAD_REQUEST)
