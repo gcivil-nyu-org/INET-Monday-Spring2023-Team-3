@@ -223,8 +223,10 @@ def search_crawls_by_title(request, title):
     try:
         start_id = int(request.GET["start_id"])
         end_id = int(request.GET["end_id"])
-        #target_crawls = Crawl.objects.filter(title__icontains=title)
-        target_crawls = Crawl.objects.filter(title__icontains=title, id__range=(start_id, end_id-1))
+        # target_crawls = Crawl.objects.filter(title__icontains=title)
+        target_crawls = Crawl.objects.filter(
+            title__icontains=title, id__range=(start_id, end_id - 1)
+        )
         print(title)
         print(len(target_crawls))
         # sliced_crawls = target_crawls[start_id:end_id]
@@ -243,10 +245,7 @@ def get_crawl_search_res_count(request, title):
         target_crawls = Crawl.objects.filter(title__icontains=title)
         target_crawls_length = len(target_crawls)
         out = [x.id for x in target_crawls]
-        data = {
-            "search_count": len(target_crawls),
-            "crawl_ids": out
-        }
+        data = {"search_count": len(target_crawls), "crawl_ids": out}
         print(out)
         return Response(data)
     except Exception as e:
@@ -297,11 +296,12 @@ def add_tags_to_crawl(request):
         print(e)
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
 @api_view(["GET"])
 @is_protected_route
 def get_crawl_ids(request):
     try:
-        crawl_ids = sorted(list(Crawl.objects.values_list('id', flat=True)))
+        crawl_ids = sorted(list(Crawl.objects.values_list("id", flat=True)))
         return Response(crawl_ids)
     except Exception as e:
         print(e)
