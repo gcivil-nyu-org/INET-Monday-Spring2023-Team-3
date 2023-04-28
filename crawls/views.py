@@ -129,6 +129,7 @@ def crawl_delete(request):
 def get_crawl_by_id(request, crawl_id):
     try:
         target_crawl = Crawl.objects.get(id=crawl_id)
+        tags = target_crawl.tags.all()
         res = {
             "id": target_crawl.id,
             "title": target_crawl.title,
@@ -137,6 +138,7 @@ def get_crawl_by_id(request, crawl_id):
             "author_profile_pic": target_crawl.author.profile_pic,
             "description": target_crawl.description,
             "created_at": target_crawl.created_at,
+            'tags': [tag.title for tag in tags],
         }
         return Response(res)
     except Exception as e:
@@ -270,6 +272,9 @@ def add_tags_to_crawl(request):
     try:
         crawl = Crawl.objects.get(title=request.data["crawl_title"])
         tag_list = request.data["tags"].split(",")
+        print(" ------------------------------ ")
+        print(tag_list)
+        
         for tag in tag_list:
             tag = tag.strip().lower()
             # weird concurrency bug wouldn't let me just use get_or_create

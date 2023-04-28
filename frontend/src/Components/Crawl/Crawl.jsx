@@ -21,6 +21,8 @@ import {
   Dropdown,
   Avatar,
   List,
+  Tag, 
+  Tooltip
 } from "antd";
 import { useEffect, useRef, useState } from "react";
 import { Link, useHistory, useParams } from "react-router-dom";
@@ -168,6 +170,7 @@ function Crawl(props) {
       const { data } = await axios.get(
         `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/get_crawl_by_id/${crawl_id}/`
       );
+      console.log(data)
       let formattedDate = convertDateHumanReadable(data.created_at);
       data.formattedDate = formattedDate;
       await setCrawlDetail(data);
@@ -634,6 +637,14 @@ function Crawl(props) {
                 </Button>
               )}
             </div>
+            {crawlDetail.tags && 
+               <div style={{marginTop:"1rem"}}>
+               <Space size={[0, 8]} wrap>
+                {crawlDetail.tags && crawlDetail.tags.map((tag) => (
+                    <Tag>{tag}</Tag>
+                ))}
+                </Space>
+            </div>}
             <div>
               <p>{crawlDetail.formattedDate}</p>
             </div>
