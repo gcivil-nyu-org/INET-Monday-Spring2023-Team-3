@@ -28,24 +28,27 @@ function Home() {
   const history = useHistory();
   const [isMounted, setIsMounted] = useState(false);
   const [profile, setProfile] = useState({});
-  const [allCrawls, setAllCrawls] = useState(null);
-  const [crawlIdList, setCrawlIdList] = useState([]);
-
-  const [titleSearchRes, setTitleSearchRes] = useState(null);
-  const [itemOffset, setItemOffset] = useState(0);
   const itemsPerPage = 3;
-  const [searchValue, setSearchValue] = useState("");
 
+  // WITHOUT Search Term. ALL crawls!
+  const [itemOffset, setItemOffset] = useState(0);
   const [currentItems, setCurrentItems] = useState([]);
   const [pageCount, setPageCount] = useState(0);
   const [lengthAllCrawls, setLengthAllCralws] = useState(0);
+  const [crawlIdList, setCrawlIdList] = useState([]);
 
+  // WITH Search Term. Filtered crawls!
+  const [searchValue, setSearchValue] = useState("");
+  const [titleSearchRes, setTitleSearchRes] = useState(null);
   const [itemOffsetSearchResult, setItemOffsetSearchResult] = useState(0);
-  const [currentItemsSearchResult, setCurrentItemsSearchResult] = useState([]);
   const [pageCountSearchResult, setPageCountSearchResult] = useState(0);
   const [lengthAllCrawlsSearchResult, setLengthAllCralwsSearchResult] = useState(0);
   const [crawlIdListSearchResult, setCrawlIdListSearchResult] = useState([]);
-
+  /* 
+  NOTE:
+    titleSearchRes = NULL means the search w/ filter query has NOT been run yet. 
+    titleSearchRes = [] means search w/ filter returned data length 0. (No crawls found.)
+  */
   const getProfile = async () => {
     try {
       const { data } = await axios.get(
@@ -62,13 +65,13 @@ function Home() {
   const handleLoad = (map) => {
     console.log("Map loaded:", map);
   };
+
+  
   useEffect(() => {
     console.log("titleSearchRes: ",titleSearchRes)
     if (titleSearchRes === null || titleSearchRes.length === 0){
       setItemOffset(0);
       setItemOffsetSearchResult(0);
-      
-      setCurrentItemsSearchResult([]);
       setCrawlIdListSearchResult([]);
       setLengthAllCralwsSearchResult(0);
       console.log(currentItems)
@@ -84,9 +87,9 @@ function Home() {
       const crawl_id_list = await axios.get(
         `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/crawl_ids/`
       )
-      console.log(offset)
+      
       let startId = crawl_id_list.data[offset]
-      let endIndex = offset+3 >=total_count ? total_count-1:offset+3
+      let endIndex = offset+itemsPerPage >=total_count ? total_count-1:offset+itemsPerPage
       let endId = crawl_id_list.data[endIndex]
       
 
@@ -96,7 +99,6 @@ function Home() {
       console.log(data)
       
       setCrawlIdList(crawl_id_list.data);
-      setAllCrawls(data);
       setLengthAllCralws(total_count.data);
       handlePaging(data, total_count.data);
     } catch (e) {
@@ -112,47 +114,40 @@ function Home() {
   }
   const handlePagingWithSearch = async(data, length) => {
     const pageCount = Math.ceil(length / itemsPerPage);
-    setCurrentItemsSearchResult(data);
     setPageCountSearchResult(pageCount);
   }
 
   
   const onSearch = async (value) => {
     console.log(value)
-
     if (value === "") {
       setItemOffset(0);
       setTitleSearchRes(null);
       setCrawlIdListSearchResult([]);
       setLengthAllCralwsSearchResult(0);
       setItemOffsetSearchResult(0);
-      console.log("returni??")
-      console.log(titleSearchRes)
       console.log(currentItems)
       await getAllCrawls(0);
       return;
     }
     try {
       setSearchValue(value);
-      console.log(value)
       let search_res = await axios.get(
         `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/get_crawl_search_res_count/${value}/`
       );
-      console.log(search_res)
-      console.log("itemOffsetSearchResult: ", itemOffsetSearchResult)
+      
       if (search_res.data && search_res.data.search_count > 0){
-
         let crawl_id_list = search_res.data.crawl_ids;
         let endIndex;
         let endId;
         let total_count = search_res.data.search_count
         let startId = crawl_id_list[itemOffsetSearchResult]
-        if (itemOffsetSearchResult+3 >= total_count){
+        if (itemOffsetSearchResult+itemsPerPage >= total_count){
           endIndex = total_count;
           endId = crawl_id_list[endIndex-1]
           endId += 1;
         } else {
-          endIndex = itemOffsetSearchResult+3;
+          endIndex = itemOffsetSearchResult + itemsPerPage;
           endId = crawl_id_list[endIndex];
         }
   
@@ -163,7 +158,8 @@ function Home() {
         setTitleSearchRes(titleData);
         handlePagingWithSearch(titleData, search_res.data.search_count);
         setLengthAllCralwsSearchResult(search_res.data.search_count);
-        console.log("are you running?")
+        console.log("titleSearchRes: ", titleData)
+        console.log()
   
       } else {
         setTitleSearchRes([]);
@@ -171,7 +167,6 @@ function Home() {
         setLengthAllCralwsSearchResult(0);
         setItemOffsetSearchResult(0);
       }
-      
       
     } catch (e) {
       setTitleSearchRes([]);
@@ -224,9 +219,8 @@ function Home() {
     </Link>
   );
   
-   // Invoke when user click to request another page.
+   // invoked on click Next on Pagination bar on WITHOUT SEARCH TERM
    const handleNextClick = async (event) => {
-
     console.log("----------------------------------")
     let newOffset = itemOffset;
     if (event.selected * itemsPerPage >= 0 && event.selected * itemsPerPage <= lengthAllCrawls ){
@@ -238,12 +232,12 @@ function Home() {
     let startId = crawlIdList[newOffset]
     let endIndex;
     let endId;
-    if (newOffset+3 >= lengthAllCrawls){
+    if (newOffset + itemsPerPage >= lengthAllCrawls){
       endIndex = lengthAllCrawls;
       endId = crawlIdList[endIndex-1]
       endId += 1;
     } else {
-      endIndex = newOffset+3;
+      endIndex = newOffset + itemsPerPage;
       endId = crawlIdList[endIndex]
     }
     console.log("endIndex: ", endIndex)
@@ -257,6 +251,8 @@ function Home() {
     setCurrentItems(data);
     setItemOffset(newOffset);
   };
+
+  // invoked on click Next on Pagination bar on search results WITH SEARCH TERM
    const handleNextClickSearchResult = async (event) => {
     let newOffset = itemOffsetSearchResult;
     
@@ -270,12 +266,12 @@ function Home() {
     let startId = crawlIdListSearchResult[newOffset]
     let endIndex;
     let endId;
-    if (newOffset+3 >= lengthAllCrawlsSearchResult){
+    if (newOffset + itemsPerPage >= lengthAllCrawlsSearchResult){
       endIndex = lengthAllCrawlsSearchResult;
       endId = crawlIdListSearchResult[endIndex-1]
       endId += 1;
     } else {
-      endIndex = newOffset+3;
+      endIndex = newOffset + itemsPerPage;
       endId = crawlIdListSearchResult[endIndex]
     }
     console.log("endIndex: ", endIndex)
@@ -289,8 +285,8 @@ function Home() {
     const { data } = await axios.get(
       `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/search_crawls_by_title/${searchValue}/?start_id=${startId}&end_id=${endId}`
       );
-    console.log(data)
-    setCurrentItemsSearchResult(data);
+    
+    setTitleSearchRes(data)
     setItemOffsetSearchResult(newOffset);
   };
 
@@ -310,6 +306,8 @@ function Home() {
           style={{ width: 500, marginTop: 32, marginBottom: 32 }}
         />
       </Row>
+
+      {/* WITH SEARCH TERM!!! */}
       <Row style={{ justifyContent: "center" }}>
         <Row style={{ justifyContent: "center", maxWidth: "1000px" }}>
           {titleSearchRes?.length === 0 &&  (
@@ -317,14 +315,8 @@ function Home() {
               No crawls found. Explore crawls below.
             </div>
           )}
-          {/* {titleSearchRes?.map(renderCrawlCard)} */}
-          
-         
-          {/* { titleSearchRes?.length !== 0 && currentItemsSearchResult?.slice(0).map(renderCrawlCard)}
-          { currentItemsSearchResult?.slice(0).map(renderCrawlCard)} */}
-
           {titleSearchRes !== null && titleSearchRes.length > 0 && 
-             currentItemsSearchResult?.slice(0).map(renderCrawlCard)
+             titleSearchRes?.slice(0).map(renderCrawlCard)
            }
           {titleSearchRes !== null && titleSearchRes.length > 0 && 
             <div style={{width: "100%"}}>
@@ -346,13 +338,15 @@ function Home() {
             }
         </Row>
       </Row>
+
+
+      {/* NO SEARCH TERM!!!! */}
       {(titleSearchRes === null || titleSearchRes.length === 0) && (
         <Row style={{ justifyContent: "center" }}>
           <Row style={{ justifyContent: "center", maxWidth: "1000px" }}>
-            {allCrawls?.length === 0 && (
+            {lengthAllCrawls === 0 && (
               <div style={{ margin: "1rem" }}>No crawls posted yet</div>
             )}
-            {/* {titleSearchRes?.map(renderCrawlCard)} */}
             {currentItems?.slice(0).map(renderCrawlCard)}
             <div style={{width: "100%"}}>
             <div className="pagination-strip">
