@@ -52,7 +52,7 @@ urlpatterns = [
         views.search_crawls_by_title_author_tag,
         name="search_crawls_by_title_author_tag",
     ),
-    path("random/", views.get_random_crawl, name="get_random_crawl")
+    path("random/", views.get_random_crawl, name="get_random_crawl"),
 ]
 
 
