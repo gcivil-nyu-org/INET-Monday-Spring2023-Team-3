@@ -158,8 +158,7 @@ function Home() {
         setTitleSearchRes(titleData);
         handlePagingWithSearch(titleData, search_res.data.search_count);
         setLengthAllCralwsSearchResult(search_res.data.search_count);
-        console.log("titleSearchRes: ", titleData)
-        console.log()
+        
   
       } else {
         setTitleSearchRes([]);
@@ -232,13 +231,10 @@ function Home() {
   
    // invoked on click Next on Pagination bar on WITHOUT SEARCH TERM
    const handleNextClick = async (event) => {
-    console.log("----------------------------------")
     let newOffset = itemOffset;
     if (event.selected * itemsPerPage >= 0 && event.selected * itemsPerPage <= lengthAllCrawls ){
       newOffset = (event.selected * itemsPerPage);
     }
-    console.log("newOffset: ", newOffset)
-    console.log("lengthAllCrawls: ", lengthAllCrawls)
     
     let startId = crawlIdList[newOffset]
     let endIndex;
@@ -251,9 +247,6 @@ function Home() {
       endIndex = newOffset + itemsPerPage;
       endId = crawlIdList[endIndex]
     }
-    console.log("endIndex: ", endIndex)
-    console.log("startId: ", startId)
-    console.log("endid: ", endId)
 
     const { data } = await axios.get(
       `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/all/?start_id=${startId}&end_id=${endId}`,
@@ -267,13 +260,9 @@ function Home() {
    const handleNextClickSearchResult = async (event) => {
     let newOffset = itemOffsetSearchResult;
     
-    console.log("----------------------------------")
     if (event.selected * itemsPerPage >= 0 && event.selected * itemsPerPage <= lengthAllCrawlsSearchResult ){
       newOffset = (event.selected * itemsPerPage);
     }
-    console.log(crawlIdListSearchResult)
-    console.log("newOffset: ", newOffset)
-    console.log("lengthAllCrawlsSearchResult: ", lengthAllCrawlsSearchResult)
     let startId = crawlIdListSearchResult[newOffset]
     let endIndex;
     let endId;
