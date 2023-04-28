@@ -223,8 +223,6 @@ def search_crawls_by_title(request, title):
         target_crawls = Crawl.objects.filter(
             title__icontains=title, id__range=(start_id, end_id - 1)
         )
-        print(title)
-        print(len(target_crawls))
         # sliced_crawls = target_crawls[start_id:end_id]
         out = process_crawl_query_set(target_crawls)
         return Response(out)
@@ -242,7 +240,6 @@ def get_crawl_search_res_count(request, title):
         target_crawls_length = len(target_crawls)
         out = [x.id for x in target_crawls]
         data = {"search_count": len(target_crawls), "crawl_ids": out}
-        print(out)
         return Response(data)
     except Exception as e:
         print(e)
