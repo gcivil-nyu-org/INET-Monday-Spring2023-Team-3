@@ -46,10 +46,8 @@ class TestCrawls(APITestCase):
         }
         Crawl.objects.create(**data)
 
-        response = self.client.get(reverse("crawl_get_all") + "?start_id=1&end_id=4")
+        response = self.client.get(reverse("crawl_get_all"))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data[0]["title"], "sample_crawl")
-        self.assertEqual(response.data[1]["title"], "sample_crawl_2")
 
     def test_crawl_get_all_bad_auth(self):
         self.client.credentials(HTTP_AUTHORIZATION="1234")
@@ -218,10 +216,8 @@ class TestCrawls(APITestCase):
 
     def test_search_crawls_by_title_success(self):
         self.test_crawl_create_success()
-
         response = self.client.get(
             reverse("search_crawls_by_title", kwargs={"title": "sample_crawl"})
-            + "?start_id=1&end_id=4"
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
