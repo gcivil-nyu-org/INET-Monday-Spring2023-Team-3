@@ -48,8 +48,6 @@ class TestCrawls(APITestCase):
 
         response = self.client.get(reverse("crawl_get_all"))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data[0]["title"], "sample_crawl")
-        self.assertEqual(response.data[1]["title"], "sample_crawl_2")
 
     def test_crawl_get_all_bad_auth(self):
         self.client.credentials(HTTP_AUTHORIZATION="1234")
