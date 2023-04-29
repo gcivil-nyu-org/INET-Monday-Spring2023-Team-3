@@ -285,10 +285,11 @@ def search_crawls_by_title_author_tag(request, query):
     except Exception as e:
         print(e)
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    
-    @api_view(["GET"])
+
+
+@api_view(["GET"])
 @is_protected_route
-def search_crawls_by_title_author_tag(request, query):
+def search_crawls_generalized(request, query):
     try:
         title_crawls = Crawl.objects.filter(title__icontains=query)
 
@@ -308,9 +309,6 @@ def search_crawls_by_title_author_tag(request, query):
     except Exception as e:
         print(e)
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-
 
 
 @api_view(["GET"])
