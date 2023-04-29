@@ -46,9 +46,6 @@ urlpatterns = [
         views.search_crawls_by_title_author_tag,
         name="search_crawls_by_title_author_tag",
     ),
-    path('crawl_ids/', views.get_crawl_ids, name='crawl_ids'),
-    path("random/", views.get_random_crawl, name="get_random_crawl"),
-
 ]
 
 
