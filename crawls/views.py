@@ -52,7 +52,7 @@ def process_crawl(crawl):
     return out
 
 
-def crawl_search_by_title_author_search(query):
+def crawl_search_by_title_author_tag(query):
     """
     generalized search, takes query string and return query set of crawls
     filtered by title, author, and search
@@ -316,7 +316,7 @@ def add_tags_to_crawl(request):
 @is_protected_route
 def search_crawls_generalized(request, query):
     try:
-        all_crawls = crawl_search_by_title_author_search(query)
+        all_crawls = crawl_search_by_title_author_tag(query)
         out = process_crawl_query_set(all_crawls)
         return Response(out)
     except Exception as e:
@@ -343,7 +343,7 @@ def get_random_crawl(request):
 @is_protected_route
 def get_random_filtered_crawl(request, query):
     try:
-        all_crawls = crawl_search_by_title_author_search(query)
+        all_crawls = crawl_search_by_title_author_tag(query)
         crawl_count = len(all_crawls)
         index = random.randint(0, crawl_count - 1)
         crawl = all_crawls[index]
