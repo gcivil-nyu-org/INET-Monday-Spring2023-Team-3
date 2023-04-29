@@ -276,7 +276,6 @@ def add_tags_to_crawl(request):
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-
 @api_view(["GET"])
 @is_protected_route
 def search_crawls_by_title_author_tag(request, query):
