@@ -54,7 +54,7 @@ def process_crawl(crawl):
 
 def crawl_search_by_title_author_tag(query):
     """
-    generalized search, takes query string and return query set of crawls
+    generalized search, takes query string and returns query set of crawls
     filtered by title, author, and search
     """
     title_crawls = Crawl.objects.filter(title__icontains=query)
