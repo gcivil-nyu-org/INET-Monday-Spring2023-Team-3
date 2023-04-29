@@ -47,7 +47,6 @@ urlpatterns = [
         views.get_crawl_search_res_count,
         name="get_crawl_search_res_count",
     ),
-    path("crawl_ids/", views.get_crawl_ids, name="crawl_ids"),
 ]
 
 
