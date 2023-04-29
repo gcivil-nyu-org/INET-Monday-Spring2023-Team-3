@@ -32,15 +32,15 @@ function Home() {
   const [allCrawls, setAllCrawls] = useState(null);
 
   const [titleSearchRes, setTitleSearchRes] = useState(null);
-  const [itemOffset, setItemOffset] = useState(1);
+  const [itemOffset, setItemOffset] = useState(0);
   const itemsPerPage = 3;
-  const [searchValue, setSearchValue] = useState("");
-
+  const endOffset = itemOffset + itemsPerPage;
   const [currentItems, setCurrentItems] = useState([]);
   const [pageCount, setPageCount] = useState(0);
   const [lengthAllCrawls, setLengthAllCralws] = useState(0);
 
-  const [itemOffsetSearchResult, setItemOffsetSearchResult] = useState(1);
+  const [itemOffsetSearchResult, setItemOffsetSearchResult] = useState(0);
+  
   const [currentItemsSearchResult, setCurrentItemsSearchResult] = useState([]);
   const [pageCountSearchResult, setPageCountSearchResult] = useState(0);
   const [lengthAllCrawlsSearchResult, setLengthAllCralwsSearchResult] = useState(0);
@@ -64,38 +64,38 @@ function Home() {
   };
   useEffect(() => {
     if (titleSearchRes === null){
-      setItemOffset(1);
-      setItemOffsetSearchResult(1);
+      setItemOffset(0);
     }
   }, [titleSearchRes]);
 
   const getAllCrawls = async () => {
     try {
       const { data } = await axios.get(
-        `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/all/?start_id=${itemOffset}&end_id=${itemOffset+3}`,
+        `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/all/`
       );
-      const total_count = await axios.get(
-        `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/get_crawl_count/`
-      )
       setAllCrawls(data);
-      setLengthAllCralws(total_count.data);
-      handlePaging(data, total_count.data);
+      setLengthAllCralws(data.length);
+      handlePaging(data);
     } catch (e) {
       localStorage.removeItem("jwt");
       document.cookie = 'jwt=; Max-Age=-99999999;';  
       history.replace("/login");
     }
   };
-  const handlePaging = async(data, length) => {
-    const pageCount = Math.ceil(length / itemsPerPage);
-    setCurrentItems(data);
+  const handlePaging = async(data) => {
+    const slicedItems = data.slice(itemOffset, endOffset);
+    const pageCount = Math.ceil(data.length / itemsPerPage);
+    setCurrentItems(slicedItems);
     setPageCount(pageCount);
   }
-  const handlePagingWithSearch = async(data, length) => {
-    const pageCount = Math.ceil(length / itemsPerPage);
-    setCurrentItemsSearchResult(data);
-    setPageCountSearchResult(pageCount);
-
+  const handlePagingWithSearch = async(data) => {
+    // console.log(data)
+    let new_itemOffsetSearchResult = 0;
+    const search_res_slicedItems = data.slice(new_itemOffsetSearchResult, new_itemOffsetSearchResult + itemsPerPage);
+    const search_res_pageCount = Math.ceil(data.length / itemsPerPage);
+    setItemOffsetSearchResult(new_itemOffsetSearchResult)
+    setCurrentItemsSearchResult(search_res_slicedItems);
+    setPageCountSearchResult(search_res_pageCount);
   }
 
   
@@ -105,18 +105,12 @@ function Home() {
       return;
     }
     try {
-      setSearchValue(value);
-      // `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/all/?start_id=${newOffset}&end_id=${newOffset+3}`,
       let { data: titleData } = await axios.get(
-        `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/search_crawls_by_title/${value}/?start_id=${itemOffsetSearchResult}&end_id=${itemOffsetSearchResult+3}`
-      );
-      let search_count = await axios.get(
-        `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/get_crawl_search_res_count/${value}/`
+        `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/search_crawls_by_title/${value}/`
       );
       setTitleSearchRes(titleData);
-      handlePagingWithSearch(titleData, search_count.data);
-      
-      setLengthAllCralwsSearchResult(search_count.data);
+      handlePagingWithSearch(titleData);
+      setLengthAllCralwsSearchResult(titleData.length)
     } catch (e) {
       setTitleSearchRes([]);
     }
@@ -166,28 +160,22 @@ function Home() {
   );
   
    // Invoke when user click to request another page.
-   const handleNextClick = async (event) => {
+   const handleNextClick = (event) => {
     let newOffset = itemOffset;
     if (event.selected * itemsPerPage >= 0 && event.selected * itemsPerPage <= lengthAllCrawls ){
-      newOffset = (event.selected * itemsPerPage) + 1;
+      newOffset = event.selected * itemsPerPage;
     }
-    const { data } = await axios.get(
-      `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/all/?start_id=${newOffset}&end_id=${newOffset+3}`,
-    );
-    
-    setCurrentItems(data);
+    const slicedItems = allCrawls.slice(itemOffset, endOffset);
+    setCurrentItems(slicedItems);
     setItemOffset(newOffset);
   };
-   const handleNextClickSearchResult = async (event) => {
+   const handleNextClickSearchResult = (event) => {
     let newOffset = itemOffsetSearchResult;
     if (event.selected * itemsPerPage >= 0 && event.selected * itemsPerPage <= lengthAllCrawlsSearchResult ){
-      newOffset = (event.selected * itemsPerPage) + 1;
+      newOffset = event.selected * itemsPerPage;
     }
-    // const slicedItems = titleSearchRes.slice(newOffset, newOffset+itemsPerPage);
-    const { data } = await axios.get(
-      `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/search_crawls_by_title/${searchValue}/?start_id=${newOffset}&end_id=${newOffset+3}`
-      );
-    setCurrentItemsSearchResult(data);
+    const slicedItems = titleSearchRes.slice(newOffset, newOffset+itemsPerPage);
+    setCurrentItemsSearchResult(slicedItems);
     setItemOffsetSearchResult(newOffset);
   };
 
@@ -195,7 +183,7 @@ function Home() {
   useEffect(() => {
     getProfile();
     getAllCrawls();
-  }, [itemOffset]);
+  }, [itemOffset, endOffset]);
   if (!isMounted) return <div></div>;
   return (
     <>
