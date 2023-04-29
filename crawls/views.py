@@ -61,9 +61,16 @@ def crawl_get_all(request):
     get all crawls
 
     """
-    crawls = Crawl.objects.all()
+    perPage = int(request.GET.get("perPage", "3"))
+    page = int(request.GET.get("page", "1"))
+    crawls = Crawl.objects.all()[
+        perPage * (page - 1) : perPage * (page) + 1  # noqa: E203
+    ]
+    hasNext = len(crawls) > perPage
+    if hasNext:
+        crawls = crawls[: len(crawls) - 1]
     out = process_crawl_query_set(crawls)
-    return Response(out)
+    return Response({"page": page, "crawls": out, "hasNext": hasNext})
 
 
 @api_view(["GET"])
@@ -203,9 +210,16 @@ def search_crawls_by_author(request, username):
 def search_crawls_by_title(request, title):
     # returns an empty dataset if no crawls with specified title
     try:
-        target_crawls = Crawl.objects.filter(title__icontains=title)
-        out = process_crawl_query_set(target_crawls)
-        return Response(out)
+        perPage = int(request.GET.get("perPage", "3"))
+        page = int(request.GET.get("page", "1"))
+        crawls = Crawl.objects.filter(title__icontains=title)[
+            perPage * (page - 1) : perPage * (page) + 1  # noqa: E203
+        ]
+        hasNext = len(crawls) > perPage
+        if hasNext:
+            crawls = crawls[: len(crawls) - 1]
+        out = process_crawl_query_set(crawls)
+        return Response({"page": page, "crawls": out, "hasNext": hasNext})
     except Exception as e:
         print(e)
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
