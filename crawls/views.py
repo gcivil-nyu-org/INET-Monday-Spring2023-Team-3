@@ -69,14 +69,7 @@ def crawl_get_all(request):
     get all crawls
 
     """
-    perPage = int(request.GET.get("perPage", "3"))
-    page = int(request.GET.get("page", "1"))
-    crawls = Crawl.objects.all()[
-        perPage * (page - 1) : perPage * (page) + 1  # noqa: E203
-    ]
-    hasNext = len(crawls) > perPage
-    if hasNext:
-        crawls = crawls[: len(crawls) - 1]
+    crawls = Crawl.objects.all()
     out = process_crawl_query_set(crawls)
     return Response({"page": page, "crawls": out, "hasNext": hasNext})
 
@@ -217,24 +210,9 @@ def search_crawls_by_author(request, username):
 def search_crawls_by_title(request, title):
     # returns an empty dataset if no crawls with specified title
     try:
-        start_id = int(request.GET["start_id"]) - 1
-        end_id = int(request.GET["end_id"]) - 1
         target_crawls = Crawl.objects.filter(title__icontains=title)
-        sliced_crawls = target_crawls[start_id:end_id]
-        out = process_crawl_query_set(sliced_crawls)
+        out = process_crawl_query_set(target_crawls)
         return Response(out)
-    except Exception as e:
-        print(e)
-        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-@api_view(["GET"])
-@is_protected_route
-def get_crawl_search_res_count(request, title):
-    # returns an empty dataset if no crawls with specified title
-    try:
-        target_crawls = Crawl.objects.filter(title__icontains=title)
-        return Response(len(target_crawls))
     except Exception as e:
         print(e)
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
