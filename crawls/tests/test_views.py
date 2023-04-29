@@ -2,7 +2,7 @@ from rest_framework.test import APITestCase
 from rest_framework import status
 from django.urls import reverse
 from api.models import User
-from crawls.models import Crawl
+from crawls.models import Crawl, Tag
 import json
 
 
@@ -260,3 +260,37 @@ class TestCrawls(APITestCase):
         )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_search_crawls_generalized_success(self):
+        self.test_crawl_create_success()
+
+        response = self.client.get(
+            reverse("search_crawls_generalized", kwargs={"query": self.username})
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_search_crawls_generalized_success_with_tag(self):
+        self.test_crawl_create_success()
+        crawl = Crawl.objects.get(title="sample_crawl")
+        tag = Tag.objects.create(title="test")
+        crawl.tags.add(tag)
+        response = self.client.get(
+            reverse("search_crawls_generalized", kwargs={"query": "test"})
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_get_random_crawl_success(self):
+        self.test_crawl_create_success()
+        user = User.objects.get(username=self.username)
+        crawl_data = {"google_place_id": "12335"}
+        data = {
+            "title": "sample_crawl_2",
+            "author": user,
+            "data": json.dumps(crawl_data),
+        }
+        Crawl.objects.create(**data)
+
+        response = self.client.get(reverse("get_random_crawl"))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)

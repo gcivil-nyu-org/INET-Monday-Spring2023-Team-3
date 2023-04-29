@@ -9,6 +9,7 @@ from api.decorators import is_protected_route
 from api.utils import get_user_from_jwt
 import json
 import base64
+import random
 
 
 def process_crawl_query_set(crawls):
@@ -267,3 +268,55 @@ def add_tags_to_crawl(request):
     except Exception as e:
         print(e)
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(["GET"])
+@is_protected_route
+def search_crawls_generalized(request, query):
+    try:
+        title_crawls = Crawl.objects.filter(title__icontains=query)
+
+        users = User.objects.filter(username__icontains=query)
+        username_crawls = Crawl.objects.none()
+        for user in users:
+            username_crawls = username_crawls | Crawl.objects.filter(author=user)
+
+        tags = Tag.objects.filter(title__icontains=query)
+        tag_crawls = Crawl.objects.none()
+        for tag in tags:
+            tag_crawls = tag_crawls | tag.crawls.all()
+
+        all_crawls = title_crawls | username_crawls | tag_crawls
+        out = process_crawl_query_set(all_crawls)
+        return Response(out)
+    except Exception as e:
+        print(e)
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(["GET"])
+@is_protected_route
+def get_random_crawl(request):
+    try:
+        crawls = Crawl.objects.all()
+        crawl_count = Crawl.objects.count()
+        index = random.randint(0, crawl_count - 1)
+        crawl = crawls[index]
+        tag_set = crawl.tags.all()
+        tag_list = []
+        for tag in tag_set:
+            tag_list.append(tag.title)
+        out = {
+            "id": crawl.id,
+            "title": crawl.title,
+            "data": json.loads(crawl.data),
+            "author": crawl.author.username,
+            "description": crawl.description,
+            "created_at": crawl.created_at,
+            "author_profile_pic": crawl.author.profile_pic,
+            "tags": tag_list,
+        }
+        return Response(out)
+    except Exception as e:
+        print(e)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
