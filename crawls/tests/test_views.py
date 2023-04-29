@@ -294,3 +294,19 @@ class TestCrawls(APITestCase):
 
         response = self.client.get(reverse("get_random_crawl"))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_get_random_filtered_crawl_success(self):
+        self.test_crawl_create_success()
+        user = User.objects.get(username=self.username)
+        crawl_data = {"google_place_id": "12335"}
+        data = {
+            "title": "sample_crawl_2",
+            "author": user,
+            "data": json.dumps(crawl_data),
+        }
+        Crawl.objects.create(**data)
+        response = self.client.get(
+            reverse("get_random_filtered_crawl", kwargs={"query": self.username})
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)

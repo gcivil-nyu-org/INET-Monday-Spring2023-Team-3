@@ -47,6 +47,11 @@ urlpatterns = [
         name="search_crawls_generalized",
     ),
     path("get_random_crawl/", views.get_random_crawl, name="get_random_crawl"),
+    path(
+        "get_random_filtered_crawl/<str:query>",
+        views.get_random_filtered_crawl,
+        name="get_random_filtered_crawl",
+    ),
 ]
 
 

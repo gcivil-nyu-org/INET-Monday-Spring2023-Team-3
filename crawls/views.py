@@ -31,6 +31,48 @@ def process_crawl_query_set(crawls):
     return out
 
 
+def process_crawl(crawl):
+    """
+    takes in single crawl, return crawl data dict
+    """
+    tag_set = crawl.tags.all()
+    tag_list = []
+    for tag in tag_set:
+        tag_list.append(tag.title)
+    out = {
+        "id": crawl.id,
+        "title": crawl.title,
+        "data": json.loads(crawl.data),
+        "author": crawl.author.username,
+        "description": crawl.description,
+        "created_at": crawl.created_at,
+        "author_profile_pic": crawl.author.profile_pic,
+        "tags": tag_list,
+    }
+    return out
+
+
+def crawl_search_by_title_author_search(query):
+    """
+    generalized search, takes query string and return query set of crawls
+    filtered by title, author, and search
+    """
+    title_crawls = Crawl.objects.filter(title__icontains=query)
+
+    users = User.objects.filter(username__icontains=query)
+    username_crawls = Crawl.objects.none()
+    for user in users:
+        username_crawls = username_crawls | Crawl.objects.filter(author=user)
+
+    tags = Tag.objects.filter(title__icontains=query)
+    tag_crawls = Crawl.objects.none()
+    for tag in tags:
+        tag_crawls = tag_crawls | tag.crawls.all()
+
+    all_crawls = title_crawls | username_crawls | tag_crawls
+    return all_crawls
+
+
 @api_view(["POST"])
 @is_protected_route
 def crawl_create(request):
@@ -274,19 +316,7 @@ def add_tags_to_crawl(request):
 @is_protected_route
 def search_crawls_generalized(request, query):
     try:
-        title_crawls = Crawl.objects.filter(title__icontains=query)
-
-        users = User.objects.filter(username__icontains=query)
-        username_crawls = Crawl.objects.none()
-        for user in users:
-            username_crawls = username_crawls | Crawl.objects.filter(author=user)
-
-        tags = Tag.objects.filter(title__icontains=query)
-        tag_crawls = Crawl.objects.none()
-        for tag in tags:
-            tag_crawls = tag_crawls | tag.crawls.all()
-
-        all_crawls = title_crawls | username_crawls | tag_crawls
+        all_crawls = crawl_search_by_title_author_search(query)
         out = process_crawl_query_set(all_crawls)
         return Response(out)
     except Exception as e:
@@ -302,20 +332,22 @@ def get_random_crawl(request):
         crawl_count = Crawl.objects.count()
         index = random.randint(0, crawl_count - 1)
         crawl = crawls[index]
-        tag_set = crawl.tags.all()
-        tag_list = []
-        for tag in tag_set:
-            tag_list.append(tag.title)
-        out = {
-            "id": crawl.id,
-            "title": crawl.title,
-            "data": json.loads(crawl.data),
-            "author": crawl.author.username,
-            "description": crawl.description,
-            "created_at": crawl.created_at,
-            "author_profile_pic": crawl.author.profile_pic,
-            "tags": tag_list,
-        }
+        out = process_crawl(crawl)
+        return Response(out)
+    except Exception as e:
+        print(e)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(["GET"])
+@is_protected_route
+def get_random_filtered_crawl(request, query):
+    try:
+        all_crawls = crawl_search_by_title_author_search(query)
+        crawl_count = len(all_crawls)
+        index = random.randint(0, crawl_count - 1)
+        crawl = all_crawls[index]
+        out = process_crawl(crawl)
         return Response(out)
     except Exception as e:
         print(e)
