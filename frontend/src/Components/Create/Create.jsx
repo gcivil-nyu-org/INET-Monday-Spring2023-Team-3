@@ -285,12 +285,12 @@ function Create() {
         out.geocoded_waypoints.push(...res.geocoded_waypoints);
         out.routes[0].legs.push(...res.routes[0].legs);
         out.routes[0].bounds.extend({
-          lng: res.routes[0].bounds.Ha.hi,
-          lat: res.routes[0].bounds.Va.hi,
+          lng: res.routes[0].bounds.Ga.hi,
+          lat: res.routes[0].bounds.Ua.hi,
         });
         out.routes[0].bounds.extend({
-          lng: res.routes[0].bounds.Ha.lo,
-          lat: res.routes[0].bounds.Va.lo,
+          lng: res.routes[0].bounds.Ga.lo,
+          lat: res.routes[0].bounds.Ua.lo,
         });
         out.time += res.routes[0].legs
           .map((x) => x.duration.value)
