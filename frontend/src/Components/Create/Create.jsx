@@ -39,8 +39,7 @@ function Create() {
   const searchBox = useRef(null);
   const [chosenPoints, setChosenPoints] = useState([]);
   const [directions, setDirections] = useState({});
-  const [page, setPage] = useState(1); // UNCOMMENT LATER!!!!!
-  //const [page, setPage] = useState(2);
+  const [page, setPage] = useState(1);
   const [description, setDescription] = useState("");
   const [descriptionError, setDescriptionError] = useState("");
   const [imageError, setImageError] = useState("");
@@ -193,7 +192,6 @@ function Create() {
     if (!hasSubmittedOnce) setHasSubmittedOnce(true);
     if (!verify()) return;
     try {
-      // Uncomment below after!!!!
       await axios.post(
         `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/`,
         {
