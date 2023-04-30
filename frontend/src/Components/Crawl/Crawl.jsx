@@ -170,7 +170,6 @@ function Crawl(props) {
       const { data } = await axios.get(
         `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/get_crawl_by_id/${crawl_id}/`
       );
-      console.log(data)
       let formattedDate = convertDateHumanReadable(data.created_at);
       data.formattedDate = formattedDate;
       await setCrawlDetail(data);

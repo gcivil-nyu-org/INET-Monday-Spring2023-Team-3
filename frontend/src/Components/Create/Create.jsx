@@ -70,7 +70,6 @@ function Create() {
   }, [inputValue]);
   const handleClose = (removedTag) => {
     const newTags = tags.filter((tag) => tag !== removedTag);
-    console.log(newTags);
     setTags(newTags);
   };
   const showInput = () => {
@@ -93,7 +92,6 @@ function Create() {
     const newTags = [...tags];
     newTags[editInputIndex] = editInputValue;
     setTags(newTags);
-    console.log(newTags)
     setEditInputIndex(-1);
     setInputValue('');
   };
@@ -210,11 +208,9 @@ function Create() {
       )
       
       let joinedTagString = ""
-      console.log("tag length is: ", tags.length);
-      console.log("crawl title: ", title.trim())
+      
       if (tags.length > 0){
         joinedTagString = tags.join();
-        console.log("joinedTagString is: ", joinedTagString)
         await axios.post(
           `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/add_tags_to_crawl/`,
           {

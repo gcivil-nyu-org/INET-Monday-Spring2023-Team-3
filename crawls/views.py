@@ -253,9 +253,6 @@ def add_tags_to_crawl(request):
     try:
         crawl = Crawl.objects.get(title=request.data["crawl_title"])
         tag_list = request.data["tags"].split(",")
-        print(" ------------------------------ ")
-        print(tag_list)
-        
         for tag in tag_list:
             tag = tag.strip().lower()
             # weird concurrency bug wouldn't let me just use get_or_create
