@@ -1,0 +1,21 @@
+.pagination-strip{
+    display: flex;
+    justify-content: center;
+    white-space: nowrap;
+    border-radius: 8px;
+    padding-right: 0;
+}
+.pagination-strip .page-bar {
+    display:flex;
+    margin: 0;
+    padding-left: 0;
+}
+.pagination-strip .page-bar li {
+    display: block;
+    padding: 1rem 2rem;
+}
+.pagination-strip .page-bar .active {
+    color: #0f1111;
+    font-weight: 700;
+    border: 1px solid #0f1111;
+}

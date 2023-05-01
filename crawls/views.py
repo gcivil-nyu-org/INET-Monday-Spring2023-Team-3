@@ -6,9 +6,11 @@ from django.http import HttpResponse
 from crawls.models import Crawl, Tag
 from api.models import User
 from api.decorators import is_protected_route
-from api.utils import get_user_from_jwt
+
+# from api.utils import get_user_from_jwt
 import json
 import base64
+import random
 
 
 def process_crawl_query_set(crawls):
@@ -28,6 +30,48 @@ def process_crawl_query_set(crawls):
             }
         )
     return out
+
+
+def process_crawl(crawl):
+    """
+    takes in single crawl, return crawl data dict
+    """
+    tag_set = crawl.tags.all()
+    tag_list = []
+    for tag in tag_set:
+        tag_list.append(tag.title)
+    out = {
+        "id": crawl.id,
+        "title": crawl.title,
+        "data": json.loads(crawl.data),
+        "author": crawl.author.username,
+        "description": crawl.description,
+        "created_at": crawl.created_at,
+        "author_profile_pic": crawl.author.profile_pic,
+        "tags": tag_list,
+    }
+    return out
+
+
+def crawl_search_by_title_author_tag(query):
+    """
+    generalized search, takes query string and returns query set of crawls
+    filtered by title, author, and search
+    """
+    title_crawls = Crawl.objects.filter(title__icontains=query)
+
+    users = User.objects.filter(username__icontains=query)
+    username_crawls = Crawl.objects.none()
+    for user in users:
+        username_crawls = username_crawls | Crawl.objects.filter(author=user)
+
+    tags = Tag.objects.filter(title__icontains=query)
+    tag_crawls = Crawl.objects.none()
+    for tag in tags:
+        tag_crawls = tag_crawls | tag.crawls.all()
+
+    all_crawls = title_crawls | username_crawls | tag_crawls
+    return all_crawls
 
 
 @api_view(["POST"])
@@ -80,10 +124,10 @@ def get_crawl_picture(request, crawl_id):
 
     """
     try:
-        jwt = request.COOKIES.get("jwt")
+        # jwt = request.COOKIES.get("jwt")
         # Should be used to verify access
-        user = get_user_from_jwt(jwt)
-        request.user = user
+        # user = get_user_from_jwt(jwt)
+        # request.user = user
         target_crawl = Crawl.objects.get(id=crawl_id)
         data_uri = target_crawl.picture
         image_data = data_uri.partition("base64,")[2]
@@ -269,3 +313,53 @@ def add_tags_to_crawl(request):
     except Exception as e:
         print(e)
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(["GET"])
+@is_protected_route
+def search_crawls_generalized(request, query):
+    try:
+        perPage = int(request.GET.get("perPage", "3"))
+        page = int(request.GET.get("page", "1"))
+        all_crawls = crawl_search_by_title_author_tag(query)
+        all_crawls = all_crawls[
+            perPage * (page - 1) : perPage * (page) + 1  # noqa E203
+        ]
+        hasNext = len(all_crawls) > perPage
+        if hasNext:
+            all_crawls = all_crawls[: len(all_crawls) - 1]
+        out = process_crawl_query_set(all_crawls)
+        return Response({"page": page, "crawls": out, "hasNext": hasNext})
+    except Exception as e:
+        print(e)
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(["GET"])
+@is_protected_route
+def get_random_crawl(request):
+    try:
+        crawls = Crawl.objects.all()
+        crawl_count = Crawl.objects.count()
+        index = random.randint(0, crawl_count - 1)
+        crawl = crawls[index]
+        out = process_crawl(crawl)
+        return Response(out)
+    except Exception as e:
+        print(e)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(["GET"])
+@is_protected_route
+def get_random_filtered_crawl(request, query):
+    try:
+        all_crawls = crawl_search_by_title_author_tag(query)
+        crawl_count = len(all_crawls)
+        index = random.randint(0, crawl_count - 1)
+        crawl = all_crawls[index]
+        out = process_crawl(crawl)
+        return Response(out)
+    except Exception as e:
+        print(e)
+        return Response(status=status.HTTP_400_BAD_REQUEST)

@@ -58,6 +58,12 @@ function Navbar() {
         >
           <Text style={location.pathname.startsWith("/profile") ? activeStyle : {}}>Profile</Text>
         </Link>
+        <Link
+          style={{ textDecoration: "none", marginLeft: 24 }}
+          to={`/random/`}
+        >
+          <Text style={location.pathname.startsWith("/random") ? activeStyle : {}}>Get a Random Crawl!</Text>
+        </Link>
       </Pane>
       <Pane>
         <Button onClick={logout} appearance="minimal">

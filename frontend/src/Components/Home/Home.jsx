@@ -67,7 +67,7 @@ function Home() {
       let { data } = await axios.get(
         `${
           process.env.REACT_APP_SERVER_URL_PREFIX
-        }/api/crawls/search_crawls_by_title/${
+        }/api/crawls/search_crawls_generalized/${
           value || searchTerm
         }/?perPage=${itemsPerPage}&page=${searchPage}`
       );
@@ -141,7 +141,7 @@ function Home() {
           allowClear
           onSearch={(x) => {
             setSearchPage(1);
-            onSearch(x);
+            onSearch(x)        
           }}
           onFocus={() => setIsSearch(true)}
           style={{ width: 500, marginTop: 32, marginBottom: 32 }}
