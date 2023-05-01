@@ -318,7 +318,15 @@ def add_tags_to_crawl(request):
 @is_protected_route
 def search_crawls_generalized(request, query):
     try:
+        perPage = int(request.GET.get("perPage", "3"))
+        page = int(request.GET.get("page", "1"))
         all_crawls = crawl_search_by_title_author_tag(query)
+        all_crawls = all_crawls[
+            perPage * (page - 1) : perPage * (page) + 1  # noqa E203
+        ]
+        hasNext = len(all_crawls) > perPage
+        if hasNext:
+            all_crawls = all_crawls[: len(all_crawls) - 1]
         out = process_crawl_query_set(all_crawls)
         return Response(out)
     except Exception as e:
