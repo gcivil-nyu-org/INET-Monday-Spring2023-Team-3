@@ -118,6 +118,7 @@ def crawl_delete(request):
 def get_crawl_by_id(request, crawl_id):
     try:
         target_crawl = Crawl.objects.get(id=crawl_id)
+        tags = target_crawl.tags.all()
         res = {
             "id": target_crawl.id,
             "title": target_crawl.title,
@@ -126,6 +127,7 @@ def get_crawl_by_id(request, crawl_id):
             "author_profile_pic": target_crawl.author.profile_pic,
             "description": target_crawl.description,
             "created_at": target_crawl.created_at,
+            "tags": [tag.title for tag in tags],
         }
         return Response(res)
     except Exception as e:
