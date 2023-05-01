@@ -17,11 +17,12 @@ import {
   Marker,
   DirectionsRenderer,
 } from "@react-google-maps/api";
-import { Button, Dropdown, Space } from "antd";
+import { Button, Dropdown, Space, Tag, Tooltip,Input } from "antd";
 import {
   DownOutlined,
   ClockCircleOutlined,
   SwapOutlined,
+  PlusOutlined
 } from "@ant-design/icons";
 import { useFilePicker } from "use-file-picker";
 import { secondsToHms, TRANSIT_TYPES } from "../../common";
@@ -50,6 +51,58 @@ function Create() {
     // minFileSize: 0.1, // in megabytes
     maxFileSize: 2,
   });
+
+  const [tags, setTags] = useState([]);
+  const [inputVisible, setInputVisible] = useState(false);
+  const [inputValue, setInputValue] = useState('');
+  const [editInputIndex, setEditInputIndex] = useState(-1);
+  const [editInputValue, setEditInputValue] = useState('');
+  const inputRef = useRef(null);
+  const editInputRef = useRef(null);
+  useEffect(() => {
+    if (inputVisible) {
+      inputRef.current?.focus();
+    }
+  }, [inputVisible]);
+  useEffect(() => {
+    editInputRef.current?.focus();
+  }, [inputValue]);
+  const handleClose = (removedTag) => {
+    const newTags = tags.filter((tag) => tag !== removedTag);
+    setTags(newTags);
+  };
+  const showInput = () => {
+    setInputVisible(true);
+  };
+  const handleInputChange = (e) => {
+    setInputValue(e.target.value);
+  };
+  const handleInputConfirm = () => {
+    if (inputValue && tags.indexOf(inputValue) === -1) {
+      setTags([...tags, inputValue]);
+    }
+    setInputVisible(false);
+    setInputValue('');
+  };
+  const handleEditInputChange = (e) => {
+    setEditInputValue(e.target.value);
+  };
+  const handleEditInputConfirm = () => {
+    const newTags = [...tags];
+    newTags[editInputIndex] = editInputValue;
+    setTags(newTags);
+    setEditInputIndex(-1);
+    setInputValue('');
+  };
+  const tagInputStyle = {
+    width: 78,
+    verticalAlign: 'top',
+  };
+  const tagPlusStyle = {
+    background: "volcano",
+    borderStyle: 'dashed',
+  };
+
 
   const onLoad = (ref) => (searchBox.current = ref);
   const onPlacesChanged = () => {
@@ -150,7 +203,21 @@ function Create() {
           picture: imageSelector.filesContent[0].content,
           description,
         }
-      );
+      )
+      
+      let joinedTagString = ""
+      
+      if (tags.length > 0){
+        joinedTagString = tags.join();
+        await axios.post(
+          `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/add_tags_to_crawl/`,
+          {
+            crawl_title: title.trim(),
+            tags: joinedTagString
+          }
+        );
+      }
+      
       toaster.success("Your crawl has been posted");
       history.replace("/");
     } catch (e) {
@@ -324,6 +391,72 @@ function Create() {
                 <Text size={400} color="red600" style={{ fontWeight: "bold" }}>
                   {descriptionError}
                 </Text>
+                <div>
+                <Space size={[0, 8]} wrap>
+      <Space size={[0, 8]} wrap>
+        {tags.map((tag, index) => {
+          if (editInputIndex === index) {
+            return (
+              <Input
+                ref={editInputRef}
+                key={tag}
+                size="small"
+                style={tagInputStyle}
+                value={editInputValue}
+                onChange={handleEditInputChange}
+                onBlur={handleEditInputConfirm}
+                onPressEnter={handleEditInputConfirm}
+              />
+            );
+          }
+          const isLongTag = tag.length > 20;
+          const tagElem = (
+            <Tag
+              key={tag}
+              closable={true}
+              style={{
+                userSelect: 'none',
+              }}
+              onClose={() => handleClose(tag)}
+            >
+              <span
+                onDoubleClick={(e) => {
+                    setEditInputIndex(index);
+                    setEditInputValue(tag);
+                    e.preventDefault();
+                }}
+              >
+                {isLongTag ? `${tag.slice(0, 20)}...` : tag}
+              </span>
+            </Tag>
+          );
+          return isLongTag ? (
+            <Tooltip title={tag} key={tag}>
+              {tagElem}
+            </Tooltip>
+          ) : (
+            tagElem
+          );
+        })}
+      </Space>
+      {inputVisible ? (
+        <Input
+          ref={inputRef}
+          type="text"
+          size="small"
+          style={tagInputStyle}
+          value={inputValue}
+          onChange={handleInputChange}
+          onBlur={handleInputConfirm}
+          onPressEnter={handleInputConfirm}
+        />
+      ) : (
+        <Tag style={tagPlusStyle} onClick={showInput}>
+          <PlusOutlined /> New Tag
+        </Tag>
+      )}
+    </Space>
+                </div>
               </>
             )}
           </Pane>

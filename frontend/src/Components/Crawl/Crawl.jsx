@@ -21,6 +21,8 @@ import {
   Dropdown,
   Avatar,
   List,
+  Tag, 
+  Tooltip
 } from "antd";
 import { useEffect, useRef, useState } from "react";
 import { Link, useHistory, useParams } from "react-router-dom";
@@ -634,6 +636,14 @@ function Crawl(props) {
                 </Button>
               )}
             </div>
+            {crawlDetail.tags && 
+               <div style={{marginTop:"1rem"}}>
+               <Space size={[0, 8]} wrap>
+                {crawlDetail.tags && crawlDetail.tags.map((tag) => (
+                    <Tag>{tag}</Tag>
+                ))}
+                </Space>
+            </div>}
             <div>
               <p>{crawlDetail.formattedDate}</p>
             </div>
