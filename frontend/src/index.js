@@ -24,6 +24,7 @@ import Navbar from "./Components/Navbar/Navbar";
 import Create from "./Components/Create/Create";
 import Profile from "./Components/Profile/Profile";
 import Crawl from "./Components/Crawl/Crawl";
+import Random from "./Components/Random/Random";
 
 axios.interceptors.request.use(function (config) {
   const token = localStorage.getItem("jwt");
@@ -77,6 +78,7 @@ root.render(
           <Navbar />
           <Switch>
             <PrivateRoute path="/" exact component={Home} />
+            <PrivateRoute path="/random" exact component={Random} />
             <PrivateRoute path="/create" exact component={Create} />
             <PrivateRoute
               path="/profile/:other_username"
