@@ -42,7 +42,7 @@ urlpatterns = [
         name="search_crawls_by_tag",
     ),
     path(
-        "search_crawls_generalized/<str:query>",
+        "search_crawls_generalized/<str:query>/",
         views.search_crawls_generalized,
         name="search_crawls_generalized",
     ),

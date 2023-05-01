@@ -328,7 +328,7 @@ def search_crawls_generalized(request, query):
         if hasNext:
             all_crawls = all_crawls[: len(all_crawls) - 1]
         out = process_crawl_query_set(all_crawls)
-        return Response(out)
+        return Response({"page": page, "crawls": out, "hasNext": hasNext})
     except Exception as e:
         print(e)
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
