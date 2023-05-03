@@ -70,7 +70,7 @@ def crawl_search_by_title_author_tag(query):
     for tag in tags:
         tag_crawls = tag_crawls | tag.crawls.all()
 
-    all_crawls = title_crawls | username_crawls | tag_crawls
+    all_crawls = title_crawls.union(username_crawls, tag_crawls)
     return all_crawls
 
 
