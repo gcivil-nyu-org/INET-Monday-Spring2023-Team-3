@@ -9,6 +9,7 @@ import {
   SearchInput,
   TimeIcon,
   SwapHorizontalIcon,
+  Textarea,
 } from "evergreen-ui";
 import { toaster } from "../../common";
 import {
@@ -21,8 +22,8 @@ import {
   Dropdown,
   Avatar,
   List,
-  Tag, 
-  Tooltip
+  Tag,
+  Tooltip,
 } from "antd";
 import { useEffect, useRef, useState } from "react";
 import { Link, useHistory, useParams } from "react-router-dom";
@@ -39,6 +40,7 @@ import {
   ClockCircleOutlined,
   SwapOutlined,
 } from "@ant-design/icons";
+import { Rating } from "react-simple-star-rating";
 import {
   secondsToHms,
   TRANSIT_TYPES,
@@ -65,6 +67,9 @@ function Crawl(props) {
   const [center, setCenter] = useState(null);
   const [locationsError, setLocationsError] = useState("");
   const [isShown, setIsShown] = useState(false);
+  const [rating, setRating] = useState(0);
+  const [review, setReview] = useState("");
+  const [allReviews, setAllReviews] = useState([]);
 
   const onLoad = (ref) => (searchBox.current = ref);
   const onPlacesChanged = () => {
@@ -262,6 +267,35 @@ function Crawl(props) {
       return data;
     } catch (e) {
       history.replace("/");
+      console.log(e);
+    }
+  };
+
+  const postReview = async () => {
+    try {
+      await axios.post(
+        `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/review/${crawl_id}/`,
+        {
+          text: review.trim(),
+          rating: rating.toString(10),
+        }
+      );
+      toaster.success("Review posted!");
+      setReview("");
+      setRating(0);
+      getAllReviews();
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const getAllReviews = async () => {
+    try {
+      const { data } = await axios.get(
+        `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/get_all_reviews/${crawl_id}/`
+      );
+      setAllReviews(data);
+    } catch (e) {
       console.log(e);
     }
   };
@@ -570,6 +604,7 @@ function Crawl(props) {
 
   useEffect(() => {
     getData();
+    getAllReviews();
   }, []);
 
   if (!isMounted) return <div></div>;
@@ -636,14 +671,14 @@ function Crawl(props) {
                 </Button>
               )}
             </div>
-            {crawlDetail.tags && 
-               <div style={{marginTop:"1rem"}}>
-               <Space size={[0, 8]} wrap>
-                {crawlDetail.tags && crawlDetail.tags.map((tag) => (
-                    <Tag>{tag}</Tag>
-                ))}
+            {crawlDetail.tags && (
+              <div style={{ marginTop: "1rem" }}>
+                <Space size={[0, 8]} wrap>
+                  {crawlDetail.tags &&
+                    crawlDetail.tags.map((tag) => <Tag>{tag}</Tag>)}
                 </Space>
-            </div>}
+              </div>
+            )}
             <div>
               <p>{crawlDetail.formattedDate}</p>
             </div>
@@ -757,6 +792,101 @@ function Crawl(props) {
             </Pane>
           </div>
         )}
+      </div>
+      <div key={1} style={{ padding: "32px", paddingTop: "1rem" }}>
+        <div
+          style={{
+            display: "flex",
+            maxWidth: "150px",
+            cursor: "pointer",
+          }}
+          className=""
+        >
+          {/* <Button type="primary" onClick={handleClickEditButton}>Edit
+                      <span
+                          style={{
+                          paddingLeft: "4px",
+                          verticalAlign: "text-top",
+                          }}
+                      >
+                          <EditIcon />
+                      </span>
+                  </Button> */}
+        </div>
+        <div
+          className="title-block"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            flexWrap: "wrap",
+            height: 60,
+          }}
+        >
+          <h2
+            style={{
+              maxWidth: "80%",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
+          >
+            Post your Review
+          </h2>
+        </div>
+        <div>
+          <Rating
+            onClick={setRating}
+            /* Available Props */
+          />
+          <Textarea
+            style={{
+              fontWeight: "bold",
+              fontSize: 16,
+              height: 64,
+              maxWidth: 1000,
+              minWidth: 1000,
+            }}
+            placeholder="Type your review..."
+            onChange={(e) => setReview(e.target.value)}
+            value={review}
+            isInvalid={review.trim() === "" || review.trim().length > 10}
+          />
+        </div>
+        <div>
+          <Button onClick={postReview}>Submit</Button>
+        </div>
+        <div
+          className="title-block"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            flexWrap: "wrap",
+            height: 60,
+          }}
+        >
+          <h2
+            style={{
+              maxWidth: "80%",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
+          >
+            Reviews
+          </h2>
+        </div>
+        <div>
+          {allReviews.map((review) => (
+            <div>
+              <Rating
+                readonly
+                initialValue={parseFloat(review.rating)}
+                /* Available Props */
+              />
+              {review.text}
+              <br />
+              By {review.author}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
