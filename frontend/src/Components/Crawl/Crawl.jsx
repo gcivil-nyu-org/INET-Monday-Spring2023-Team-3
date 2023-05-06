@@ -70,6 +70,7 @@ function Crawl(props) {
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState("");
   const [allReviews, setAllReviews] = useState([]);
+  const [currUsername, setCurrUsername] = useState("");
 
   const onLoad = (ref) => (searchBox.current = ref);
   const onPlacesChanged = () => {
@@ -270,8 +271,27 @@ function Crawl(props) {
       console.log(e);
     }
   };
+  const isValidReview = () => {
+    let author_id_to_find = currUsername;
+    console.log(currUsername)
+    if (allReviews && allReviews.length > 0) {
+      const isAuthorIdPresent = allReviews.some(obj => obj.author === author_id_to_find);
+      if (isAuthorIdPresent){
+        //Prevent duplicate reviews.
+        console.log("Already left a review!")
+        return false;
+      }
+    }
+    return true;
+  }
+
 
   const postReview = async () => {
+    if (isValidReview() == false){
+      console.log("Error!");
+      toaster.danger("Error!");
+      return;
+    }
     try {
       await axios.post(
         `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/review/${crawl_id}/`,
@@ -295,6 +315,7 @@ function Crawl(props) {
         `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/get_all_reviews/${crawl_id}/`
       );
       setAllReviews(data);
+      console.log(data)
     } catch (e) {
       console.log(e);
     }
@@ -312,7 +333,7 @@ function Crawl(props) {
       <Pane
         style={{
           width: 500,
-          height: 500,
+          height: "auto",
           overflow: "scroll",
           margin: "2rem",
         }}
@@ -552,6 +573,7 @@ function Crawl(props) {
 
   const getData = async () => {
     getProfile().then((currUserProfile) => {
+      setCurrUsername(currUserProfile.username)
       get_crawl_by_id().then((currCrawl) => {
         if (currUserProfile.username == currCrawl.author) {
           setIsCurrUserAuthor(true);
@@ -833,23 +855,28 @@ function Crawl(props) {
           </h2>
         </div>
         <div>
-          <Rating
-            onClick={setRating}
-            /* Available Props */
-          />
-          <Textarea
-            style={{
-              fontWeight: "bold",
-              fontSize: 16,
-              height: 64,
-              maxWidth: 1000,
-              minWidth: 1000,
-            }}
-            placeholder="Type your review..."
-            onChange={(e) => setReview(e.target.value)}
-            value={review}
-            isInvalid={review.trim() === "" || review.trim().length > 10}
-          />
+          <div>
+            <Rating
+              onClick={setRating}
+              /* Available Props */
+            />
+          </div>
+          <div>
+
+            <Textarea
+              style={{
+                fontWeight: "bold",
+                fontSize: 16,
+                height: 64,
+                maxWidth: 1000,
+                minWidth: 1000,
+              }}
+              placeholder="Type your review..."
+              onChange={(e) => setReview(e.target.value)}
+              value={review}
+              isInvalid={review.trim() === "" || review.trim().length > 10}
+            />
+          </div>
         </div>
         <div>
           <Button onClick={postReview}>Submit</Button>
