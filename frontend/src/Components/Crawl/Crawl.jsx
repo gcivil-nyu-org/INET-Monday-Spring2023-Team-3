@@ -272,13 +272,17 @@ function Crawl(props) {
     }
   };
   const isValidReview = () => {
+    if (rating == 0){
+       // if star was not clicked, throw error
+      toaster.danger("Error! Empty rating");
+      return false;
+    }
     let author_id_to_find = currUsername;
-    console.log(currUsername)
+    //If this author already left a review, throw error
     if (allReviews && allReviews.length > 0) {
       const isAuthorIdPresent = allReviews.some(obj => obj.author === author_id_to_find);
       if (isAuthorIdPresent){
-        //Prevent duplicate reviews.
-        console.log("Already left a review!")
+        toaster.danger("Error! Already posted a review.");
         return false;
       }
     }
@@ -289,7 +293,7 @@ function Crawl(props) {
   const postReview = async () => {
     if (isValidReview() == false){
       console.log("Error!");
-      toaster.danger("Error!");
+      
       return;
     }
     try {
@@ -890,6 +894,7 @@ function Crawl(props) {
             height: 60,
           }}
         >
+          
           <h2
             style={{
               maxWidth: "80%",
@@ -899,18 +904,28 @@ function Crawl(props) {
           >
             Reviews
           </h2>
+          
         </div>
+        {allReviews.length == 0 && 
+          <div style={{marginTop:"1rem", marginBottom:"2rem"}}>
+            No Reviews yet... Be the first one to leave a review!
+            </div>}
         <div>
-          {allReviews.map((review) => (
-            <div>
-              <Rating
-                readonly
-                initialValue={parseFloat(review.rating)}
-                /* Available Props */
-              />
+          {allReviews.slice().reverse().map((review) => (
+            <div style={{paddingTop:"1rem", paddingBottom:"1.2rem", maxWidth:"820px"}}>
+              <div><span style={{fontSize:"1.1rem", fontWeight:"600"}}>{review.author}</span> </div>
+              <div>
+                <Rating
+                  readonly
+                  initialValue={parseFloat(review.rating)}
+                  size={26}
+                  /* Available Props */
+                />
+              </div>
+              <div>
               {review.text}
-              <br />
-              By {review.author}
+              </div>
+              
             </div>
           ))}
         </div>
