@@ -52,6 +52,16 @@ urlpatterns = [
         views.get_random_filtered_crawl,
         name="get_random_filtered_crawl",
     ),
+    path(
+        "review/<str:crawl_id>/",
+        views.review_crawl,
+        name="review_crawl",
+    ),
+    path(
+        "get_all_reviews/<str:crawl_id>/",
+        views.get_all_reviews,
+        name="get_all_reviews",
+    ),
 ]
 
 
