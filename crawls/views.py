@@ -3,7 +3,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.db import IntegrityError
 from django.http import HttpResponse
-from crawls.models import Crawl, Tag
+from crawls.models import Crawl, Tag, Review
 from api.models import User
 from api.decorators import is_protected_route
 
@@ -363,3 +363,61 @@ def get_random_filtered_crawl(request, query):
     except Exception as e:
         print(e)
         return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(["POST"])
+@is_protected_route
+def review_crawl(request, crawl_id):
+    try:
+        target_crawl = Crawl.objects.filter(id=crawl_id).exists()
+        if not target_crawl:
+            return Response(
+                {"error": "crawl does not exist."}, status=status.HTTP_400_BAD_REQUEST
+            )
+        target_crawl = Crawl.objects.get(id=crawl_id)
+        target_review = Review.objects.filter(
+            crawl=target_crawl, author=request.user
+        ).exists()
+        data = {
+            "crawl": target_crawl,
+            "author": request.user,
+            "text": request.data["text"] if request.data["text"] else "",
+            "rating": request.data["rating"],
+        }
+        if not target_review:
+            Review.objects.create(**data)
+        else:
+            target_review = Review.objects.get(crawl=target_crawl, author=request.user)
+            target_review.text = data["text"]
+            target_review.rating = data["rating"]
+            target_review.save()
+        return Response(status=status.HTTP_200_OK)
+    except Exception as e:
+        print(e)
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(["GET"])
+@is_protected_route
+def get_all_reviews(request, crawl_id):
+    try:
+        target_crawl = Crawl.objects.filter(id=crawl_id).exists()
+        if not target_crawl:
+            return Response(
+                {"error": "crawl does not exist."}, status=status.HTTP_400_BAD_REQUEST
+            )
+        target_crawl = Crawl.objects.get(id=crawl_id)
+        reviews = Review.objects.filter(crawl=target_crawl)
+        out = []
+        for review in reviews:
+            out.append(
+                {
+                    "text": review.text,
+                    "rating": review.rating,
+                    "author": review.author.username,
+                }
+            )
+        return Response(out)
+    except Exception as e:
+        print(e)
+        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)

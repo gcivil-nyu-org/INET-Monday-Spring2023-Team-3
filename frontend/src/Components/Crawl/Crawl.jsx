@@ -9,6 +9,7 @@ import {
   SearchInput,
   TimeIcon,
   SwapHorizontalIcon,
+  Textarea,
 } from "evergreen-ui";
 import { toaster } from "../../common";
 import {
@@ -21,8 +22,8 @@ import {
   Dropdown,
   Avatar,
   List,
-  Tag, 
-  Tooltip
+  Tag,
+  Tooltip,
 } from "antd";
 import { useEffect, useRef, useState } from "react";
 import { Link, useHistory, useParams } from "react-router-dom";
@@ -39,6 +40,7 @@ import {
   ClockCircleOutlined,
   SwapOutlined,
 } from "@ant-design/icons";
+import { Rating } from "react-simple-star-rating";
 import {
   secondsToHms,
   TRANSIT_TYPES,
@@ -65,6 +67,11 @@ function Crawl(props) {
   const [center, setCenter] = useState(null);
   const [locationsError, setLocationsError] = useState("");
   const [isShown, setIsShown] = useState(false);
+  const [rating, setRating] = useState(0);
+  const [review, setReview] = useState("");
+  const [allReviews, setAllReviews] = useState([]);
+  const [currUsername, setCurrUsername] = useState("");
+  const [hasSubmittedOnce, setHasSubmittedOnce] = useState(false)
 
   const onLoad = (ref) => (searchBox.current = ref);
   const onPlacesChanged = () => {
@@ -265,6 +272,61 @@ function Crawl(props) {
       console.log(e);
     }
   };
+  const isValidReview = () => {
+    if (rating == 0){
+       // if star was not clicked, throw error
+      toaster.danger("Error! Empty rating");
+      return false;
+    }
+    let author_id_to_find = currUsername;
+    //If this author already left a review, throw error
+    if (allReviews && allReviews.length > 0) {
+      const isAuthorIdPresent = allReviews.some(obj => obj.author === author_id_to_find);
+      if (isAuthorIdPresent){
+        toaster.danger("Error! Already posted a review.");
+        return false;
+      }
+    }
+    return true;
+  }
+
+
+  const postReview = async () => {
+    setHasSubmittedOnce(true)
+    if (review.trim() === "" || review.trim().length > 200) return;
+    if (isValidReview() == false){
+      console.log("Error!");
+      
+      return;
+    }
+    try {
+      await axios.post(
+        `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/review/${crawl_id}/`,
+        {
+          text: review.trim(),
+          rating: rating.toString(10),
+        }
+      );
+      toaster.success("Review posted!");
+      setReview("");
+      setRating(0);
+      getAllReviews();
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const getAllReviews = async () => {
+    try {
+      const { data } = await axios.get(
+        `${process.env.REACT_APP_SERVER_URL_PREFIX}/api/crawls/get_all_reviews/${crawl_id}/`
+      );
+      setAllReviews(data);
+      console.log(data)
+    } catch (e) {
+      console.log(e);
+    }
+  };
 
   const viewModeGmap = (
     <Pane style={{ display: "flex" }}>
@@ -278,7 +340,7 @@ function Crawl(props) {
       <Pane
         style={{
           width: 500,
-          height: 500,
+          height: "auto",
           overflow: "scroll",
           margin: "2rem",
         }}
@@ -518,6 +580,7 @@ function Crawl(props) {
 
   const getData = async () => {
     getProfile().then((currUserProfile) => {
+      setCurrUsername(currUserProfile.username)
       get_crawl_by_id().then((currCrawl) => {
         if (currUserProfile.username == currCrawl.author) {
           setIsCurrUserAuthor(true);
@@ -570,6 +633,7 @@ function Crawl(props) {
 
   useEffect(() => {
     getData();
+    getAllReviews();
   }, []);
 
   if (!isMounted) return <div></div>;
@@ -636,14 +700,14 @@ function Crawl(props) {
                 </Button>
               )}
             </div>
-            {crawlDetail.tags && 
-               <div style={{marginTop:"1rem"}}>
-               <Space size={[0, 8]} wrap>
-                {crawlDetail.tags && crawlDetail.tags.map((tag) => (
-                    <Tag>{tag}</Tag>
-                ))}
+            {crawlDetail.tags && (
+              <div style={{ marginTop: "1rem" }}>
+                <Space size={[0, 8]} wrap>
+                  {crawlDetail.tags &&
+                    crawlDetail.tags.map((tag) => <Tag>{tag}</Tag>)}
                 </Space>
-            </div>}
+              </div>
+            )}
             <div>
               <p>{crawlDetail.formattedDate}</p>
             </div>
@@ -757,6 +821,127 @@ function Crawl(props) {
             </Pane>
           </div>
         )}
+      </div>
+      <div key={1} style={{ padding: "32px", paddingTop: "1rem" }}>
+        <div
+          style={{
+            display: "flex",
+            maxWidth: "150px",
+            cursor: "pointer",
+          }}
+          className=""
+        >
+          {/* <Button type="primary" onClick={handleClickEditButton}>Edit
+                      <span
+                          style={{
+                          paddingLeft: "4px",
+                          verticalAlign: "text-top",
+                          }}
+                      >
+                          <EditIcon />
+                      </span>
+                  </Button> */}
+        </div>
+        <div
+          className="title-block"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            flexWrap: "wrap",
+            height: 60,
+          }}
+        >
+          <h2
+            style={{
+              maxWidth: "80%",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
+          >
+            Post your Review
+          </h2>
+        </div>
+        <div>
+          <div>
+            <Rating
+              onClick={setRating}
+              /* Available Props */
+            />
+          </div>
+          <div>
+
+            <Textarea
+              style={{
+                fontWeight: "bold",
+                fontSize: 16,
+                height: 64,
+                maxWidth: 1000,
+                minWidth: 1000,
+              }}
+              placeholder="Type your review..."
+              onChange={(e) => setReview(e.target.value)}
+              value={review}
+              isInvalid={hasSubmittedOnce && (review.trim() === "" || review.trim().length > 2000)}
+            />
+          </div>
+          {hasSubmittedOnce && review.trim() === "" && (
+                      <Text size={400} color="red600" style={{ fontWeight: "bold" }}>
+                      Required
+                    </Text>
+                    )}
+          {hasSubmittedOnce && review.trim().length > 2000 && (
+                      <Text size={400} color="red600" style={{ fontWeight: "bold" }}>
+                      Review cannot contain more than 200 characters
+                    </Text>
+                    )}
+        </div>
+        <div style={{marginTop: 8}}>
+          <Button onClick={postReview}>Submit</Button>
+        </div>
+        <div
+          className="title-block"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            flexWrap: "wrap",
+            height: 60,
+          }}
+        >
+          
+          <h2
+            style={{
+              maxWidth: "80%",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
+          >
+            Reviews
+          </h2>
+          
+        </div>
+        {allReviews.length == 0 && 
+          <div style={{marginTop:"1rem", marginBottom:"2rem"}}>
+            No Reviews yet... Be the first one to leave a review!
+            </div>}
+        <div>
+          {allReviews.slice().reverse().map((review) => (
+            <div style={{paddingTop:"1rem", paddingBottom:"1.2rem", maxWidth:"820px"}}>
+              <div><span style={{fontSize:"1.1rem", fontWeight:"600"}}>{review.author}</span> </div>
+              <div>
+                <Rating
+                  readonly
+                  initialValue={parseFloat(review.rating)}
+                  size={26}
+                  /* Available Props */
+                />
+              </div>
+              <div>
+              {review.text}
+              </div>
+              
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
