@@ -375,12 +375,14 @@ def review_crawl(request, crawl_id):
                 {"error": "crawl does not exist."}, status=status.HTTP_400_BAD_REQUEST
             )
         target_crawl = Crawl.objects.get(id=crawl_id)
-        target_review = Review.objects.filter(crawl=target_crawl, author=request.user).exists()
+        target_review = Review.objects.filter(
+            crawl=target_crawl, author=request.user
+        ).exists()
         data = {
             "crawl": target_crawl,
             "author": request.user,
             "text": request.data["text"] if request.data["text"] else "",
-            "rating": request.data["rating"]
+            "rating": request.data["rating"],
         }
         if not target_review:
             Review.objects.create(**data)
@@ -393,6 +395,7 @@ def review_crawl(request, crawl_id):
     except Exception as e:
         print(e)
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 @api_view(["GET"])
 @is_protected_route
@@ -407,11 +410,13 @@ def get_all_reviews(request, crawl_id):
         reviews = Review.objects.filter(crawl=target_crawl)
         out = []
         for review in reviews:
-            out.append({
-                "text": review.text,
-                "rating": review.rating,
-                "author": review.author.username
-            })
+            out.append(
+                {
+                    "text": review.text,
+                    "rating": review.rating,
+                    "author": review.author.username,
+                }
+            )
         return Response(out)
     except Exception as e:
         print(e)

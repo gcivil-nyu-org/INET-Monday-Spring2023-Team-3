@@ -5,41 +5,58 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('api', '0005_auto_20230505_0937'),
-        ('crawls', '0013_auto_20230416_1546'),
+        ("api", "0005_auto_20230505_0937"),
+        ("crawls", "0013_auto_20230416_1546"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='crawlpoint',
-            name='id',
-            field=models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID'),
+            model_name="crawlpoint",
+            name="id",
+            field=models.BigAutoField(
+                auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+            ),
         ),
         migrations.AlterField(
-            model_name='crawltag',
-            name='id',
-            field=models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID'),
+            model_name="crawltag",
+            name="id",
+            field=models.BigAutoField(
+                auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+            ),
         ),
         migrations.AlterField(
-            model_name='point',
-            name='id',
-            field=models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID'),
+            model_name="point",
+            name="id",
+            field=models.BigAutoField(
+                auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+            ),
         ),
         migrations.AlterField(
-            model_name='tag',
-            name='id',
-            field=models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID'),
+            model_name="tag",
+            name="id",
+            field=models.BigAutoField(
+                auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+            ),
         ),
         migrations.CreateModel(
-            name='Review',
+            name="Review",
             fields=[
-                ('id', models.AutoField(primary_key=True, serialize=False)),
-                ('text', models.CharField(max_length=1000)),
-                ('rating', models.CharField(max_length=3)),
-                ('author', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='api.user')),
-                ('crawl', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='crawls.crawl')),
+                ("id", models.AutoField(primary_key=True, serialize=False)),
+                ("text", models.CharField(max_length=1000)),
+                ("rating", models.CharField(max_length=3)),
+                (
+                    "author",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="api.user"
+                    ),
+                ),
+                (
+                    "crawl",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="crawls.crawl"
+                    ),
+                ),
             ],
         ),
     ]
