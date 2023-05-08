@@ -275,17 +275,42 @@ function Create() {
         );
       }
       if (res !== null && res.status === "OK") {
-        console.log(res);
         out.geocoded_waypoints.push(...res.geocoded_waypoints);
         out.routes[0].legs.push(...res.routes[0].legs);
-        out.routes[0].bounds.extend({
-          lng: res.routes[0].bounds.Ga.hi,
-          lat: res.routes[0].bounds.Ua.hi,
-        });
-        out.routes[0].bounds.extend({
-          lng: res.routes[0].bounds.Ga.lo,
-          lat: res.routes[0].bounds.Ua.lo,
-        });
+        let obj = {
+          lng: null, lat: null
+        }
+        for (var key in res.routes[0].bounds) {
+          if (res.routes[0].bounds[key].lo !== undefined){
+            if (obj.lat !== null) {
+              obj.lng = res.routes[0].bounds[key].lo
+            } else {
+              obj.lat = res.routes[0].bounds[key].lo
+            }
+          }
+        }
+        out.routes[0].bounds.extend(obj)
+        obj = {
+          lng: null, lat: null
+        }
+        for (var key in res.routes[0].bounds) {
+          if (res.routes[0].bounds[key].hi !== undefined){
+            if (obj.lat !== null) {
+              obj.lng = res.routes[0].bounds[key].hi
+            } else {
+              obj.lat = res.routes[0].bounds[key].hi
+            }
+          }
+        }
+        out.routes[0].bounds.extend(obj)
+        // out.routes[0].bounds.extend({
+        //   lng: res.routes[0].bounds.Ga.hi,
+        //   lat: res.routes[0].bounds.Ua.hi,
+        // });
+        // out.routes[0].bounds.extend({
+        //   lng: res.routes[0].bounds.Ga.lo,
+        //   lat: res.routes[0].bounds.Ua.lo,
+        // });
         out.time += res.routes[0].legs
           .map((x) => x.duration.value)
           .reduce((a, b) => a + b);
