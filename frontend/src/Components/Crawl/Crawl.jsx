@@ -71,6 +71,7 @@ function Crawl(props) {
   const [review, setReview] = useState("");
   const [allReviews, setAllReviews] = useState([]);
   const [currUsername, setCurrUsername] = useState("");
+  const [hasSubmittedOnce, setHasSubmittedOnce] = useState(false)
 
   const onLoad = (ref) => (searchBox.current = ref);
   const onPlacesChanged = () => {
@@ -291,6 +292,8 @@ function Crawl(props) {
 
 
   const postReview = async () => {
+    setHasSubmittedOnce(true)
+    if (review.trim() === "" || review.trim().length > 200) return;
     if (isValidReview() == false){
       console.log("Error!");
       
@@ -878,11 +881,21 @@ function Crawl(props) {
               placeholder="Type your review..."
               onChange={(e) => setReview(e.target.value)}
               value={review}
-              isInvalid={review.trim() === "" || review.trim().length > 10}
+              isInvalid={hasSubmittedOnce && (review.trim() === "" || review.trim().length > 2000)}
             />
           </div>
+          {hasSubmittedOnce && review.trim() === "" && (
+                      <Text size={400} color="red600" style={{ fontWeight: "bold" }}>
+                      Required
+                    </Text>
+                    )}
+          {hasSubmittedOnce && review.trim().length > 2000 && (
+                      <Text size={400} color="red600" style={{ fontWeight: "bold" }}>
+                      Review cannot contain more than 200 characters
+                    </Text>
+                    )}
         </div>
-        <div>
+        <div style={{marginTop: 8}}>
           <Button onClick={postReview}>Submit</Button>
         </div>
         <div
